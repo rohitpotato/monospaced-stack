@@ -25,7 +25,7 @@ services:
     container_name: backend
     healthcheck:
       test: [ "CMD", "curl", '-f', 'http://localhost:4000/health' ]
-      interval: 1m30s
+      interval: 30s
       timeout: 30s
       retries: 5
     image: backend
@@ -59,6 +59,9 @@ services:
       POSTGRES_DB: monospaced
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U rohit -d monospaced" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     ports:
       - 5432:5432
     volumes:
