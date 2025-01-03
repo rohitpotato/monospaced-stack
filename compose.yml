@@ -37,7 +37,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`api.rohitpotato.xyz`)"
-      - "traefik.http.routers.backend.entrypoints=web"
+      - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls.certresolver=le"
       - "traefik.http.services.backend.loadbalancer.server.port=4000"
     environment:
@@ -69,24 +69,23 @@ services:
     container_name: reverse-proxy
     image: traefik:v3.1
     command:
-      - "--providers.docker"
+      - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-      - "--entryPoints.websecure.address=:443"
-      - "--certificatesresolvers.le.acme.tlschallenge=true"
-      - "--certificatesresolvers.le.acme.email=rohit.mmm1996@gmail.com"
-      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
-      - "traefik.http.routers.traefik.tls.certresolver=le"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.le.acme.tlschallenge=true"
+      - "--certificatesresolvers.le.acme.email=rohit.mmm1996@gmail.com"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
       - "--accesslog=true"
       - "--accesslog.filepath=/var/log/traefik/access.log"
-      - "--api.insecure=true" # enable dashboard, not recommended for production
-      # - "traefik.http.middlewares.auth.basicauth.users=user:$(htpasswd -nb user password)"
-      - "traefik.http.routers.traefik.service=api@internal"
-      # - "com.centurylinklabs.watchtower.enable=true"
+      - "--api.dashboard=true"
+      - "--log.level=INFO"
       - "traefik.http.routers.traefik.rule=Host(`dashboard.rohitpotato.xyz`)"
       - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls.certresolver=le"
+      - "traefik.http.routers.traefik.service=api@internal"
     ports:
       - "80:80"
       - "443:443"
