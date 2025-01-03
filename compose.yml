@@ -82,10 +82,12 @@ services:
       - "--accesslog.filepath=/var/log/traefik/access.log"
       - "--api.dashboard=true"
       - "--log.level=INFO"
+      - "traefik.enable=true"
       - "traefik.http.routers.traefik.rule=Host(`dashboard.rohitpotato.xyz`)"
       - "traefik.http.routers.traefik.entrypoints=websecure"
       - "traefik.http.routers.traefik.tls.certresolver=le"
       - "traefik.http.routers.traefik.service=api@internal"
+      - "--api.insecure=true"
     ports:
       - "80:80"
       - "443:443"
