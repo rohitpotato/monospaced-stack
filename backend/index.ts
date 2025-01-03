@@ -7,6 +7,7 @@ import meRouter from "./src/routes/me";
 loadConfig();
 
 const port = Number(process.env.PORT) || 5001;
+console.log('Configured Port', port);
 
 const startServer = async () => {
 
