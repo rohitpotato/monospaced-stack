@@ -8,7 +8,7 @@ END $$;
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT FROM pg_database WHERE datname = 'monospaced') THEN
-        CREATE DATABASE mydb;
-        GRANT ALL PRIVILEGES ON DATABASE mydb TO rohit;
+        CREATE DATABASE monospaced;
+        GRANT ALL PRIVILEGES ON DATABASE monospaced TO rohit;
     END IF;
 END $$;
