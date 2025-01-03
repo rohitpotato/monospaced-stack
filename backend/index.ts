@@ -1,27 +1,18 @@
 import fastify from "fastify";
-import AutoLoad from "@fastify/autoload";
-
 require('dotenv').config()
 import { envToLogger } from "./config";
-import path from "path";
 import loadConfig from "./src/config";
 import meRouter from "./src/routes/me";
 
-const port = Number(process.env.PORT) || 5001;
-const host = String(process.env.API_HOST) || 'localhost';
-
 loadConfig();
+
+const port = Number(process.env.PORT) || 5001;
 
 const startServer = async () => {
 
     const server = fastify({
         logger: envToLogger[process.env.NODE_ENV === 'production' ? 'production' : 'development'],
     });
-
-    // Register middlewares
-    // server.register(formbody);
-    // server.register(cors);
-    // server.register(helmet);
 
     // Register routes
     server.register(meRouter, {
