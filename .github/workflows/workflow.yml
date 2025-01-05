@@ -1,0 +1,54 @@
+name: Deploy monospaced
+
+on:
+  push:
+    branches:
+      - main
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build_and_deploy:
+    name: Build and Publish Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login into registry
+        uses: docker/login-action
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Metadata
+        id: meta
+        uses: docker/metadata-action
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push frontend
+        run: |
+          docker build -t {{ env.REGISTRY }}/{{ env.IMAGE_NAME }}/frontend:${{ steps.meta.outputs.tag }} .
+          docker push {{ env.REGISTRY }}/{{ env.IMAGE_NAME }}/frontend:${{ steps.meta.outputs.tag }}
+
+      - name: Build and push backend
+        run: |
+          docker build -t {{ env.REGISTRY }}/{{ env.IMAGE_NAME }}/backend:${{ steps.meta.outputs.tag }} .
+          docker push {{ env.REGISTRY }}/{{ env.IMAGE_NAME }}/backend:${{ steps.meta.outputs.tag }}
+
+  pull_and_deploy_image:
+    name: Pull and Deploy Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Execute commands on VPS"
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          script: |
+            cd /var/www/monospaced-stack
+            docker compose pull
+            docker compose up -d
