@@ -31,13 +31,11 @@ jobs:
 
       - name: Build and push frontend
         run: |
-          docker buildx build -t {{ env.REGISTRY }}/{{ env.IMAGE_NAME }}/frontend:latest ./frontend
-          docker push {{ env.REGISTRY }}/{{ env.IMAGE_NAME }}/frontend:latest
+          docker buildx build --file ./frontend.dockerfile --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:${{ steps.meta.outputs.tags }} --push ./frontend
 
       - name: Build and push backend
         run: |
-          docker buildx build -t {{ env.REGISTRY }}/{{ env.IMAGE_NAME }}/backend:latest ./backend
-          docker push {{ env.REGISTRY }}/{{ env.IMAGE_NAME }}/backend:latest
+          docker buildx build --file ./backend.dockerfile --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:${{ steps.meta.outputs.tags }} --push ./backend
 
   pull_and_deploy_image:
     needs: build_and_deploy
