@@ -2,6 +2,11 @@ version: '3.9'
 
 services:
   frontend:
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
     container_name: frontend
     image: ghcr.io/rohitpotato/monospaced-stack/frontend:latest
     build:
@@ -23,6 +28,11 @@ services:
 
   backend:
     container_name: backend
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
     healthcheck:
       test: [ "CMD", "curl", '-f', 'http://localhost:4000/health' ]
       interval: 30s
