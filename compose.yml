@@ -3,6 +3,7 @@ version: '3.9'
 services:
   frontend:
     deploy:
+      mode: replicated
       replicas: 2
       update_config:
         parallelism: 1
@@ -29,6 +30,7 @@ services:
   backend:
     container_name: backend
     deploy:
+      mode: replicated
       replicas: 2
       update_config:
         parallelism: 1
