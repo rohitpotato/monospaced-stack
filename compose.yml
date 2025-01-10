@@ -8,6 +8,12 @@ services:
       update_config:
         parallelism: 1
         delay: 10s
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.frontend.rule=Host(`rohitpotato.xyz`)"
+        - "traefik.http.routers.frontend.entrypoints=websecure"
+        - "traefik.http.routers.frontend.tls.certresolver=le"
+        - "traefik.http.services.frontend.loadbalancer.server.port=3000"
     container_name: frontend
     image: ghcr.io/rohitpotato/monospaced-stack/frontend:latest
     build:
@@ -18,12 +24,7 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:4000
     restart: always
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`rohitpotato.xyz`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.tls.certresolver=le"
-      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+   
     depends_on:
       - backend
 
@@ -35,6 +36,12 @@ services:
       update_config:
         parallelism: 1
         delay: 10s
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.backend.rule=Host(`api.rohitpotato.xyz`)"
+        - "traefik.http.routers.backend.entrypoints=websecure"
+        - "traefik.http.routers.backend.tls.certresolver=le"
+        - "traefik.http.services.backend.loadbalancer.server.port=4000"
     healthcheck:
       test: [ "CMD", "curl", '-f', 'http://localhost:4000/health' ]
       interval: 30s
@@ -46,12 +53,7 @@ services:
       dockerfile: backend.dockerfile
     ports:
       - 4000:4000
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`api.rohitpotato.xyz`)"
-      - "traefik.http.routers.backend.entrypoints=websecure"
-      - "traefik.http.routers.backend.tls.certresolver=le"
-      - "traefik.http.services.backend.loadbalancer.server.port=4000"
+    
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://rohit:monospaced@db:5432/monospaced?schema=public
@@ -86,6 +88,7 @@ services:
     command:
       - "--api.dashboard=true" # Enable the dashboard
       - "--providers.docker=true" # Enable Docker as a provider
+      - "--providers.docker.swarmMode=true"
       - "--providers.docker.exposedbydefault=false" # Expose only explicitly configured services
       - "--entrypoints.web.address=:80" # HTTP entrypoint
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure" # Redirect HTTP to HTTPS
