@@ -136,17 +136,15 @@ services:
       mode: global
     networks:
       - proxy
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=rohit
-      - GF_USERS_ALLOW_SIGN_UP=false
-      - GF_USERS_AUTO_ASSIGN_ORG=true
-      - GF_USERS_AUTO_ASSIGN_ORG_ROLE=Viewer
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.grafana.rule=Host(`grafana.rohitpotato.xyz`)"
       - "traefik.http.routers.grafana.entrypoints=websecure"
       - "traefik.http.routers.grafana.tls.certresolver=le"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+    volumes:
+      - grafana_data:/var/lib/grafana # Persistent storage for Grafana
+      - ./grafana.ini:/etc/grafana/grafana.ini # Grafana configuration
 
 networks:
   proxy:
