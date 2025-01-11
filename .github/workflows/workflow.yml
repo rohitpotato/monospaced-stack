@@ -67,5 +67,6 @@ jobs:
           script: |
             cd /var/www/monospaced-stack
             docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+            git pull
             docker compose pull
             docker stack deploy --compose-file compose.yml monospaced
