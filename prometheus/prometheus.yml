@@ -8,9 +8,11 @@ scrape_configs:
         - "prometheus:9090"
     
   - job_name: 'cadvisor'
+    scrape_interval: 15s
     static_configs:
       - targets: ['cadvisor:8080']
 
   - job_name: 'node-exporter'
+    scrape_interval: 15s
     static_configs:
       - targets: ['node-exporter:9100']
