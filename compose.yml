@@ -80,7 +80,8 @@ services:
   reverse-proxy:
     image: traefik:v3.1
     command:
-      - "--providers.docker.swarmMode=true"
+      - "--providers.swarm.network=proxy"
+      - "--providers.swarm.endpoint=unix:///var/run/docker.sock"      
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
