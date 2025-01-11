@@ -61,7 +61,6 @@ services:
       - db
 
   db:
-    container_name: db
     image: postgres:14
     restart: always
     environment:
@@ -81,11 +80,10 @@ services:
       - ./db-init/:/docker-entrypoint-initdb.d/
 
   reverse-proxy:
-    container_name: reverse-proxy
     image: traefik:v3.1
     command:
-      - "--providers.docker=true" # Enable Docker as a provider
-      # - "--providers.docker.swarmMode=true" # Enable Docker Swarm as a provider
+      # - "--providers.docker=true" # Enable Docker as a provider
+      - "--providers.docker.swarmMode=true" # Enable Docker Swarm as a provider
       - "--providers.docker.exposedbydefault=false" # Expose only explicitly configured services
       - "--entrypoints.web.address=:80" # HTTP entrypoint
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure" # Redirect HTTP to HTTPS
