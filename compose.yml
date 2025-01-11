@@ -174,7 +174,7 @@ services:
       - proxy
 
   cadvisor: # for container metrics
-    image: google/cadvisor:v0.33.0
+    image: gcr.io/cadvisor/cadvisor:latest
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
