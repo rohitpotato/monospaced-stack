@@ -2,6 +2,10 @@ version: '3.9'
 
 services:
   frontend:
+    image: ghcr.io/rohitpotato/monospaced-stack/frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: frontend.dockerfile
     deploy:
       mode: replicated
       replicas: 2
@@ -14,20 +18,18 @@ services:
         - "traefik.http.routers.frontend.entrypoints=websecure"
         - "traefik.http.routers.frontend.tls.certresolver=le"
         - "traefik.http.services.frontend.loadbalancer.server.port=3000"
-    image: ghcr.io/rohitpotato/monospaced-stack/frontend:latest
-    build:
-      context: ./frontend
-      dockerfile: frontend.dockerfile
-    ports:
-      - 3000:3000
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:4000
-    restart: always
-   
+      - NEXT_PUBLIC_API_URL=http://backend:4000
+    networks:
+      - proxy
     depends_on:
       - backend
 
   backend:
+    image: ghcr.io/rohitpotato/monospaced-stack/backend:latest
+    build:
+      context: ./backend
+      dockerfile: backend.dockerfile
     deploy:
       mode: replicated
       replicas: 2
@@ -40,77 +42,74 @@ services:
         - "traefik.http.routers.backend.entrypoints=websecure"
         - "traefik.http.routers.backend.tls.certresolver=le"
         - "traefik.http.services.backend.loadbalancer.server.port=4000"
-    healthcheck:
-      test: [ "CMD", "curl", '-f', 'http://localhost:4000/health' ]
-      interval: 30s
-      timeout: 30s
-      retries: 5
-    image: ghcr.io/rohitpotato/monospaced-stack/backend:latest
-    build:
-      context: ./backend
-      dockerfile: backend.dockerfile
-    ports:
-      - 4000:4000
-    
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://rohit:monospaced@db:5432/monospaced?schema=public
       - EMAIL=rohit.212@icloud.com
       - PORT=4000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+    networks:
+      - proxy
     depends_on:
       - db
 
   db:
     image: postgres:14
-    restart: always
     environment:
       POSTGRES_USER: rohit
       PGUSER: rohit
       POSTGRES_PASSWORD: monospaced
       POSTGRES_DB: monospaced
+    deploy:
+      mode: global
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U rohit -d monospaced" ]
+      test: ["CMD-SHELL", "pg_isready -U rohit -d monospaced"]
       interval: 10s
       timeout: 5s
       retries: 3
-    ports:
-      - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./db-init/:/docker-entrypoint-initdb.d/
+      - ./db-init:/docker-entrypoint-initdb.d/
+    networks:
+      - proxy
 
   reverse-proxy:
     image: traefik:v3.1
     command:
-      - --providers.swarm.exposedByDefault=false
-      - --providers.swarm.network=proxy
-      - --providers.docker.exposedbydefault=false # Expose only explicitly configured services
-      - --entrypoints.web.address=:80 # HTTP entrypoint
-      - --entrypoints.web.http.redirections.entrypoint.to=websecure # Redirect HTTP to HTTPS
-      - --entrypoints.web.http.redirections.entrypoint.scheme=https
-      - --entrypoints.websecure.address=:443 # HTTPS entrypoint
-      - --certificatesresolvers.le.acme.email=rohit.mmm1996@gmail.com # Correct email
-      - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json # SSL cert storage
-      - --certificatesresolvers.le.acme.tlschallenge=true # TLS challenge for certs
-      - --api.dashboard=true # Enable the Traefik dashboard
-      - --accesslog=true # Enable access logs
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro" # Docker socket for service discovery
-      - "./letsencrypt:/letsencrypt" # Persistent storage for SSL certificates
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`dashboard.rohitpotato.xyz`)" # Dashboard router
-      - "traefik.http.routers.dashboard.entrypoints=websecure"
-      - "traefik.http.routers.dashboard.tls.certresolver=le"
-      - "traefik.http.routers.dashboard.service=api@internal"
+      - "--providers.docker.swarmMode=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--certificatesresolvers.le.acme.email=rohit.mmm1996@gmail.com"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.le.acme.tlschallenge=true"
+      - "--api.dashboard=true"
+      - "--accesslog=true"
     deploy:
       mode: global
       placement:
         constraints:
           - node.role == manager
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`dashboard.rohitpotato.xyz`)"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls.certresolver=le"
+      - "traefik.http.routers.dashboard.service=api@internal"
+    networks:
+      - proxy
 
 networks:
   proxy:
