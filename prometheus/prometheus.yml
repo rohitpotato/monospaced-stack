@@ -2,21 +2,23 @@ global:
   scrape_interval: "1m"
 
 scrape_configs:
-  - job_name: reverse-proxy
+  - job_name: prometheus
     static_configs:
       - targets:
-        - "reverse-proxy:9090"
+        - "prometheus:9090"
     
-  - job_name: node-exporter
+  - job_name: 'cadvisor'
+    scrape_interval: 5s
     dns_sd_configs:
-      - names:
-        - 'tasks.monitoring_node-exporter'
-        type: 'A'
-        port: 9100
+    - names:
+      - 'tasks.cadvisor'
+      type: 'A'
+      port: 8080
 
-  - job_name: cadvisor
+  - job_name: 'node-exporter'
+    scrape_interval: 5s
     dns_sd_configs:
-      - names:
-        - 'tasks.monitoring_cadvisor'
-        type: 'A'
-        port: 8080
+    - names:
+      - 'tasks.exporter'
+      type: 'A'
+      port: 9100

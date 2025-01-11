@@ -117,7 +117,7 @@ services:
       - proxy
   
   prometheus:
-    image: prom/prometheus:v2.30.3
+    image: prom/prometheus:v3.1.0
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
@@ -138,7 +138,7 @@ services:
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana/grafana:11.4.0
     deploy:
       mode: global
     networks:
@@ -152,9 +152,12 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana # Persistent storage for Grafana
       - ./grafana.ini:/etc/grafana/grafana.ini # Grafana configuration
+    depends_on:
+      - prometheus
+    restart: unless-stopped
 
   node-exporter:
-    image: prom/node-exporter:v1.3.1
+    image: prom/node-exporter:v1.8.2
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -169,7 +172,7 @@ services:
       - proxy
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.45.0
+    image: google/cadvisor:v0.33.0
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
