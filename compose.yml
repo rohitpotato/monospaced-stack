@@ -82,18 +82,18 @@ services:
   reverse-proxy:
     image: traefik:v3.1
     command:
-      # - "--providers.docker=true" # Enable Docker as a provider
-      - "--providers.docker.swarmMode=true" # Enable Docker Swarm as a provider
-      - "--providers.docker.exposedbydefault=false" # Expose only explicitly configured services
-      - "--entrypoints.web.address=:80" # HTTP entrypoint
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure" # Redirect HTTP to HTTPS
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-      - "--entrypoints.websecure.address=:443" # HTTPS entrypoint
-      - "--certificatesresolvers.le.acme.email=rohit.mmm1996@gmail.com" # Correct email
-      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json" # SSL cert storage
-      - "--certificatesresolvers.le.acme.tlschallenge=true" # TLS challenge for certs
-      - "--api.dashboard=true" # Enable the Traefik dashboard
-      - "--accesslog=true" # Enable access logs
+      - --providers.swarm.exposedByDefault=false
+      - --providers.swarm.network=proxy
+      - --providers.docker.exposedbydefault=false # Expose only explicitly configured services
+      - --entrypoints.web.address=:80 # HTTP entrypoint
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure # Redirect HTTP to HTTPS
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443 # HTTPS entrypoint
+      - --certificatesresolvers.le.acme.email=rohit.mmm1996@gmail.com # Correct email
+      - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json # SSL cert storage
+      - --certificatesresolvers.le.acme.tlschallenge=true # TLS challenge for certs
+      - --api.dashboard=true # Enable the Traefik dashboard
+      - --accesslog=true # Enable access logs
     ports:
       - "80:80"
       - "443:443"
@@ -106,6 +106,17 @@ services:
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.tls.certresolver=le"
       - "traefik.http.routers.dashboard.service=api@internal"
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+
+networks:
+  proxy:
+    name: proxy
+    driver: overlay
+    attachable: true
 
 volumes:
   pgdata: {}
