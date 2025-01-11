@@ -87,8 +87,8 @@ services:
     image: traefik:v3.1
     command:
       - "--api.dashboard=true" # Enable the dashboard
-      - "--providers.docker=true" # Enable Docker as a provider
-      - "--providers.docker.swarmMode=true"
+      # - "--providers.docker=true" # Enable Docker as a provider
+      - "--providers.docker.swarmMode=true" # Enable Docker Swarm as a provider
       - "--providers.docker.exposedbydefault=false" # Expose only explicitly configured services
       - "--entrypoints.web.address=:80" # HTTP entrypoint
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure" # Redirect HTTP to HTTPS
