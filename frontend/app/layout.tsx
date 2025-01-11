@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { Space_Mono } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "./_context/ThemeProvider";
 import InitThemeScript from "./InitThemeScript";
 import Head from "next/head";
 
-const spaceMono = Space_Mono({
-  variable: "--font-space-mono",
+const mono = JetBrains_Mono({
+  variable: "--font-jet-mono",
   subsets: ["latin"],
   weight: ["400"],
 });
@@ -26,9 +25,7 @@ export default function RootLayout({
       <Head>
         <InitThemeScript />
       </Head>
-      <body className={`${spaceMono.variable}  antialiased`}>
-        <ThemeProvider>{children}</ThemeProvider>
-      </body>
+      <body className={`${mono.variable}  antialiased`}>{children}</body>
     </html>
   );
 }

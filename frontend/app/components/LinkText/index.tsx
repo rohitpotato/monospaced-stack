@@ -8,7 +8,7 @@ const LinkText = (props: IProps) => {
   return (
     <Text
       as="a"
-      className="text-link dark:text-link cursor-pointer underline hover:no-underline"
+      className="text-link cursor-pointer underline hover:no-underline"
       {...rest}
     >
       {children}

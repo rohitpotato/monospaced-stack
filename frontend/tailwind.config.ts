@@ -10,7 +10,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'mono': "ui-monospace, monospace",
+        'mono': ['var(--font-jet-mono)'],
       },
       boxShadow: {
         'image': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 0, 0) 2px 2px 0px 0px',

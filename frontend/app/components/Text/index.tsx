@@ -16,7 +16,7 @@ function Text<T extends ElementType = "button">({
   return (
     <Component
       className={cn(
-        "text-[#000000] dark:text-white !tracking-[-.03em] font-normal font-mono leading-[18.2px] text-[13px]",
+        "text-[#000000] !tracking-[-.03em] font-normal font-mono leading-[18.2px] text-[13px]",
         className
       )}
       {...rest}
