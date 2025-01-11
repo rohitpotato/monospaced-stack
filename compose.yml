@@ -80,9 +80,9 @@ services:
   reverse-proxy:
     image: traefik:v3.1
     command:
-      - "--providers.swarm.network=proxy"
-      - "--providers.swarm.endpoint=unix:///var/run/docker.sock"      
-      - "--providers.docker.exposedbydefault=false"
+      - "--providers.swarm.network=proxy" # Use the network created above
+      - "--providers.swarm.endpoint=unix:///var/run/docker.sock"  # Use Docker socket
+      - "--providers.docker.exposedbydefault=false" # Don't expose every container
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
@@ -111,6 +111,42 @@ services:
       - "traefik.http.routers.dashboard.service=api@internal"
     networks:
       - proxy
+  
+  prometheus:
+    image: prom/prometheus:v2.30.3
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    deploy:
+      mode: global
+    volumes:
+      - prometheus_data:/prometheus # Persistent storage for metrics
+      - ./prometheus:/etc/prometheus # Prometheus configuration
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.rohitpotato.xyz`)"
+      - "traefik.http.routers.prometheus.entrypoints=websecure"
+      - "traefik.http.routers.prometheus.tls.certresolver=le"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+
+  grafana:
+    image: grafana/grafana:8.2.2
+    deploy:
+      mode: global
+    networks:
+      - proxy
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=rohit
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_USERS_AUTO_ASSIGN_ORG=true
+      - GF_USERS_AUTO_ASSIGN_ORG_ROLE=Viewer
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.rohitpotato.xyz`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls.certresolver=le"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
 
 networks:
   proxy:
@@ -121,3 +157,6 @@ networks:
 volumes:
   pgdata: {}
   letsencrypt:
+  prometheus_data:
+  grafana_data:
+
