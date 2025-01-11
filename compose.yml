@@ -138,7 +138,7 @@ services:
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
 
   grafana:
-    image: grafana/grafana/grafana:11.4.0
+    image: grafana/grafana:11.4.0
     deploy:
       mode: global
     networks:
@@ -156,7 +156,7 @@ services:
       - prometheus
     restart: unless-stopped
 
-  node-exporter:
+  node-exporter: # for host metrics
     image: prom/node-exporter:v1.8.2
     volumes:
       - /proc:/host/proc:ro
@@ -171,7 +171,7 @@ services:
     networks:
       - proxy
 
-  cadvisor:
+  cadvisor: # for container metrics
     image: google/cadvisor:v0.33.0
     volumes:
       - /:/rootfs:ro
