@@ -128,6 +128,7 @@ services:
     volumes:
       - prometheus_data:/prometheus # Persistent storage for metrics
       - ./prometheus:/etc/prometheus # Prometheus configuration
+      - ./alertmanager/alert.rules:/etc/alertmanager/alert.rules # Alert rules
     networks:
       - proxy
     labels:
@@ -169,7 +170,7 @@ services:
     deploy:
       mode: global
     ports:
-      - 9100:9100
+      - 9100:9100 # exposing ports so prometheus can scrape
     networks:
       - proxy
 
@@ -184,9 +185,25 @@ services:
     deploy:
       mode: global
     ports:
-      - 8088:8080
+      - 8088:8080 # exposing ports so prometheus can scrape
     networks:
       - proxy
+    
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    deploy:
+      mode: global
+    volumes:
+      - ./alertmanager:/etc/alertmanager
+      - ./alertmanager/entrypoint.sh:/usr/local/bin/entrypoint.sh
+    command:
+      - "--config.file=/etc/alertmanager/config.yml"
+      - "--storage.path=/alertmanager"
+    ports:
+      - 9093:9093
+    restart: always
+    entrypoint: ["/bin/sh", "/usr/local/bin/entrypoint.sh"]
+      
 
 networks:
   proxy:
@@ -199,4 +216,11 @@ volumes:
   letsencrypt:
   prometheus_data:
   grafana_data:
+  alertmanager:
 
+
+secrets:
+  alertmanager_smtp_user:
+    external: true
+  alertmanager_smtp_password:
+    external: true
