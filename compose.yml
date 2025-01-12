@@ -82,7 +82,7 @@ services:
     command:
       - "--providers.swarm.network=proxy" # Use the network created above
       - "--providers.swarm.endpoint=unix:///var/run/docker.sock"  # Use Docker socket
-      - "--providers.docker.exposedbydefault=false" # Don't expose every container
+      - "--providers.swarm.exposedbydefault=false" # Don't expose every container
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
@@ -107,6 +107,7 @@ services:
         - "traefik.http.routers.dashboard.entrypoints=websecure"
         - "traefik.http.routers.dashboard.tls.certresolver=le"
         - "traefik.http.routers.dashboard.service=api@internal"
+        - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
     ports:
       - "80:80"
       - "443:443"
