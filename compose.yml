@@ -17,7 +17,7 @@ services:
         - "traefik.http.routers.frontend.rule=Host(`rohitpotato.xyz`)"
         - "traefik.http.routers.frontend.entrypoints=websecure"
         - "traefik.http.routers.frontend.tls.certresolver=le"
-        - "traefik.http.services.frontend.loadbalancer.server.port=5173"
+        - "traefik.http.services.frontend.loadbalancer.server.port=3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://backend:4000
     networks:
@@ -74,6 +74,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    ports:
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db-init:/docker-entrypoint-initdb.d/
@@ -112,6 +114,9 @@ services:
         - "traefik.http.routers.dashboard.service=api@internal"
         - "traefik.http.services.reverse-proxy.loadbalancer.server.port=80"
         - "traefik.http.services.reverse-proxy.loadbalancer.server.port=443"
+    ports:
+      - "80:80"
+      - "443:443"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./letsencrypt:/letsencrypt"
@@ -138,6 +143,8 @@ services:
       - ./prometheus:/etc/prometheus # Prometheus configuration
     networks:
       - proxy
+    ports:
+      - 9090:9090
 
   grafana:
     image: grafana/grafana:11.4.0
@@ -157,6 +164,8 @@ services:
     depends_on:
       - prometheus
     restart: unless-stopped
+    ports:
+      - 3001:3000
 
   node-exporter: # for host metrics
     image: prom/node-exporter:v1.8.2
@@ -173,6 +182,8 @@ services:
       labels:
          - "traefik.enable=true"
          - "traefik.http.services.node-exporter.loadbalancer.server.port=9100"
+    ports:
+      - 9100:9100 # exposing ports so prometheus can scrape
     networks:
       - proxy
 
@@ -188,7 +199,9 @@ services:
       mode: global
       labels:
         - "traefik.enable=true"
-        - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
+        - "traefik.http.services.cadvisor.loadbalancer.server.port=9100"
+    ports:
+      - 8088:8080 # exposing ports so prometheus can scrape
     networks:
       - proxy
 
