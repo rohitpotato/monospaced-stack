@@ -17,7 +17,7 @@ services:
         - "traefik.http.routers.frontend.rule=Host(`rohitpotato.xyz`)"
         - "traefik.http.routers.frontend.entrypoints=websecure"
         - "traefik.http.routers.frontend.tls.certresolver=le"
-        - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+        - "traefik.http.services.frontend.loadbalancer.server.port=5173"
     environment:
       - NEXT_PUBLIC_API_URL=http://backend:4000
     networks:
@@ -112,9 +112,6 @@ services:
         - "traefik.http.routers.dashboard.service=api@internal"
         - "traefik.http.services.reverse-proxy.loadbalancer.server.port=80"
         - "traefik.http.services.reverse-proxy.loadbalancer.server.port=443"
-    ports:
-      - "80:80"
-      - "443:443"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./letsencrypt:/letsencrypt"
@@ -151,7 +148,7 @@ services:
         - "traefik.http.routers.grafana.rule=Host(`grafana.rohitpotato.xyz`)"
         - "traefik.http.routers.grafana.entrypoints=websecure"
         - "traefik.http.routers.grafana.tls.certresolver=le"
-        - "traefik.http.services.grafana.loadbalancer.server.port=3001"
+        - "traefik.http.services.grafana.loadbalancer.server.port=3000"
     networks:
       - proxy
     volumes:
@@ -176,8 +173,6 @@ services:
       labels:
          - "traefik.enable=true"
          - "traefik.http.services.node-exporter.loadbalancer.server.port=9100"
-    ports:
-      - 9100:9100 # exposing ports so prometheus can scrape
     networks:
       - proxy
 
@@ -194,8 +189,6 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
-    ports:
-      - 8088:8080 # exposing ports so prometheus can scrape
     networks:
       - proxy
 
