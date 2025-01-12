@@ -66,6 +66,9 @@ services:
       POSTGRES_DB: monospaced
     deploy:
       mode: global
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.services.db.loadbalancer.server.port=5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U rohit -d monospaced"]
       interval: 10s
@@ -101,18 +104,20 @@ services:
       placement:
         constraints:
           - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.dashboard.rule=Host(`dashboard.rohitpotato.xyz`)"
+        - "traefik.http.routers.dashboard.entrypoints=websecure"
+        - "traefik.http.routers.dashboard.tls.certresolver=le"
+        - "traefik.http.routers.dashboard.service=api@internal"
+        - "traefik.http.services.reverse-proxy.loadbalancer.server.port=80"
+        - "traefik.http.services.reverse-proxy.loadbalancer.server.port=443"
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./letsencrypt:/letsencrypt"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`dashboard.rohitpotato.xyz`)"
-      - "traefik.http.routers.dashboard.entrypoints=websecure"
-      - "traefik.http.routers.dashboard.tls.certresolver=le"
-      - "traefik.http.routers.dashboard.service=api@internal"
     networks:
       - proxy
   
@@ -125,30 +130,30 @@ services:
       - "--web.console.templates=/usr/share/prometheus/consoles"
     deploy:
       mode: global
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.prometheus.rule=Host(`prometheus.rohitpotato.xyz`)"
+        - "traefik.http.routers.prometheus.entrypoints=websecure"
+        - "traefik.http.routers.prometheus.tls.certresolver=le"
+        - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
     volumes:
       - prometheus_data:/prometheus # Persistent storage for metrics
       - ./prometheus:/etc/prometheus # Prometheus configuration
     networks:
       - proxy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.prometheus.rule=Host(`prometheus.rohitpotato.xyz`)"
-      - "traefik.http.routers.prometheus.entrypoints=websecure"
-      - "traefik.http.routers.prometheus.tls.certresolver=le"
-      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
 
   grafana:
     image: grafana/grafana:11.4.0
     deploy:
       mode: global
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.grafana.rule=Host(`grafana.rohitpotato.xyz`)"
+        - "traefik.http.routers.grafana.entrypoints=websecure"
+        - "traefik.http.routers.grafana.tls.certresolver=le"
+        - "traefik.http.services.grafana.loadbalancer.server.port=3001"
     networks:
       - proxy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`grafana.rohitpotato.xyz`)"
-      - "traefik.http.routers.grafana.entrypoints=websecure"
-      - "traefik.http.routers.grafana.tls.certresolver=le"
-      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
     volumes:
       - grafana_data:/var/lib/grafana # Persistent storage for Grafana
       - ./grafana.ini:/etc/grafana/grafana.ini # Grafana configuration
@@ -168,6 +173,9 @@ services:
       - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
     deploy:
       mode: global
+      labels:
+         - "traefik.enable=true"
+         - "traefik.http.services.node-exporter.loadbalancer.server.port=9100"
     ports:
       - 9100:9100 # exposing ports so prometheus can scrape
     networks:
@@ -183,6 +191,9 @@ services:
       - /dev/disk/:/dev/disk:ro
     deploy:
       mode: global
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
     ports:
       - 8088:8080 # exposing ports so prometheus can scrape
     networks:
