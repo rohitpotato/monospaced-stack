@@ -66,16 +66,11 @@ services:
       POSTGRES_DB: monospaced
     deploy:
       mode: global
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.services.db.loadbalancer.server.port=5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U rohit -d monospaced"]
       interval: 10s
       timeout: 5s
       retries: 3
-    ports:
-      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db-init:/docker-entrypoint-initdb.d/
@@ -112,8 +107,6 @@ services:
         - "traefik.http.routers.dashboard.entrypoints=websecure"
         - "traefik.http.routers.dashboard.tls.certresolver=le"
         - "traefik.http.routers.dashboard.service=api@internal"
-        - "traefik.http.services.reverse-proxy.loadbalancer.server.port=80"
-        - "traefik.http.services.reverse-proxy.loadbalancer.server.port=443"
     ports:
       - "80:80"
       - "443:443"
@@ -143,8 +136,6 @@ services:
       - ./prometheus:/etc/prometheus # Prometheus configuration
     networks:
       - proxy
-    ports:
-      - 9090:9090
 
   grafana:
     image: grafana/grafana:11.4.0
@@ -164,8 +155,6 @@ services:
     depends_on:
       - prometheus
     restart: unless-stopped
-    ports:
-      - 3001:3000
 
   node-exporter: # for host metrics
     image: prom/node-exporter:v1.8.2
@@ -182,8 +171,6 @@ services:
       labels:
          - "traefik.enable=true"
          - "traefik.http.services.node-exporter.loadbalancer.server.port=9100"
-    ports:
-      - 9100:9100 # exposing ports so prometheus can scrape
     networks:
       - proxy
 
@@ -199,9 +186,7 @@ services:
       mode: global
       labels:
         - "traefik.enable=true"
-        - "traefik.http.services.cadvisor.loadbalancer.server.port=9100"
-    ports:
-      - 8088:8080 # exposing ports so prometheus can scrape
+        - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
     networks:
       - proxy
 
