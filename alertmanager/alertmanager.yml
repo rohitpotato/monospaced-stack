@@ -1,50 +1,26 @@
-global: 
+global:
+  # SMTP server details
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'muzicluver603@gmail.com'
 
-    smtp_smarthost: 'smtp.gmail.com:587'
-    smtp_from: 'muzicluver603@gmail.com'
-    smtp_auth_username: '{{ with (readFile "/run/secrets/alertmanager_smtp_user") }}{{ . }}{{ end }}'
-    smtp_auth_password: '{{ with (readFile "/run/secrets/alertmanager_smtp_password") }}{{ . }}{{ end }}'
-    smtp_require_tls: true
+  # SMTP credentials loaded from Docker secrets
+  smtp_auth_username: '{{ with (readFile "/run/secrets/alertmanager_smtp_user") }}{{ . }}{{ end }}'
+  smtp_auth_password: '{{ with (readFile "/run/secrets/alertmanager_smtp_password") }}{{ . }}{{ end }}'
 
-    resolve_timeout: 1m
-    receivers:
-    - name: 'email-notification'
-      email_configs:
-        - to: 'rohit.mmm1996@gmail.com'
+  # Ensure TLS is used
+  smtp_require_tls: true
 
-    inhibit_rules:
-      - source_match:
-          severity: 'critical'
-        target_match:
-          severity: 'warning'
-        equal: ['alertname', 'cluster', 'service']
+route:
+  # Default route for all alerts
+  receiver: 'email-notification'
 
-    # route:
-    # receiver: 'slack-notifications'
+  # Match specific labels for routing if needed
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 5m
+  repeat_interval: 3h
 
-    # receivers:
-    #  - name: 'slack-notifications'
-    # slack_configs:
-    #   - channel: '#monospaced'
-    #     send_resolved: true
-    #     icon_url: https://avatars3.githubusercontent.com/u/3380462
-    #     title: |-
-    #       [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }} for {{ .CommonLabels.job }}
-    #       {{- if gt (len .CommonLabels) (len .GroupLabels) -}}
-    #         {{" "}}(
-    #         {{- with .CommonLabels.Remove .GroupLabels.Names }}
-    #           {{- range $index, $label := .SortedPairs -}}
-    #             {{ if $index }}, {{ end }}
-    #             {{- $label.Name }}="{{ $label.Value -}}"
-    #           {{- end }}
-    #         {{- end -}}
-    #         )
-    #       {{- end }}
-    #     text: >-
-    #       {{ range .Alerts -}}
-    #       *Alert:* {{ .Annotations.title }}{{ if .Labels.severity }} - `{{ .Labels.severity }}`{{ end }}
-    #       *Description:* {{ .Annotations.description }}
-    #       *Details:*
-    #         {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
-    #         {{ end }}
-    #       {{ end }}
+receivers:
+  - name: 'email-notification'
+    email_configs:
+      - to: 'rohit.mmm1996@gmail.com' # Replace with the recipient's email
