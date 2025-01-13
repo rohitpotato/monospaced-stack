@@ -1,11 +1,11 @@
 groups:
 - name: test-alerts
   rules:
-    - alert: InstanceDown
-      expr: up == 0
+    - alert: TestEmailNotification
+      expr: vector(1) # Always triggers
       for: 10s
       labels:
         severity: critical
       annotations:
-        summary: "Instance {{ $labels.instance }} is down"
-        description: "The instance {{ $labels.instance }} has been unreachable for more than 10 seconds."
+        summary: "Test Alert"
+        description: "This is a test alert to verify email notifications."
