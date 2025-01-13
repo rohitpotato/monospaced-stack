@@ -197,6 +197,8 @@ services:
     restart: unless-stopped
     volumes:
       - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    secrets:
+      - slack_api_url
     deploy:
       mode: global
       labels:
@@ -215,3 +217,6 @@ volumes:
   prometheus_data:
   grafana_data:
 
+secrets:
+  slack_api_url:
+    external: true
