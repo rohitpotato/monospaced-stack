@@ -198,7 +198,8 @@ services:
     volumes:
       - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
     secrets:
-      - slack_api_url
+      - alertmanager_smtp_user
+      - alertmanager_smtp_password
     deploy:
       mode: global
       labels:
@@ -218,5 +219,5 @@ volumes:
   grafana_data:
 
 secrets:
-  slack_api_url:
+  alertmanager_smtp_user:
     external: true
