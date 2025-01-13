@@ -204,6 +204,9 @@ services:
       mode: global
       labels:
         - "traefik.enable=true"
+        - "traefik.http.routers.alertmanager.rule=Host(`alert-manager.rohitpotato.xyz`)"
+        - "traefik.http.routers.alertmanager.entrypoints=websecure"
+        - "traefik.http.routers.alertmanager.tls.certresolver=le"
         - "traefik.http.services.alertmanager.loadbalancer.server.port=9093"
 
 networks:
