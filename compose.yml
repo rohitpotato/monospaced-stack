@@ -135,6 +135,7 @@ services:
     volumes:
       - prometheus_data:/prometheus # Persistent storage for metrics
       - ./prometheus:/etc/prometheus # Prometheus configuration
+      - ./alertmanager/alert-rules.yml:/etc/prometheus/alert-rules.yml # Alerting rules
     networks:
       - proxy
 
@@ -190,6 +191,17 @@ services:
         - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
     networks:
       - proxy
+    
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    restart: unless-stopped
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    deploy:
+      mode: global
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.services.alertmanager.loadbalancer.server.port=9093"
 
 networks:
   proxy:
