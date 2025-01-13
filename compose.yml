@@ -221,3 +221,5 @@ volumes:
 secrets:
   alertmanager_smtp_user:
     external: true
+  alertmanager_smtp_password:
+    external: true
