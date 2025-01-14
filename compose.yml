@@ -208,6 +208,8 @@ services:
         - "traefik.http.routers.alertmanager.entrypoints=websecure"
         - "traefik.http.routers.alertmanager.tls.certresolver=le"
         - "traefik.http.services.alertmanager.loadbalancer.server.port=9093"
+    networks:
+      - proxy
 
 networks:
   proxy:
