@@ -4,8 +4,8 @@ global:
   smtp_from: 'muzicluver603@gmail.com'
 
   # SMTP credentials loaded from Docker secrets
-  smtp_auth_username: '{{ with (readFile "/run/secrets/alertmanager_smtp_user") }}{{ . }}{{ end }}'
-  smtp_auth_password: '{{ with (readFile "/run/secrets/alertmanager_smtp_password") }}{{ . }}{{ end }}'
+  smtp_auth_username: 'muzicluver603@gmail.com'
+  smtp_auth_password_file: '/run/secrets/alertmanager_smtp_password'
 
   # Ensure TLS is used
   smtp_require_tls: true
