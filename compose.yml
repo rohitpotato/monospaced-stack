@@ -124,6 +124,7 @@ services:
       - "--storage.tsdb.path=/prometheus"
       - "--web.console.libraries=/usr/share/prometheus/console_libraries"
       - "--web.console.templates=/usr/share/prometheus/consoles"
+      - "--web.external-url=https://prometheus.rohitpotato.xyz"
     deploy:
       mode: global
       labels:
