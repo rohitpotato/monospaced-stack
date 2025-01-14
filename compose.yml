@@ -197,6 +197,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - "--web.external-url=https://alert-manager.rohitpotato.xyz"
     secrets:
       - alertmanager_smtp_user
       - alertmanager_smtp_password
