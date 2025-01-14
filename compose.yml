@@ -195,6 +195,10 @@ services:
     
   alertmanager:
     image: prom/alertmanager:v0.27.0
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=https://alert-manager.rohitpotato.xyz'
     restart: unless-stopped
     volumes:
       - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
