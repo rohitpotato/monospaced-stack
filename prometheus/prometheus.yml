@@ -25,3 +25,8 @@ scrape_configs:
     scrape_interval: 15s
     static_configs:
       - targets: ['node-exporter:9100']
+  
+  - job_name: 'otel-collector'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['otel-collector:8888']

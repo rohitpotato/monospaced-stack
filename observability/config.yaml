@@ -1,0 +1,27 @@
+receivers:
+  otlp:
+    protocols:
+      grpc: {}
+      http: {}
+
+exporters:
+  jaeger:
+    endpoint: "http://jaeger:14268/api/traces"
+  prometheus:
+    endpoint: "0.0.0.0:8888"
+  otlp:
+    endpoint: "http://otel-collector:4317"
+
+processors:
+  batch: {}
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [jaeger]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus]
