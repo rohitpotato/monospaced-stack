@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@opentelemetry/instrumentation-document-load": "^0.44.0",
+    "@opentelemetry/instrumentation-user-interaction": "^0.44.0"
+  }
+}
