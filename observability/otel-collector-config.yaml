@@ -1,8 +1,10 @@
 receivers:
   otlp:
     protocols:
-      grpc: {}
-      http: {}
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
 
 exporters:
   prometheus:
@@ -11,10 +13,8 @@ exporters:
     endpoint: "jaeger:4317"
     tls:
       insecure: true
-  logging: # Add debug logging
+  debug: # Replaced logging with debug exporter
     verbosity: detailed
-    sampling_initial: 1
-    sampling_thereafter: 1
 
 processors:
   batch:
@@ -29,7 +29,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp]
+      exporters: [otlp, debug]  # Updated to use debug exporter
     metrics:
       receivers: [otlp]
       processors: [batch]
