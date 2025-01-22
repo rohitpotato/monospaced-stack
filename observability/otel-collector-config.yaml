@@ -11,11 +11,20 @@ exporters:
     endpoint: "jaeger:4317"
     tls:
       insecure: true
+  logging: # Add debug logging
+    verbosity: detailed
+    sampling_initial: 1
+    sampling_thereafter: 1
 
 processors:
-  batch: {}
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
 
 service:
+  telemetry:
+    logs:
+      level: "debug"
   pipelines:
     traces:
       receivers: [otlp]
