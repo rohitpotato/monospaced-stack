@@ -19,7 +19,7 @@ export async function register() {
         });
 
         const exporter = new OTLPTraceExporter({
-            url: '/v1/traces'
+            url: 'http://otel-collector:4317/v1/traces'
         });
 
         provider.addSpanProcessor(new BatchSpanProcessor(exporter));
