@@ -3,6 +3,7 @@ require('dotenv').config()
 import { envToLogger } from "./config";
 import loadConfig from "./src/config";
 import meRouter from "./src/routes/me";
+import metricsPlugin from "fastify-metrics";
 
 loadConfig();
 
@@ -19,6 +20,9 @@ const startServer = async () => {
     server.register(meRouter, {
         prefix: '/api'
     })
+
+    // Register metrics plugin
+    server.register(metricsPlugin, { endpoint: '/metrics' });
 
     // Set error handler
     server.setErrorHandler((error, _request, reply) => {

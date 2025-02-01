@@ -30,3 +30,8 @@ scrape_configs:
     scrape_interval: 15s
     static_configs:
       - targets: ['otel-collector:8888']
+
+  - job_name: 'backend-metrics'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['backend:4000']

@@ -9,3 +9,15 @@ groups:
       annotations:
         summary: "Test Alert"
         description: "This is a test alert to verify email notifications."
+
+- name: service-health
+  rules:
+    - alert: BackendDown
+      expr: absent(up{job="backend-metrics"} == 1)
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Backend service is down"
+        description: "No metrics have been scraped from the backend for over 1 minute."
+
