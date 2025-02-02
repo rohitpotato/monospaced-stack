@@ -9,12 +9,12 @@ groups:
       annotations:
         summary: "Backend service is down"
         description: "No metrics have been scraped from the backend for over 1 minute."
-
+# does not exist
 - name: backend-errors
   rules:
     - alert: HighErrorRate
       expr: |
-        sum(rate(http_requests_total{status_code=~"4..|5.."}[1m])) 
+        sum(rate(http_requests_total{status_code=~"4..|5.."}[1m]))  
         / sum(rate(http_requests_total[1m])) > 0.05
       for: 1m
       labels:
@@ -28,7 +28,7 @@ groups:
   rules:
     - alert: HighErrorResponseDuration
       expr: |
-        histogram_quantile(0.95, sum(rate(http_request_duration_ms_bucket{status_code=~"4..|5.."}[1m])) by (le))
+        histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{status_code=~"4..|5.."}[1m])) by (le))
         > 1000
       for: 2m
       labels:

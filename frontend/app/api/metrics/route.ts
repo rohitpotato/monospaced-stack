@@ -3,7 +3,7 @@ import client from "prom-client";
 const collectDefaultMetrics = client.collectDefaultMetrics;
 const Registry = client.Registry;
 const register = new Registry();
-collectDefaultMetrics({ register, prefix: "monospaced_" });
+collectDefaultMetrics({ register });
 
 export async function GET() {
     const metrics = await register.metrics();
