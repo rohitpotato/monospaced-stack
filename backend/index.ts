@@ -25,6 +25,7 @@ const startServer = async () => {
     server.register(metricsPlugin, {
         endpoint: '/metrics', routeMetrics: {
             enabled: true,
+            registeredRoutesOnly: false,
         }
     });
 
