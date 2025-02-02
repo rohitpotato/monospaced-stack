@@ -22,7 +22,11 @@ const startServer = async () => {
     })
 
     // Register metrics plugin
-    server.register(metricsPlugin, { endpoint: '/metrics' });
+    server.register(metricsPlugin, {
+        endpoint: '/metrics', routeMetrics: {
+            enabled: true,
+        }
+    });
 
     // Set error handler
     server.setErrorHandler((error, _request, reply) => {
