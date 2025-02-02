@@ -14,6 +14,14 @@ const nextConfig: NextConfig = {
     ]
   },
   output: 'standalone',
+  rewrites: async () => {
+    return [
+      {
+        source: '/metrics',
+        destination: '/api/metrics',
+      },
+    ];
+  }
 };
 
 export default nextConfig;

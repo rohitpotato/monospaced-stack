@@ -1,15 +1,4 @@
 groups:
-- name: test-alerts
-  rules:
-    - alert: TestEmailNotification
-      expr: vector(1) # Always triggers
-      for: 10s
-      labels:
-        severity: critical
-      annotations:
-        summary: "Test Alert"
-        description: "This is a test alert to verify email notifications."
-
 - name: service-health
   rules:
     - alert: BackendDown
@@ -21,3 +10,40 @@ groups:
         summary: "Backend service is down"
         description: "No metrics have been scraped from the backend for over 1 minute."
 
+- name: backend-errors
+  rules:
+    - alert: HighErrorRate
+      expr: |
+        sum(rate(http_requests_total{status_code=~"4..|5.."}[1m])) 
+        / sum(rate(http_requests_total[1m])) > 0.05
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "High HTTP error rate on backend"
+        description: "More than 5% of HTTP requests are returning 4xx/5xx errors over the past minute."
+
+
+- name: backend-error-duration
+  rules:
+    - alert: HighErrorResponseDuration
+      expr: |
+        histogram_quantile(0.95, sum(rate(http_request_duration_ms_bucket{status_code=~"4..|5.."}[1m])) by (le))
+        > 1000
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Slow error responses on backend"
+        description: "95th percentile of error response times is above 1000ms for more than 2 minutes."
+
+- name: service-health
+  rules:
+    - alert: FrontendDown
+      expr: absent(up{job="frontend-metrics"} == 1)
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Frontend service is down"
+        description: "No metrics have been scraped from the Frontend for over 1 minute."
