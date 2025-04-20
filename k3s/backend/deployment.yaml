@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: monospaced
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+      spec:
+        containers:
+          - name: backend
+            image: ghcr.io/rohitpotato/monospaced-stack/backend:latest
+            ports:
+              - containerPort: 4000
+            env:
+              - name: DATABASE_URL
+                value: postgresql://postgres:postgres@postgres:5432/postgres
+              - name: PORT
+                value: "4000"
+                

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: monospaced
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+      spec:
+        containers:
+          - name: frontend
+            image: ghcr.io/rohitpotato/monospaced-stack/frontend:latest
+            ports:
+              - containerPort: 3000
+            env:
+              - name: NEXT_PUBLIC_API_URL
+                value: http://backend:4000
+            livenessProbe:
+              httpGet:
+                path: /api/_health
+                port: 4000
+              initialDelaySeconds: 30 # wait 30 seconds before starting the probe
+              periodSeconds: 30 # check every 30 seconds
+              failureThreshold: 3 # fail after 3 consecutive failures
+            readinessProbe:
+              httpGet:
+                path: /api/_health
+                port: 4000
+              initialDelaySeconds: 30 # wait 30 seconds before starting the probe
+              periodSeconds: 30
+              failureThreshold: 3 # fail after 3 consecutive failures

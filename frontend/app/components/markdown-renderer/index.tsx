@@ -2,6 +2,7 @@ import ImageWrapper from "@/app/components/Image";
 import Text from "@/app/components/Text";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import LinkText from "../LinkText";
 
 const MarkdownRenderer = ({
   markdown,
@@ -16,13 +17,13 @@ const MarkdownRenderer = ({
           return <Text className="italic">{props.children}</Text>;
         },
         p: (props) => {
-          return <Text as="a">{props.children}</Text>;
+          return <Text as="p">{props.children}</Text>;
         },
         li: (props) => {
-          return <Text as="a">{props.children}</Text>;
+          return props.children;
         },
         a: (props) => {
-          return props.children;
+          return <LinkText as="a" {...props} />;
         },
         img: (props) => {
           return (

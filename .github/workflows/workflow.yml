@@ -52,7 +52,8 @@ jobs:
       - name: Build and push backend
         run: |
           docker buildx build --file ./backend/backend.dockerfile --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:latest --push ./backend
-
+  # install cert manager, give certificate to the cluser
+  # apply ingress, service, deployment
   pull_and_deploy_image:
     needs: build_and_deploy
     name: Pull and Deploy Image
@@ -68,5 +69,6 @@ jobs:
             cd /var/www/monospaced-stack
             docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
             git pull
-            docker compose pull
-            docker stack deploy --compose-file compose.yml monospaced
+            kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.12.5/cert-manager.yaml  
+            kubectl apply -f k3s/cert-manager/cluster-issuer.yaml
+            kubectl apply -f k3s/ --recursive

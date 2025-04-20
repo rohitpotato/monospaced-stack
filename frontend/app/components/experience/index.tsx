@@ -45,9 +45,12 @@ const Experience = (props: IExperience) => {
         {/* Achievements */}
         <ul className="list-disc list-inside space-y-[6px]">
           {props.achievements.map((achievement) => (
-            <li key={achievement.title}>
-              <MarkdownRenderer markdown={achievement.title} />
-            </li>
+            // <li key={achievement.title}>
+            <MarkdownRenderer
+              key={achievement.title}
+              markdown={achievement.title}
+            />
+            // </li>
           ))}
         </ul>
       </div>
