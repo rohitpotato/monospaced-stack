@@ -24,14 +24,14 @@ spec:
           livenessProbe:
             httpGet:
               path: /api/_health
-              port: 4000
+              port: 3000
             initialDelaySeconds: 30 # wait 30 seconds before starting the probe
             periodSeconds: 30 # check every 30 seconds
             failureThreshold: 3 # fail after 3 consecutive failures
           readinessProbe:
             httpGet:
               path: /api/_health
-              port: 4000
+              port: 3000
             initialDelaySeconds: 30 # wait 30 seconds before starting the probe
             periodSeconds: 30
             failureThreshold: 3 # fail after 3 consecutive failures
