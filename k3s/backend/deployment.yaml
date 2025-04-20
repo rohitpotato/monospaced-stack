@@ -12,15 +12,15 @@ spec:
     metadata:
       labels:
         app: backend
-      spec:
-        containers:
-          - name: backend
-            image: ghcr.io/rohitpotato/monospaced-stack/backend:latest
-            ports:
-              - containerPort: 4000
-            env:
-              - name: DATABASE_URL
-                value: postgresql://postgres:postgres@postgres:5432/postgres
-              - name: PORT
-                value: "4000"
+    spec:
+      containers:
+        - name: backend
+          image: ghcr.io/rohitpotato/monospaced-stack/backend:latest
+          ports:
+            - containerPort: 4000
+          env:
+            - name: DATABASE_URL
+              value: postgresql://postgres:postgres@postgres:5432/postgres
+            - name: PORT
+              value: "4000"
                 
