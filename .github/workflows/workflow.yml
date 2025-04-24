@@ -69,6 +69,6 @@ jobs:
             cd /var/www/monospaced-stack
             docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
             git pull
-            kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.12.5/cert-manager.yaml  
+            kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.yaml  
             kubectl apply -f k3s/cert-manager/cluster-issuer.yaml
             kubectl apply -f k3s/ --recursive

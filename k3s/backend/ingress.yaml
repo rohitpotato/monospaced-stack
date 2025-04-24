@@ -3,7 +3,13 @@ kind: Ingress
 metadata:
   name: backend
   namespace: monospaced
+annotations:
+  cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
+  tls:
+    - hosts:
+      - api.rohitpotato.xyz
+      secretname: letsencrypt-prod
   rules:
     - host: api.rohitpotato.xyz
       http:
