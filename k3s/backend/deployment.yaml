@@ -16,6 +16,7 @@ spec:
       containers:
         - name: backend
           image: ghcr.io/rohitpotato/monospaced-stack/backend:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 4000
           env:
