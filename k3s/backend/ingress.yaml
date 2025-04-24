@@ -1,10 +1,10 @@
-annotations:
-  cert-manager.io/cluster-issuer: letsencrypt-prod
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: backend
   namespace: monospaced
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   rules:
   - host: api.rohitpotato.xyz
@@ -20,4 +20,4 @@ spec:
   tls:
   - hosts:
     - api.rohitpotato.xyz
-    secretname: letsencrypt-prod
+    secretName: letsencrypt-prod
