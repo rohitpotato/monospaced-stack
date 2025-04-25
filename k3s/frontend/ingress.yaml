@@ -4,7 +4,7 @@ metadata:
   name: frontend
   namespace: monospaced
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/cluster-issuer: letsencrypt
 spec:
   rules:
   - host: rohitpotato.xyz
