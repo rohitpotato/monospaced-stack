@@ -28,10 +28,10 @@ spec:
               mountPath: /etc/prometheus
             - name: data
               mountPath: /prometheus
-    volumes:
-      - name: config
-        configMap:
-          name: prometheus
-      - name: data
-        emptyDir: {}
+      volumes:
+        - name: config
+          configMap:
+            name: prometheus
+        - name: data
+          emptyDir: {}
       
