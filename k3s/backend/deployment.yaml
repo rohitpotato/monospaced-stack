@@ -13,6 +13,8 @@ spec:
       labels:
         app: backend
     spec:
+      nodeSelector:
+        role: master
       containers:
         - name: backend
           image: ghcr.io/rohitpotato/monospaced-stack/backend:latest

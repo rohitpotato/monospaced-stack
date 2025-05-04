@@ -20,3 +20,4 @@ spec:
   tls:
   - hosts:
     - prometheus.monospaced.xyz
+    secretName: letsencrypt-prod
