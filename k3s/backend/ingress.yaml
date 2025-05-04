@@ -4,6 +4,7 @@ metadata:
   name: backend
   namespace: monospaced
   annotations:
+    kubernetes.io/ingress.class: traefik
     cert-manager.io/cluster-issuer: letsencrypt
 spec:
   rules:
