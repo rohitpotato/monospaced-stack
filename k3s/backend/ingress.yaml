@@ -20,4 +20,4 @@ spec:
   tls:
   - hosts:
     - api.rohitpotato.xyz
-    secretName: letsencrypt-prod
+    secretName: backend-tls

@@ -20,4 +20,4 @@ spec:
   tls:
   - hosts:
     - rohitpotato.xyz
-    secretName: letsencrypt-prod
+    secretName: frontend-tls
