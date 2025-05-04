@@ -13,8 +13,6 @@ spec:
       labels:
         app: frontend
     spec:
-      nodeSelector:
-        role: master
       containers:
         - name: frontend
           image: ghcr.io/rohitpotato/monospaced-stack/frontend:latest

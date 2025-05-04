@@ -13,8 +13,6 @@ spec:
       labels:
         app: prometheus
     spec:
-      nodeSelector:
-        role: observability
       containers:
         - name: prometheus
           image: prom/prometheus:latest
