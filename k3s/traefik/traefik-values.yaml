@@ -19,6 +19,8 @@ additionalArguments:
   - "--api.dashboard=true"
   - "--entryPoints.web.http.redirections.entryPoint.to=websecure"
   - "--entryPoints.web.http.redirections.entryPoint.scheme=https"
+  - "--certificatesResolvers.le.acme.httpChallenge.entryPoint=web"
+
 
 deployment:
   enabled: true

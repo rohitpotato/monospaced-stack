@@ -18,7 +18,7 @@ spec:
               name: prometheus
               port:
                 number: 9090
-  tls:
-  - hosts:
-    - prometheus.rohitpotato.xyz
-    secretName: prometheus-tls
+  # tls:
+  # - hosts:
+  #   - prometheus.rohitpotato.xyz
+  #   secretName: prometheus-tls
