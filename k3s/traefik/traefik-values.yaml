@@ -19,13 +19,10 @@ additionalArguments:
   - "--api.dashboard=true"
   - "--entryPoints.web.http.redirections.entryPoint.to=websecure"
   - "--entryPoints.web.http.redirections.entryPoint.scheme=https"
-  - "--certificatesresolvers.le.acme.httpchallenge=true"
-  - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
-  - "--certificatesresolvers.le.acme.email=rohit.mmm1996@gmail.com"
-  - "--certificatesresolvers.le.acme.storage=/data/acme.json"
 
 deployment:
   enabled: true
+  hostNetwork: true
 
 service:
   enabled: false  # 🚫 disables LoadBalancer/NodePort service
