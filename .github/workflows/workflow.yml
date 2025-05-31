@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  release:
+    types: [published]
+  workflow_dispatch:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
@@ -28,9 +31,16 @@ jobs:
   build_and_deploy:
     name: Build and Publish Image
     runs-on: ubuntu-latest
+    outputs:
+      frontend_image: ${{ steps.image-refs.outputs.frontend_image }}
+      backend_image: ${{ steps.image-refs.outputs.backend_image }}
+      image_version: ${{ steps.image-refs.outputs.version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Login into registry
         uses: docker/login-action@v3.3.0
@@ -39,36 +49,105 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract Metadata
-        id: meta
+      - name: Extract Metadata for Frontend
+        id: meta-frontend
         uses: docker/metadata-action@v5.6.1
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+          labels: |
+            org.opencontainers.image.title=Monospaced Frontend
+            org.opencontainers.image.description=Frontend for Monospaced application
+
+      - name: Extract Metadata for Backend
+        id: meta-backend
+        uses: docker/metadata-action@v5.6.1
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+          labels: |
+            org.opencontainers.image.title=Monospaced Backend
+            org.opencontainers.image.description=Backend for Monospaced application
 
       - name: Build and push frontend
-        run: |
-          docker buildx build --file ./frontend/frontend.dockerfile --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:latest --push ./frontend
+        uses: docker/build-push-action@v5.1.0
+        with:
+          context: ./frontend
+          file: ./frontend/frontend.dockerfile
+          push: true
+          tags: ${{ steps.meta-frontend.outputs.tags }}
+          labels: ${{ steps.meta-frontend.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build and push backend
+        uses: docker/build-push-action@v5.1.0
+        with:
+          context: ./backend
+          file: ./backend/backend.dockerfile
+          push: true
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          labels: ${{ steps.meta-backend.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Output image references
+        id: image-refs
         run: |
-          docker buildx build --file ./backend/backend.dockerfile --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:latest --push ./backend
-  # install cert manager, give certificate to the cluser
-  # apply ingress, service, deployment
-  pull_and_deploy_image:
+          # Extract the first tag (primary version) from the metadata
+          FRONTEND_TAG=$(echo '${{ steps.meta-frontend.outputs.tags }}' | head -1)
+          BACKEND_TAG=$(echo '${{ steps.meta-backend.outputs.tags }}' | head -1)
+
+          # Extract version from tag
+          VERSION=$(echo "$FRONTEND_TAG" | cut -d: -f2)
+
+          echo "frontend_image=$FRONTEND_TAG" >> $GITHUB_OUTPUT
+          echo "backend_image=$BACKEND_TAG" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+          echo "Built images:"
+          echo "Frontend: $FRONTEND_TAG"
+          echo "Backend: $BACKEND_TAG"
+          echo "Version: $VERSION"
+
+  update_config_repo:
     needs: build_and_deploy
-    name: Pull and Deploy Image
+    name: Update Config Repository
     runs-on: ubuntu-latest
     steps:
-      - name: "Execute commands on VPS"
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            cd /var/www/monospaced-stack
-            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-            git pull
-            kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.yaml  
-            kubectl apply -f k3s/cert-manager/cluster-issuer.yaml
-            kubectl apply -f k3s/ --recursive
+      - name: Display built images
+        run: |
+          echo "Frontend Image: ${{ needs.build_and_deploy.outputs.frontend_image }}"
+          echo "Backend Image: ${{ needs.build_and_deploy.outputs.backend_image }}"
+          echo "Version: ${{ needs.build_and_deploy.outputs.image_version }}"
+
+      # PLACEHOLDER: Update your separate K3s config repository
+      - name: Update K3s config repository
+        run: |
+          echo "TODO: Clone config repository"
+          echo "TODO: Update image references in K3s manifests"
+          echo "TODO: Commit and push changes"
+          echo "TODO: Trigger deployment to VPS"
+
+          # Example structure for later implementation:
+          # git clone https://github.com/youruser/monospaced-config.git
+          # cd monospaced-config
+          # sed -i "s|image: .*frontend:.*|image: ${{ needs.build_and_deploy.outputs.frontend_image }}|g" k3s/frontend-deployment.yaml
+          # sed -i "s|image: .*backend:.*|image: ${{ needs.build_and_deploy.outputs.backend_image }}|g" k3s/backend-deployment.yaml
+          # git add .
+          # git commit -m "Update images to version ${{ needs.build_and_deploy.outputs.image_version }}"
+          # git push
