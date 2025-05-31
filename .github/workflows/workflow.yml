@@ -129,25 +129,20 @@ jobs:
     name: Update Config Repository
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Display built images
         run: |
           echo "Frontend Image: ${{ needs.build_and_deploy.outputs.frontend_image }}"
           echo "Backend Image: ${{ needs.build_and_deploy.outputs.backend_image }}"
           echo "Version: ${{ needs.build_and_deploy.outputs.image_version }}"
-
-      # PLACEHOLDER: Update your separate K3s config repository
-      - name: Update K3s config repository
+      - name: Update frontend image in k8s-apps repository
         run: |
-          echo "TODO: Clone config repository"
-          echo "TODO: Update image references in K3s manifests"
-          echo "TODO: Commit and push changes"
-          echo "TODO: Trigger deployment to VPS"
+          chmod +x scripts/update-image-tag.sh
+          ./scripts/update-image-tag.sh frontend "${{ needs.build_and_deploy.outputs.frontend_image }}"
 
-          # Example structure for later implementation:
-          # git clone https://github.com/youruser/monospaced-config.git
-          # cd monospaced-config
-          # sed -i "s|image: .*frontend:.*|image: ${{ needs.build_and_deploy.outputs.frontend_image }}|g" k3s/frontend-deployment.yaml
-          # sed -i "s|image: .*backend:.*|image: ${{ needs.build_and_deploy.outputs.backend_image }}|g" k3s/backend-deployment.yaml
-          # git add .
-          # git commit -m "Update images to version ${{ needs.build_and_deploy.outputs.image_version }}"
-          # git push
+      - name: Update backend image in k8s-apps repository
+        run: |
+          chmod +x scripts/update-image-tag.sh
+          ./scripts/update-image-tag.sh backend "${{ needs.build_and_deploy.outputs.backend_image }}"
