@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 application_name=$1
-env=$2
+path=$2
 image_tag=$3
 
 terminate() {
@@ -13,7 +13,7 @@ terminate() {
 
 usage() {
     cat <<EOF
-    Usage: $0 <application_name> <env> <image_tag>
+    Usage: $0 <application_name> <path> <image_tag>
     Example: $0 frontend production ghcr.io/monospaced-stack/monospaced-stack/frontend:latest
 EOF
 }
@@ -40,7 +40,7 @@ clone_repo_and_checkout_branch() {
 }
 
 update_image_tag() {
-    local target_dir="${application_name}"
+    local target_dir="${path}"
     local target_file="deployment.yaml"
     
     echo "Navigating to directory: $target_dir"
@@ -55,8 +55,8 @@ update_image_tag() {
     grep "image:" "$target_file" || echo "No image lines found"
     
     echo "Updating image tag..."
-    # More robust sed command that handles full image paths
-    if sed -i "s|image: .*${application_name}:.*|image: $image_tag|g" "$target_file"; then
+    # Simple approach: replace any line with "image: " followed by anything
+    if sed -i "s|image: .*|image: $image_tag|g" "$target_file"; then
         echo "Image tag updated successfully"
     else
         terminate "Failed to update image tag"
