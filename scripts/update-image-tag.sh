@@ -79,6 +79,10 @@ update_image_tag() {
     git push || terminate "Failed to push changes"
     
     echo "Successfully updated and pushed image tag for $application_name"
+
+    echo "Cleaning up..."
+    cd ..
+    rm -rf k8s-apps
 }
 
 configure_git
