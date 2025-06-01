@@ -140,9 +140,9 @@ jobs:
       - name: Update frontend image in k8s-apps repository
         run: |
           chmod +x scripts/update-image-tag.sh
-          ./scripts/update-image-tag.sh frontend "${{ needs.build_and_deploy.outputs.frontend_image }}"
+          ./scripts/update-image-tag.sh frontend production "${{ needs.build_and_deploy.outputs.frontend_image }}"
 
       - name: Update backend image in k8s-apps repository
         run: |
           chmod +x scripts/update-image-tag.sh
-          ./scripts/update-image-tag.sh backend "${{ needs.build_and_deploy.outputs.backend_image }}"
+          ./scripts/update-image-tag.sh backend production "${{ needs.build_and_deploy.outputs.backend_image }}"
