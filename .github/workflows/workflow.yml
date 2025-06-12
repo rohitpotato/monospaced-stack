@@ -80,7 +80,7 @@ jobs:
           url: ${{ secrets.VAULT_URL }}
           token: ${{ secrets.VAULT_TOKEN }}
           secrets: |
-            /v1/kv/data/monospaced/frontend *
+            kv/data/monospaced/frontend *
 
       - name: Write secrets to .env file
         if: steps.import-secrets.outcome == 'success'
