@@ -7,6 +7,9 @@ RUN apk add --no-cache libc6-compat
 RUN apk add --no-cache curl
 WORKDIR /app
 
+# Copy .env file
+COPY .env .env
+
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
 RUN \

@@ -55,11 +55,6 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
           labels: |
@@ -72,18 +67,34 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
           labels: |
             org.opencontainers.image.title=Monospaced Backend
             org.opencontainers.image.description=Backend for Monospaced application
 
+      - name: Login into vault
+        id: import-secrets
+        uses: hashicorp/vault-action@v2
+        with:
+          url: ${{ secrets.VAULT_URL }}
+          token: ${{ secrets.VAULT_TOKEN }}
+          secrets: |
+            /v1/kv/data/monospaced/frontend *
+
+      - name: Write secrets to .env file
+        if: steps.import-secrets.outcome == 'success'
+        run: |
+          cd frontend
+          echo "${{ steps.import-secrets.outputs }}" | while IFS='=' read -r key value; do
+            # Remove VAULT_SECRET_ prefix and write to .env
+            echo "${key#VAULT_SECRET_}=$value" >> .env
+          done
+          echo "Created .env file with the following keys:"
+          cut -d'=' -f1 .env
+
       - name: Build and push frontend
+        if: steps.import-secrets.outcome == 'success'
         uses: docker/build-push-action@v5.1.0
         with:
           context: ./frontend
@@ -95,6 +106,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build and push backend
+        if: steps.import-secrets.outcome == 'success'
         uses: docker/build-push-action@v5.1.0
         with:
           context: ./backend
@@ -108,11 +120,11 @@ jobs:
       - name: Output image references
         id: image-refs
         run: |
-          # Extract the first tag (primary version) from the metadata
-          FRONTEND_TAG=$(echo '${{ steps.meta-frontend.outputs.tags }}' | head -1)
-          BACKEND_TAG=$(echo '${{ steps.meta-backend.outputs.tags }}' | head -1)
+          # Extract SHA-based tag from the metadata
+          FRONTEND_TAG=$(echo '${{ steps.meta-frontend.outputs.tags }}' | grep 'sha-' | head -1)
+          BACKEND_TAG=$(echo '${{ steps.meta-backend.outputs.tags }}' | grep 'sha-' | head -1)
 
-          # Extract version from tag
+          # Extract version from tag (SHA)
           VERSION=$(echo "$FRONTEND_TAG" | cut -d: -f2)
 
           echo "frontend_image=$FRONTEND_TAG" >> $GITHUB_OUTPUT

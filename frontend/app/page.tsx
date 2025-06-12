@@ -225,6 +225,9 @@ export default function Home() {
           <Hero updates={updates} />
           <div className="mt-[4rem]">
             <ProfessionalExperience experiences={experience} />
+            <h3>
+              This secret is being served by vault: {process.env.IDENTIFIER}
+            </h3>
           </div>
           {/* Projects */}
           <div className="mt-[4rem]">
