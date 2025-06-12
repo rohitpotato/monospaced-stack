@@ -55,7 +55,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend
           tags: |
-            type=sha,prefix={{branch}}-
+            type=sha,prefix={{branch}}-,format=short  # e.g., main-<sha>
             type=raw,value=latest,enable={{is_default_branch}}
           labels: |
             org.opencontainers.image.title=Monospaced Frontend
@@ -67,7 +67,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend
           tags: |
-            type=sha,prefix={{branch}}-
+            type=sha,prefix={{branch}}-,format=short  # e.g., main-<sha>
             type=raw,value=latest,enable={{is_default_branch}}
           labels: |
             org.opencontainers.image.title=Monospaced Backend
@@ -120,12 +120,23 @@ jobs:
       - name: Output image references
         id: image-refs
         run: |
-          # Extract SHA-based tag from the metadata
-          FRONTEND_TAG=$(echo '${{ steps.meta-frontend.outputs.tags }}' | grep 'sha-' | head -1)
-          BACKEND_TAG=$(echo '${{ steps.meta-backend.outputs.tags }}' | grep 'sha-' | head -1)
+          # Debug: Print raw tags
+          echo "Frontend tags: ${{ steps.meta-frontend.outputs.tags }}"
+          echo "Backend tags: ${{ steps.meta-backend.outputs.tags }}"
 
-          # Extract version from tag (SHA)
-          VERSION=$(echo "$FRONTEND_TAG" | cut -d: -f2)
+          # Extract SHA-based tag (e.g., main-<sha>)
+          FRONTEND_TAG=$(echo "${{ steps.meta-frontend.outputs.tags }}" | tr ',' '\n' | grep "${{ github.ref_name }}-" | head -1)
+          BACKEND_TAG=$(echo "${{ steps.meta-backend.outputs.tags }}" | tr ',' '\n' | grep "${{ github.ref_name }}-" | head -1)
+
+          # Extract short SHA from tag (e.g., <sha> from main-<sha>)
+          VERSION=$(echo "$FRONTEND_TAG" | sed -E 's/.*:${{ github.ref_name }}-([0-9a-f]{7,}).*/\1/')
+
+          # Fallback if VERSION is empty
+          if [ -z "$VERSION" ]; then
+            VERSION=$(git rev-parse --short HEAD)
+            FRONTEND_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:${{ github.ref_name }}-$VERSION"
+            BACKEND_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:${{ github.ref_name }}-$VERSION"
+          fi
 
           echo "frontend_image=$FRONTEND_TAG" >> $GITHUB_OUTPUT
           echo "backend_image=$BACKEND_TAG" >> $GITHUB_OUTPUT
