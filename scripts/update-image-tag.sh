@@ -31,12 +31,17 @@ configure_git() {
 }
 
 clone_repo_and_checkout_branch() {
-    echo "Cloning k8s-apps repository..."
-    git clone git@github.com:rohitpotato/k8s-apps.git
-    cd k8s-apps
-    git checkout main
-    git pull
-    echo "Repository cloned and updated successfully"
+
+    if [[ -d "k8s-apps" ]]; then
+        git pull
+    else
+        echo "Cloning k8s-apps repository..."
+        git clone git@github.com:rohitpotato/k8s-apps.git
+        cd k8s-apps
+        git checkout main
+        git pull
+        echo "Repository cloned and updated successfully"
+    fi
 }
 
 update_image_tag() {

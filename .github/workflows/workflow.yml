@@ -73,22 +73,19 @@ jobs:
             org.opencontainers.image.title=Monospaced Backend
             org.opencontainers.image.description=Backend for Monospaced application
 
-      - name: Login into vault
+      - name: Fetch Vault secrets and Write write to frontend .env
         id: import-secrets
-        uses: hashicorp/vault-action@v2
-        with:
-          url: ${{ secrets.VAULT_URL }}
-          token: ${{ secrets.VAULT_TOKEN }}
-          secrets: |
-            kv/data/monospaced/frontend *
-
-      - name: Write secrets to .env file
-        if: steps.import-secrets.outcome == 'success'
+        env:
+          VAULT_ADDR: ${{ secrets.VAULT_URL }}
+          VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
         run: |
+          sudo apt-get update && sudo apt-get install -y jq
+          wget -q -O- https://releases.hashicorp.com/vault/1.17.2/vault_1.17.2_linux_amd64.zip | unzip - vault -
+          sudo mv vault /usr/local/bin/
           cd frontend
-          echo "${{ steps.import-secrets.outputs }}" | while IFS='=' read -r key value; do
-            # Remove VAULT_SECRET_ prefix and write to .env
-            echo "${key#VAULT_SECRET_}=$value" >> .env
+          secrets=$(vault kv list -format=json kv/metadata/monospaced/frontend/data/v1 | jq -r '.[]')
+          for secret in $secrets; do
+            vault kv get -format=json kv/data/monospaced/frontend/data/$secret | jq -r '.data.data | to_entries | .[] | "\(.key)=.\(.value)"' >> .env
           done
           echo "Created .env file with the following keys:"
           cut -d'=' -f1 .env
