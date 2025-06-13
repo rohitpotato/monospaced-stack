@@ -86,7 +86,7 @@ jobs:
         if: steps.import-secrets.outcome == 'success'
         run: |
           cd frontend
-          env | awk '{split($0,a,"="); print a[1] "=" a[2]}' > .env
+          env | awk '/^FCONFIG_/ {split($0,a,"="); print a[1] "=" a[2]}' > .env
           echo "Created .env"
           cat .env
 
