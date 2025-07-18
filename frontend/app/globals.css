@@ -2,36 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
-html.dark {
-  background-color: black;
+:root {
+  /* These will be dynamically set by ThemeContext.tsx */
+  --color-primary-accent: #44a08d;
+  --color-primary-accent-light: #66fcf1;
+  --color-primary-accent-dark: #3a8a7a;
+  --color-primary-glow: rgba(68, 160, 141, 0.5);
+  --color-primary-shadow: rgba(68, 160, 141, 0.3);
+  --color-dot-pattern: rgba(68, 160, 141, 0.2);
+
+  --color-background: #1a201c;
+  --color-background-secondary: #2a3430;
+  --color-border: #3a4a44;
+  --color-text-primary: #e0e0e0;
+  --color-text-secondary: #8f9c94;
+  --color-text-on-accent: #1a201c;
 }
 
-html.light {
-  background-color: white;
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-text);
 }
 
-.no-scrollbar {
-  scrollbar-width: none;
+body {
+  font-family: 'Roboto Mono', monospace;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  background-image: radial-gradient(var(--color-dot-pattern) 0.5px, transparent 0.5px);
+  background-size: 15px 15px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
-
-.animate-show-media {
-  animation: show-media 0.3s ease forwards;
-}
-
-@keyframes show-media {
-  0% {
-    opacity: 0;
-    visibility: hidden;
-  }
-  100% {
-    opacity: 1;
-    visibility: visible;
-  }
-}
-
 ::selection {
-  --tw-bg-opacity: 1;
-  background-color: rgb(248 180 228 / var(--tw-bg-opacity, 1));
-  --tw-text-opacity: 1;
-  color: rgb(0 0 0 / var(--tw-text-opacity, 1));
+background-color: var(--color-primary-accent);
+color: var(--color-text-on-accent);
 }
+
+/* Title text reveal animation */
+@keyframes char-reveal {
+0% {
+  opacity: 0;
+  transform: translateY(20px) scale(0.8);
+}
+100% {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+}
+.animate-char-reveal {
+display: inline-block;
+opacity: 0;
+animation: char-reveal 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Modal fade-in */
+@keyframes fade-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-fade-in { animation: fade-in 0.3s ease-out forwards; }

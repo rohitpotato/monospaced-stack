@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import InitThemeScript from "./InitThemeScript";
-import Head from "next/head";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import Header from "./components/Header";
 
 const mono = JetBrains_Mono({
   variable: "--font-jet-mono",
@@ -17,15 +17,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <Head>
-        <InitThemeScript />
-      </Head>
-      <body className={`${mono.variable}  antialiased`}>{children}</body>
+      <body className={`${mono.variable}  antialiased`}>
+        <ThemeProvider>
+          {<Header />}
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
