@@ -1,0 +1,59 @@
+---
+title: "The quest for control"
+publishedAt: "2025-07-18"
+summary: "Why I Switched from Frontend to Infrastructure: A Developer’s Quest for Control"
+---
+
+For a long time, I immersed myself in the world of frontend development—building interfaces that were intuitive, performant, and user-centric. I spent years crafting design systems, refining Core Web Vitals, and shaping the experience of fast-paced e-commerce platforms. It was deeply satisfying work, filled with challenges and creativity. But at some point, I felt a quiet shift—less like boredom, more like stagnation. The problems began to feel familiar. Different contexts, yes, but the same types of puzzles.
+
+What I was seeking wasn’t excitement—it was depth.
+
+As developers, we often specialize. We zoom in on our part of the stack, polish it, own it. For me, that was the frontend: the interface, the polish, the bridge to the user. But every time I watched a project deploy with a single command, I felt a disconnect. I knew how to build beautiful interfaces—but what actually happened after `git push`? Where did my code go? How did it become something someone could open in a browser across the world?
+
+I realized I had come to rely on abstractions I didn’t fully understand. Tools like Vercel or Netlify had smoothed over the rough edges, but also distanced me from the systems beneath. And it wasn’t about control or ego—it was about curiosity. The same kind of curiosity that makes you inspect a DOM node or benchmark a lazy-loaded component. I just wanted to understand, truly, how things worked under the hood.
+
+## A Quiet Discomfort
+
+There were moments—many of them—where I felt like an outsider. When discussions turned to things like Kubernetes, pods, scalability, or CI/CD pipelines, I found myself nodding along, not fully grasping what was being said. I could speak fluently about rendering strategies, browser behavior, and performance bottlenecks, but when it came to infrastructure, I was on the periphery.
+
+It wasn’t about feeling excluded by others; it was the discomfort of knowing there was an entire layer of my profession I had glossed over.
+
+I didn’t want to impress anyone. I wasn’t chasing titles. I just wanted to reach a place where I felt content—where I could understand the full journey of an application from idea to deployment. It was a personal challenge. A quiet “I can do this too.”
+
+## A Step Into the Unknown
+
+So I stepped out of the browser and into the world of infrastructure.
+
+I started small. I picked up two VPS servers from Netcup—modest machines, but enough to get my hands dirty. I chose K3s, a lightweight Kubernetes distribution, because it felt like a gentle way in. My goal wasn’t to build the perfect production system. It was to learn by doing—to see the moving parts, to fail, to tinker.
+
+And I did fail—often. Coming from React hooks and design tokens, SSH sessions and YAML files felt like another language. But when I ran `kubectl get nodes` and saw both my machines show up, it clicked. That quiet satisfaction of building something yourself returned—just in a new form.
+
+From there, I started exploring a few things:
+
+- **Cilium** for container networking and network policies
+- **ArgoCD** to understand GitOps and declarative deployments
+- **Vault** for secrets management in distributed systems
+- **Ansible** for automation and consistency across environments
+- **Prometheus** for monitoring and alerting
+- **Grafana** for visualization and dashboards
+- And more...
+
+Each tool revealed a little more about the world beneath the surface—and each one reshaped the way I thought about building software.
+
+## It’s Not a Career Shift. It’s a Perspective Shift.
+
+This journey hasn’t been about leaving frontend behind. It’s about expanding the lens. We’re not just crafting UIs—we’re building experiences that live on complex, interdependent systems. Knowing how those systems work doesn’t just make you more capable; it makes you more empathetic toward the craft of software as a whole. You begin to ask better questions—not just “does it work?” but “is it resilient?”, “is it secure?”, “will it scale?”
+
+If you’re a developer who’s ever paused and wondered what really happens behind the scenes, this series is for you. Whether you’ve been pushing pixels or pushing code, you don’t need to be an expert to begin. I wasn’t. I just had questions and a desire to connect the dots between what I built and where it lived.
+
+Over the next few posts, I’ll share what I’ve learned—from standing up a K3s cluster to building a fully observable, production-grade stack with tools like Prometheus, Vault, and ArgoCD. Not to teach, but to share. Not to prescribe, but to explore.
+
+---
+
+### Try this
+
+If you're even slightly curious about the world behind your frontend, start with something tangible. Set up a local VM or rent a VPS. Run:
+
+```bash
+curl -sfL https://get.k3s.io | sh -
+```

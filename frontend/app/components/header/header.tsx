@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import ColorPicker from "./ColorPicker";
+import ColorPicker from "../color-picker/color-picker";
 import Link from "next/link";
 
 const Header: React.FC = () => {

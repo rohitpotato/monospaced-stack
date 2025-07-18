@@ -5,50 +5,6 @@ interface IconProps {
   className?: string;
 }
 
-export const LogoIcon: React.FC<IconProps> = ({ className = "" }) => (
-  <svg
-    width="60"
-    height="60"
-    viewBox="0 0 68 68"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className={className}
-  >
-    <defs>
-      <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop
-          offset="0%"
-          style={{ stopColor: "var(--color-primary-accent-light)" }}
-        />
-        <stop
-          offset="100%"
-          style={{ stopColor: "var(--color-primary-accent)" }}
-        />
-      </linearGradient>
-    </defs>
-    <path
-      d="M34 60.5C23.9 60.5 15.6 55.4 10.5 47.4C5.4 39.4 4 29.5 6.6 20.3C9.2 11.1 15.6 3.8 24.5 1.7C33.4 -0.4 42.9 2.7 49.6 9.4C56.3 16.1 59.4 25.6 57.3 34.5C55.2 43.4 47.9 49.8 38.7 52.4C40.6 47.5 41 42.4 40 37.5C39.1 32.8 36.8 28.5 33.5 25.2C30.2 21.9 25.9 19.6 21.2 18.6C16.3 17.7 11.2 18.2 6.6 20.3M24.5 1.7L25.8 5.4M49.6 9.4L46.8 12.2M34 60.5L34 66M6.6 20.3L1 21.6M57.3 34.5L64 34.5"
-      stroke="url(#logoGradient)"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M34 34L26 34M34 34L42 34M34 34L34 26M34 34L34 42M34 34L28 28M34 34L40 40M34 34L40 28M34 34L28 40"
-      stroke="url(#logoGradient)"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <path
-      d="M60.6 21.1C64.9 25.4 67.4 31.4 67.5 37.7C67.6 44 65.2 50.1 60.9 54.8C56.6 59.5 50.7 62.4 44.4 62.8C38.1 63.2 31.9 61.1 27.2 57.1"
-      stroke="url(#logoGradient)"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
 export const DocumentIcon: React.FC<IconProps> = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"

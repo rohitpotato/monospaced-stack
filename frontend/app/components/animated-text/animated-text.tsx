@@ -1,4 +1,5 @@
 import React from "react";
+import styles from "./animated-text.module.css";
 
 interface AnimatedTextProps {
   text: string;
@@ -25,7 +26,7 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
             {word.split("").map((char, charIndex) => (
               <span
                 key={`${wordIndex}-${charIndex}`}
-                className="animate-char-reveal inline-block"
+                className={styles.charReveal}
                 style={{ animationDelay: `${(wordStart + charIndex) * 0.03}s` }}
               >
                 {char}
@@ -33,7 +34,7 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
             ))}
             {wordIndex !== words.length - 1 && (
               <span
-                className="animate-char-reveal inline-block"
+                className={styles.charReveal}
                 style={{
                   animationDelay: `${(wordStart + word.length) * 0.03}s`,
                 }}
@@ -44,22 +45,6 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
           </span>
         );
       })}
-      <style jsx>{`
-        @keyframes charReveal {
-          0% {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-char-reveal {
-          animation: charReveal 0.5s ease-out forwards;
-          opacity: 0;
-        }
-      `}</style>
     </span>
   );
 };

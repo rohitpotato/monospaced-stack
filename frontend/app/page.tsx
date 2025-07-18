@@ -1,10 +1,10 @@
 import React from "react";
-import Ticker from "./components/Ticker";
-import ArticleCard from "./components/ArticleCard";
-import Footer from "./components/Footer";
+import Ticker from "./components/ticker/ticker";
+import ArticleCard from "./components/article-card/article-card";
+import Footer from "./components/footer/footer";
 import { getPostsFromCache } from "./lib/cache";
 import { Article } from "./types";
-import PageTitle from "./components/page-title";
+import PageTitle from "./components/page-title/page-title";
 
 export const revalidate = 3600; // Revalidate every hour
 

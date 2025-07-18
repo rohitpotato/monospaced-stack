@@ -41,7 +41,12 @@ const BlogSidebar: React.FC = () => {
   }, []);
 
   return (
-    <nav className="hidden lg:block fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 overflow-hidden">
+    <nav
+      className="hidden lg:block fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 overflow-hidden"
+      style={{
+        borderRight: "1px solid var(--color-border)",
+      }}
+    >
       <div className="h-full overflow-y-auto px-6">
         <ul className="space-y-2 py-6">
           {sections.map((section) => (

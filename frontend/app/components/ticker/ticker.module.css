@@ -1,0 +1,36 @@
+.tickerWrapper {
+  display: flex;
+  animation: marquee 12s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.tickerContainer:hover .tickerWrapper {
+  animation-play-state: paused;
+}
+
+.tickerItem {
+  padding: 0 0.75rem;
+  color: var(--color-text-secondary);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .tickerItem {
+    padding: 0 1.5rem;
+  }
+}
+
+.tickerItem:hover {
+  color: var(--color-primary-accent-hover);
+  text-shadow: 0 0 8px var(--color-primary-glow);
+  transform: scale(1.1);
+}

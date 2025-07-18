@@ -85,7 +85,7 @@ const getContrastYIQ = (hexcolor: string): string => {
   const rgb = hexToRgb(hexcolor);
   if (!rgb) return "#1a201c";
   const yiq = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
-  return yiq >= 128 ? "#111827" : "#FFFFFF"; // Using a dark gray for better aesthetics than pure black
+  return yiq >= 128 ? "#111827" : "#FFFFFF";
 };
 
 const adjustHslLightness = (hex: string, amount: number): string => {
@@ -117,16 +117,32 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     const { h, s, l } = hsl;
     const isLight = l > 0.6; // Use a brightness threshold to decide theme type
 
+    // Calculate hover accent color based on theme mode
+    const hoverAccentColor = isLight
+      ? adjustHslLightness(baseColor, -0.2) // Darker for light theme
+      : adjustHslLightness(baseColor, 0.2); // Lighter for dark theme
+
+    // Calculate dot pattern color - use contrasting color based on theme
+    const dotPatternColor = isLight
+      ? hslToHex(h, Math.min(s * 1.2, 1), 0.8) // Darker dots for light theme
+      : hslToHex(h, Math.min(s * 1.2, 1), 0.3); // Lighter dots for dark theme
+
+    const dotPatternRgb = hexToRgb(dotPatternColor) || rgb;
+
     const theme: { [key: string]: string } = {
       "--color-primary-accent": baseColor,
-      "--color-primary-accent-light": adjustHslLightness(baseColor, 0.15),
+      "--color-primary-accent-hover": hoverAccentColor,
       "--color-primary-accent-dark": adjustHslLightness(baseColor, -0.15),
-      "--color-primary-glow": `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`,
-      "--color-primary-shadow": `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3)`,
-      "--color-text-on-accent": getContrastYIQ(baseColor),
-      "--color-dot-pattern": `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${
-        isLight ? 0.1 : 0.2
+      "--color-primary-glow": `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${
+        isLight ? 0.3 : 0.5
       })`,
+      "--color-primary-shadow": `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${
+        isLight ? 0.2 : 0.3
+      })`,
+      "--color-text-on-accent": getContrastYIQ(baseColor),
+      "--color-dot-pattern": `rgba(${dotPatternRgb.r}, ${dotPatternRgb.g}, ${
+        dotPatternRgb.b
+      }, ${isLight ? 0.15 : 0.25})`,
     };
 
     if (isLight) {
@@ -134,20 +150,24 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
       Object.assign(theme, {
         "--color-background": hslToHex(h, s * 0.2, 0.98),
         "--color-background-secondary": hslToHex(h, s * 0.2, 0.94),
+        "--color-background-hover": hslToHex(h, s * 0.3, 0.9), // Slightly darker on hover
         "--color-border": hslToHex(h, s * 0.2, 0.88),
         "--color-text-primary": hslToHex(h, s * 0.5, 0.1),
         "--color-text-secondary": hslToHex(h, s * 0.3, 0.3),
-        "--color-error": "#c53030", // dark red for high contrast on light backgrounds
+        "--color-text-hover": hslToHex(h, s * 0.5, 0.05), // Darker text on hover
+        "--color-error": "#c53030",
       });
     } else {
       // Generate a dark theme from the base color's hue
       Object.assign(theme, {
         "--color-background": hslToHex(h, s * 0.2, 0.1),
         "--color-background-secondary": hslToHex(h, s * 0.2, 0.15),
+        "--color-background-hover": hslToHex(h, s * 0.3, 0.2), // Slightly lighter on hover
         "--color-border": hslToHex(h, s * 0.2, 0.22),
         "--color-text-primary": hslToHex(h, s * 0.1, 0.92),
         "--color-text-secondary": hslToHex(h, s * 0.1, 0.65),
-        "--color-error": "#fca5a5", // light red (Tailwind's red-300) for high contrast on dark backgrounds
+        "--color-text-hover": hslToHex(h, s * 0.2, 0.95), // Lighter text on hover
+        "--color-error": "#fca5a5",
       });
     }
 

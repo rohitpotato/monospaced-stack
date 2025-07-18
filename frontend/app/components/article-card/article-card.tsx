@@ -1,8 +1,9 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import AnimatedText from "./AnimatedText";
-import { DocumentIcon } from "./icons";
+import AnimatedText from "../animated-text/animated-text";
+import { DocumentIcon } from "../icons";
+import styles from "./article-card.module.css";
 
 interface ArticleCardProps {
   article: {
@@ -20,20 +21,10 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
 
   return (
     <div className="p-0" style={{ breakInside: "avoid" }}>
-      <Link
-        href={link}
-        className="block group p-6 border-b border-r transition-all duration-300"
-        style={{
-          borderColor: "var(--color-border)",
-          backgroundColor: "var(--color-background)",
-        }}
-      >
+      <Link href={link} className={styles.articleLink}>
         <div className="flex flex-col">
           <div className="h-24 flex items-center justify-center mb-6">
-            <div
-              className="w-16 h-16 transition-all duration-300"
-              style={{ color: "var(--color-text-secondary)" }}
-            >
+            <div className={styles.icon}>
               <Icon className="w-full h-full" />
             </div>
           </div>
@@ -52,17 +43,6 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
           </p>
         </div>
       </Link>
-      <style jsx>{`
-        a:hover {
-          background-color: var(--color-background-secondary);
-          box-shadow: inset 0 0 20px var(--color-primary-shadow);
-        }
-        a:hover :global(div) {
-          color: var(--color-primary-accent-light);
-          transform: scale(1.1);
-          filter: drop-shadow(0 0 8px var(--color-primary-glow));
-        }
-      `}</style>
     </div>
   );
 };

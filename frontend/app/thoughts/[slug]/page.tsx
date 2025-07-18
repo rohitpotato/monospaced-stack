@@ -1,7 +1,7 @@
 import { getPost } from "../../lib/mdx";
 import { notFound } from "next/navigation";
-import BlogHeader from "../../components/BlogHeader";
-import BlogSidebar from "../../components/blog-sidebar";
+import BlogHeader from "../../components/blog-header/blog-header";
+import BlogSidebar from "../../components/blog-sidebar/blog-sidebar";
 
 type ThoughtPageProps = {
   params: Promise<{

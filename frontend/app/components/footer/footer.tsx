@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import { FOOTER_CATEGORIES } from "../constants";
-import { FooterLink } from "../types";
+import { FOOTER_CATEGORIES } from "../../constants";
+import { FooterLink } from "../../types";
 
 const LinkItem: React.FC<{ link: FooterLink; isSubLink?: boolean }> = ({
   link,
