@@ -9,8 +9,13 @@ const rootDirectory = path.join(process.cwd(), 'content/thoughts');
 export type Frontmatter = {
     title: string;
     publishedAt: string;
+    updatedAt?: string;
     summary: string;
+    description?: string;
+    excerpt?: string;
     image?: string;
+    coverImage?: string;
+    tags?: string[];
 };
 
 export async function getPost(slug: string) {
