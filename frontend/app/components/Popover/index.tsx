@@ -7,7 +7,6 @@ import {
   useRef,
   useState,
 } from "react";
-import Text from "../Text";
 
 type IProps = {
   open: boolean;
@@ -88,7 +87,7 @@ const PopOver = (props: IProps) => {
         >
           {/* header */}
           <div className="flex justify-between bg-black p-2  title-bar items-center">
-            <Text className="text-[11px] text-white">{title}</Text>
+            <span className="text-[11px] text-white">{title}</span>
             <button
               className="text-white"
               aria-label="close"

@@ -3,15 +3,16 @@ import { notFound } from "next/navigation";
 import BlogHeader from "../../components/BlogHeader";
 import BlogSidebar from "../../components/blog-sidebar";
 
-interface PageProps {
-  params: {
+type ThoughtPageProps = {
+  params: Promise<{
     slug: string;
-  };
-}
+  }>;
+};
 
-export default async function BlogPost({ params }: PageProps) {
+export default async function BlogPost({ params }: ThoughtPageProps) {
   try {
-    const { meta, content } = await getPost(params.slug);
+    const { slug } = await params;
+    const { meta, content } = await getPost(slug);
 
     return (
       <div className="relative min-h-screen">
