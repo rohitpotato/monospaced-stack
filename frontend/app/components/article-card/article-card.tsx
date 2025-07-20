@@ -4,6 +4,7 @@ import Link from "next/link";
 import AnimatedText from "../animated-text/animated-text";
 import { DocumentIcon } from "../icons";
 import styles from "./article-card.module.css";
+import { recordEvent } from "@/app/_utils/record-event";
 
 interface ArticleCardProps {
   article: {
@@ -21,7 +22,11 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
 
   return (
     <div className="p-0" style={{ breakInside: "avoid" }}>
-      <Link href={link} className={styles.articleLink}>
+      <Link
+        onClick={() => recordEvent("article-card-click", { url: link, title })}
+        href={link}
+        className={styles.articleLink}
+      >
         <div className="flex flex-col">
           <div className="h-24 flex items-center justify-center mb-6">
             <div className={styles.icon}>

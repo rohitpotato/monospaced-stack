@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -114,6 +115,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <Script
+        src="https://analytics.rohitpotato.xyz/script.js"
+        data-website-id="94df3d9d-929c-4095-a309-ece2e6d5bbe1"
+      />
       <body className={`${mono.variable} antialiased`}>
         <ThemeProvider>
           {<Header />}
