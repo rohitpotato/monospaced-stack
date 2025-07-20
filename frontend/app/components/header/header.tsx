@@ -2,6 +2,7 @@
 import React from "react";
 import ColorPicker from "../color-picker/color-picker";
 import Link from "next/link";
+import StatsIcon from "@/app/_icons/stats";
 
 const Header: React.FC = () => {
   return (
@@ -21,6 +22,12 @@ const Header: React.FC = () => {
         >
           <Link href="/">DIGITAL BACKYARD</Link>
           <div className="flex items-center gap-2 sm:gap-4">
+            <a
+              target="_blank"
+              href="https://analytics.rohitpotato.xyz/share/hngHuG0JCGdsYDU3/rohitpotato.xyz"
+            >
+              <StatsIcon />
+            </a>
             <a
               href="#"
               className="transition-colors px-2 py-1"
