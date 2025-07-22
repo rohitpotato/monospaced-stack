@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
 
-interface IconProps {
-  className?: string;
-}
+export type IconProps = React.SVGProps<SVGSVGElement> & {
+  size?: number;
+};
 
-export const DocumentIcon: React.FC<IconProps> = ({ className = "" }) => (
+export const Document: React.FC<IconProps> = ({ size, ...rest }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
@@ -14,7 +14,13 @@ export const DocumentIcon: React.FC<IconProps> = ({ className = "" }) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className={className}
+    style={{
+      fill: "var(--color-primary-accent)",
+      transition: "fill 0.3s ease",
+      minWidth: size,
+      minHeight: size,
+    }}
+    {...rest}
   >
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
     <polyline points="14 2 14 8 20 8" />
@@ -24,7 +30,7 @@ export const DocumentIcon: React.FC<IconProps> = ({ className = "" }) => (
   </svg>
 );
 
-export const JuiceIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+export const Juice: React.FC<IconProps> = ({ size, ...rest }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -35,7 +41,13 @@ export const JuiceIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    {...props}
+    style={{
+      fill: "var(--color-primary-accent)",
+      transition: "fill 0.3s ease",
+      minWidth: size,
+      minHeight: size,
+    }}
+    {...rest}
   >
     <path d="M8 2h8v2H8z"></path>
     <path d="M9 4v16a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V4"></path>
@@ -44,7 +56,7 @@ export const JuiceIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-export const Css3DIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+export const Css3D: React.FC<IconProps> = ({ size, ...rest }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -55,7 +67,13 @@ export const Css3DIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    {...props}
+    style={{
+      fill: "var(--color-primary-accent)",
+      transition: "fill 0.3s ease",
+      minWidth: size,
+      minHeight: size,
+    }}
+    {...rest}
   >
     <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
     <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
@@ -63,9 +81,7 @@ export const Css3DIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-export const AnimateSphereIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
-  props
-) => (
+export const AnimateSphere: React.FC<IconProps> = ({ size, ...rest }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -76,7 +92,13 @@ export const AnimateSphereIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    {...props}
+    style={{
+      fill: "var(--color-primary-accent)",
+      transition: "fill 0.3s ease",
+      minWidth: size,
+      minHeight: size,
+    }}
+    {...rest}
   >
     <circle cx="12" cy="12" r="10"></circle>
     <ellipse cx="12" cy="12" rx="4" ry="10"></ellipse>
@@ -86,7 +108,7 @@ export const AnimateSphereIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
   </svg>
 );
 
-export const WriteIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+export const Write: React.FC<IconProps> = ({ size, ...rest }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -97,16 +119,20 @@ export const WriteIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    {...props}
+    style={{
+      fill: "var(--color-primary-accent)",
+      transition: "fill 0.3s ease",
+      minWidth: size,
+      minHeight: size,
+    }}
+    {...rest}
   >
     <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
     <path d="M18 13l-1.5-7.5L2 4l3 3L2 14l6.5-1.5L8 22l3.5-1.5L13 22l1.5-3.5L18 17l-3-3z"></path>
   </svg>
 );
 
-export const ScrollDrawIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
-  props
-) => (
+export const ScrollDraw: React.FC<IconProps> = ({ size, ...rest }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -117,7 +143,13 @@ export const ScrollDrawIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    {...props}
+    style={{
+      fill: "var(--color-primary-accent)",
+      transition: "fill 0.3s ease",
+      minWidth: size,
+      minHeight: size,
+    }}
+    {...rest}
   >
     <rect x="5" y="3" width="14" height="18" rx="2"></rect>
     <path d="M9 7h6"></path>
@@ -127,7 +159,7 @@ export const ScrollDrawIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
   </svg>
 );
 
-export const ShadersIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+export const Shaders: React.FC<IconProps> = ({ size, ...rest }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -138,7 +170,13 @@ export const ShadersIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    {...props}
+    style={{
+      fill: "var(--color-primary-accent)",
+      transition: "fill 0.3s ease",
+      minWidth: size,
+      minHeight: size,
+    }}
+    {...rest}
   >
     <path d="M5 3v18h18"></path>
     <path d="m19 9-4 4-4-4-4 4-4-4"></path>
@@ -146,7 +184,7 @@ export const ShadersIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-export const CameraIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+export const Camera: React.FC<IconProps> = ({ size, ...rest }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -157,7 +195,13 @@ export const CameraIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    {...props}
+    style={{
+      fill: "var(--color-primary-accent)",
+      transition: "fill 0.3s ease",
+      minWidth: size,
+      minHeight: size,
+    }}
+    {...rest}
   >
     <circle cx="12" cy="12" r="4"></circle>
     <path d="M12 2v2"></path>
@@ -171,7 +215,7 @@ export const CameraIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-export const BrowserIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+export const Browser: React.FC<IconProps> = ({ size, ...rest }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -182,7 +226,13 @@ export const BrowserIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    {...props}
+    style={{
+      fill: "var(--color-primary-accent)",
+      transition: "fill 0.3s ease",
+      minWidth: size,
+      minHeight: size,
+    }}
+    {...rest}
   >
     <rect x="2" y="4" width="20" height="16" rx="2"></rect>
     <path d="M2 10h20"></path>
@@ -192,7 +242,7 @@ export const BrowserIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-export const TocIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+export const Toc: React.FC<IconProps> = ({ size, ...rest }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -203,7 +253,13 @@ export const TocIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    {...props}
+    style={{
+      fill: "var(--color-primary-accent)",
+      transition: "fill 0.3s ease",
+      minWidth: size,
+      minHeight: size,
+    }}
+    {...rest}
   >
     <path d="M4 6h16"></path>
     <path d="M4 10h16"></path>
@@ -212,7 +268,7 @@ export const TocIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-export const UserUiIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+export const UserUi: React.FC<IconProps> = ({ size, ...rest }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -223,7 +279,13 @@ export const UserUiIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    {...props}
+    style={{
+      fill: "var(--color-primary-accent)",
+      transition: "fill 0.3s ease",
+      minWidth: size,
+      minHeight: size,
+    }}
+    {...rest}
   >
     <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
     <circle cx="8.5" cy="7" r="4"></circle>
@@ -231,7 +293,7 @@ export const UserUiIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-export const BlendIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+export const Blend: React.FC<IconProps> = ({ size, ...rest }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -242,7 +304,13 @@ export const BlendIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    {...props}
+    style={{
+      fill: "var(--color-primary-accent)",
+      transition: "fill 0.3s ease",
+      minWidth: size,
+      minHeight: size,
+    }}
+    {...rest}
   >
     <circle
       cx="12"
@@ -261,9 +329,7 @@ export const BlendIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-export const ObserverIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
-  props
-) => (
+export const Observer: React.FC<IconProps> = ({ size, ...rest }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -274,14 +340,20 @@ export const ObserverIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    {...props}
+    style={{
+      fill: "var(--color-primary-accent)",
+      transition: "fill 0.3s ease",
+      minWidth: size,
+      minHeight: size,
+    }}
+    {...rest}
   >
     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
     <circle cx="12" cy="12" r="3"></circle>
   </svg>
 );
 
-export const NewsIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+export const News: React.FC<IconProps> = ({ size, ...rest }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -292,16 +364,20 @@ export const NewsIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    {...props}
+    style={{
+      fill: "var(--color-primary-accent)",
+      transition: "fill 0.3s ease",
+      minWidth: size,
+      minHeight: size,
+    }}
+    {...rest}
   >
     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
   </svg>
 );
 
-export const PersonalizationIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
-  props
-) => (
+export const Personalization: React.FC<IconProps> = ({ size, ...rest }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -312,15 +388,19 @@ export const PersonalizationIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    {...props}
+    style={{
+      fill: "var(--color-primary-accent)",
+      transition: "fill 0.3s ease",
+      minWidth: size,
+      minHeight: size,
+    }}
+    {...rest}
   >
     <path d="M12 2a5 5 0 0 0-5 5c0 1.5.7 2.8 1.7 3.7L3 15.2V21h18v-5.8l-5.7-4.5C16.3 9.8 17 8.5 17 7a5 5 0 0 0-5-5z"></path>
   </svg>
 );
 
-export const ScrollPercentIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
-  props
-) => (
+export const ScrollPercent: React.FC<IconProps> = ({ size, ...rest }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -331,7 +411,13 @@ export const ScrollPercentIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    {...props}
+    style={{
+      fill: "var(--color-primary-accent)",
+      transition: "fill 0.3s ease",
+      minWidth: size,
+      minHeight: size,
+    }}
+    {...rest}
   >
     <path d="M12 3v18"></path>
     <path d="M16 7.5a4.5 4.5 0 1 1-9 0 4.5 4.5 0 1 1 9 0z"></path>

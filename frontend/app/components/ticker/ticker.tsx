@@ -31,7 +31,11 @@ const Ticker: React.FC<TickerProps> = ({ posts }) => {
           backgroundColor: "var(--color-background)",
         }}
       >
-        <div className={styles.tickerWrapper}>{tickerContent}</div>
+        <div className={styles.tickerWrapper}>
+          {tickerContent}
+          {tickerContent}
+          {tickerContent}
+        </div>
       </div>
     </div>
   );

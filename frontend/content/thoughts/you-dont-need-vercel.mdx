@@ -1,0 +1,218 @@
+---
+title: "You don't need vercel: Deploy a Next.js app with GitOps and K3s"
+publishedAt: "2025-07-22"
+summary: "You don't need vercel: Deploy a Next.js app with GitOps and K3s"
+icon: "Bolt"
+---
+
+As developers, we're driven to create—whether it's a polished Next.js app or a complex backend service. But creation doesn't end with code; it extends to how that code runs, scales, and serves users. For years, I relied on managed platforms like Vercel to handle that part, focusing only on the frontend. Now, as I explore infrastructure, I've learned that deploying an app is like breathing life into it. It's about crafting a system you understand, control, and trust. In this post, I'll share how I deploy a Next.js app on my bare-metal K3s cluster using GitOps, weaving together tools like ArgoCD, Vault, and GitHub Actions to make it happen.
+
+This is part of my journey from frontend to infrastructure, a quest to see the full stack—not just the browser, but the servers, networks, and systems behind it. My setup runs on two VPS servers from netcup, powered by K3s, a lightweight Kubernetes distribution. I use Cilium for networking, ArgoCD for GitOps, Vault with the External Secrets Operator (ESO) for secure secret management, Ansible for automation, and Kube-Prometheus for monitoring. Here's how I take my Next.js app, called **monospaced**, from a GitHub repo to a running pod, step by step, with a system I've built from the ground up.
+
+## Step 1: Writing and Committing Code
+
+It all starts with code—the part we know best. My Next.js app, **monospaced**, lives in a GitHub repository under `rohitpotato/monospaced`, where I build features and follow my usual frontend workflow. When I'm ready to deploy, I merge changes to the main branch. That moment of `git push` is familiar, but now it's more than a handoff to a black box. It's the signal to a system I've crafted, one that takes my code and brings it to life. As developers, we live for these moments when our work starts to take shape, and I've learned that shape extends far beyond the browser.
+
+## Step 2: Building and Pushing the Docker Image
+
+Merging to main triggers a GitHub Actions workflow, the first piece of my deployment puzzle. GitHub Actions is a CI/CD platform that automates building, testing, and deploying code. This pipeline transforms my Next.js code into a deployable artifact. Here's what it does:
+
+### Build the Docker Image
+
+The workflow runs `docker build` to create a container image for **monospaced**. My Dockerfile is tailored for Next.js, optimizing for production with a multi-stage build to keep the image lean:
+
+```dockerfile
+# Build stage
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+# Production stage
+FROM node:18-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+### Tag and Push to GitHub Container Registry
+
+The pipeline tags the image with the commit SHA (e.g., `ghcr.io/rohitpotato/monospaced:abc123`) for traceability and pushes it to GitHub Container Registry (ghcr.io). I use a GitHub Personal Access Token (PAT) stored as a GitHub secret for authentication, though I'm planning to secure this further with Vault.
+
+Here's a simplified GitHub Actions workflow:
+
+```yaml
+name: Build and Push
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/rohitpotato/monospaced:${{ github.sha }}
+```
+
+This step feels like packaging a piece of art for shipping. It's not just code anymore—it's a self-contained unit ready to run anywhere, a small but satisfying step toward production.
+
+## Step 3: Updating the Kubernetes Manifests
+
+Next, I need my K3s cluster to use the new image. My Kubernetes manifests live in a separate repository, `rohitpotato/k8s-apps`, keeping infrastructure configs distinct from app code. The GitHub Actions workflow updates the image tag in this repo using a script:
+
+1. It checks out the `k8s-apps` repo.
+2. Updates the image field in the **monospaced** Deployment manifest (e.g., `apps/monospaced/deployment.yaml`) to the new tag (e.g., `ghcr.io/rohitpotato/monospaced:abc123`).
+3. Commits and pushes the change.
+
+Here's the Deployment manifest:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monospaced
+  namespace: blog-website
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: monospaced
+  template:
+    metadata:
+      labels:
+        app: monospaced
+    spec:
+      containers:
+        - name: monospaced
+          image: ghcr.io/rohitpotato/monospaced:abc123
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NEXT_PUBLIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: monospaced-secrets
+                  key: api-key
+```
+
+This script-based approach works but feels like a temporary bridge. I'm exploring ArgoCD Image Updater to automate tag updates directly, reducing the risk of Git conflicts. As developers, we know there's always a better way—it's about iterating until the system feels right.
+
+## Step 4: Securing Secrets with Vault and ESO
+
+My **monospaced** app needs secrets, like an API key for external services. I use HashiCorp Vault, a secure secrets management tool, to store these safely, running in HA mode with Raft on my K3s cluster. To integrate Vault with Kubernetes, I use the External Secrets Operator (ESO), which syncs secrets from Vault to Kubernetes Secret resources, keeping sensitive data out of my manifests.
+
+I set up a ClusterExternalSecret to fetch all secrets for **monospaced** from Vault and apply them in the `blog-website` namespace:
+
+```yaml
+apiVersion: external-secrets.io/v1beta1
+kind: ClusterExternalSecret
+metadata:
+  name: monospaced-secrets
+spec:
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  refreshInterval: 1h
+  externalSecretName: monospaced-secrets
+  externalSecretSpec:
+    target:
+      name: monospaced-secrets
+      creationPolicy: Owner
+    dataFrom:
+      - extract:
+          key: secret/monospaced
+  namespaceSelector:
+    matchNames:
+      - blog-website
+```
+
+This creates a Kubernetes Secret named `monospaced-secrets` in the `blog-website` namespace, containing all key-value pairs from the Vault path `secret/monospaced` (e.g., `api-key`, `db-password`). My Deployment references these secrets for environment variables like `NEXT_PUBLIC_API_KEY`.
+
+One thing to note: since Next.js bundles environment variables at build time, updating a secret in Vault won't affect running pods until I redeploy the app (e.g., by updating the Deployment to trigger a rolling update). ESO keeps the Kubernetes Secret in sync with Vault, but I need to manually trigger a redeploy to apply changes. I'm exploring ways to automate this, like using ArgoCD to detect secret updates. As developers, we're used to these quirks—it's about finding the right balance between automation and control.
+
+## Step 5: ArgoCD Syncs the Cluster
+
+Here's where GitOps comes alive. ArgoCD, a GitOps tool that ensures my cluster matches my Git-defined state, watches the `rohitpotato/k8s-apps` repo. When it detects the updated image tag, it syncs the changes to my K3s cluster, applying the new Deployment and triggering a rolling update. I can monitor this in the ArgoCD UI, which feels like watching my system breathe.
+
+My ArgoCD Application is defined as:
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monospaced
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/rohitpotato/k8s-apps.git
+    targetRevision: main
+    path: apps/monospaced
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: blog-website
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+```
+
+This step is where I feel the power of infrastructure. ArgoCD isn't just deploying my app—it's enforcing my vision of how the cluster should be. It's a reminder that as developers, we're not just writing code; we're shaping systems.
+
+## Step 6: Exposing the App
+
+To make **monospaced** accessible, I use an Ingress, a Kubernetes resource that routes external HTTP/HTTPS traffic to services based on rules like host or path. I use Traefik, a modern reverse proxy and ingress controller bundled with K3s, to handle this routing. My `k8s-apps` repo includes:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: monospaced
+  namespace: blog-website
+spec:
+  rules:
+    - host: monospaced.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: monospaced
+                port:
+                  number: 3000
+```
+
+Cilium ensures secure pod networking, and I've added basic network policies to restrict traffic (more on that in a future post). This gets **monospaced** online, ready for users.
+
+## Step 7: Monitoring with Kube-Prometheus
+
+Once deployed, I use my Kube-Prometheus stack to monitor pod health, CPU, and memory via Grafana dashboards. I'm still working on app-specific alerts, but with Loki on the horizon, I'll soon have logs to complement my metrics. This gives me confidence that **monospaced** is running smoothly—or a clear signal when it's not.
+
+## What's Next?
+
+This workflow is a solid foundation, but there's room to grow. I'm eyeing Argo Rollouts for canary deployments to make updates safer. I also want to use Kustomize to streamline my manifests and ArgoCD Image Updater to automate tag updates. For secrets, I'm exploring ways to trigger redeploys automatically when Vault secrets change. As developers, we're never done learning—each tweak makes the system more resilient, more ours.
+
+Deploying an app is about more than getting it online. It's about crafting a system that reflects how you think—one that's secure, automated, and observable. This process has taught me to see **monospaced** not just as code, but as part of a living cluster. If you're curious about building your own deployment pipeline, start small: push a Docker image, write a manifest, and let ArgoCD take it from there. It's not about being perfect—it's about understanding the system you're building.
+
+## Try This
+
+Build a simple app, set up a GitHub Actions workflow to push it to ghcr.io, and deploy it to K3s with ArgoCD. Try adding a ClusterExternalSecret to manage secrets from Vault. Share your journey in the comments—I'd love to hear how it feels to own your stack.

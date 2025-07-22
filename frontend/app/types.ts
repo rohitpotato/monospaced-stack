@@ -1,5 +1,4 @@
 
-import type React from 'react';
 
 export interface Article {
     id: string;
@@ -7,7 +6,7 @@ export interface Article {
     description: string;
     date: string;
     link: string;
-    Icon?: React.ComponentType<{ className?: string }>;
+    icon?: string;
 }
 
 export interface Frontmatter {

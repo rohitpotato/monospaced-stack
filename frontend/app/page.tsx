@@ -5,8 +5,9 @@ import Footer from "./components/footer/footer";
 import { getPostsFromCache } from "./lib/cache";
 import { Article } from "./types";
 import PageTitle from "./components/page-title/page-title";
+import MasonryGrid from "./components/masonry-grid/masonry-grid";
 
-export const revalidate = 3600; // Revalidate every hour
+export const revalidate = 3600;
 
 const Homepage: React.FC = async () => {
   const posts = await getPostsFromCache();
@@ -17,6 +18,7 @@ const Homepage: React.FC = async () => {
     description: post.meta.summary,
     date: post.meta.publishedAt,
     link: `/thoughts/${post.slug}`,
+    icon: post.meta.icon || "Document",
   }));
 
   return (
@@ -30,14 +32,11 @@ const Homepage: React.FC = async () => {
           </div>
 
           <main>
-            <div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 border-t border-l"
-              style={{ borderColor: "var(--color-border)" }}
-            >
+            <MasonryGrid>
               {articles.map((article) => (
                 <ArticleCard key={article.id} article={article} />
               ))}
-            </div>
+            </MasonryGrid>
           </main>
         </div>
       </div>
