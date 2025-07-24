@@ -28,6 +28,13 @@ function rehypeInlineCode() {
         const visit = (node: Element | Root) => {
             if (node.type === 'element' && node.tagName === 'code' && node.properties && !node.properties.className) {
                 node.properties.className = ['language-text'];
+                // Remove backticks from text content if they exist
+                if (node.children && node.children.length === 1 && node.children[0].type === 'text') {
+                    const text = node.children[0].value;
+                    if (text.startsWith('`') && text.endsWith('`')) {
+                        node.children[0].value = text.slice(1, -1);
+                    }
+                }
             }
             if ('children' in node) {
                 node.children.forEach(child => {

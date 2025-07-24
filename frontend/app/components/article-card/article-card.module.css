@@ -15,6 +15,7 @@
   font-weight: 600;
   margin-bottom: 0.75rem;
   color: var(--color-text-primary);
+  transition: color 0.3s ease;
 }
 
 .description {
@@ -36,7 +37,7 @@
 }
 
 .card:hover .title {
-  color: var(--color-primary-accent);
+  color: var(--color-text-hover);
 } 
 
 .icon {

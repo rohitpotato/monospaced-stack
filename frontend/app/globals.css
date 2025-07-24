@@ -4,7 +4,7 @@
 
 :root {
   /* These will be dynamically set by ThemeContext.tsx */
-  --color-primary-accent: #44a08d;
+  --color-primary-accent: #05FFCD;
   --color-primary-accent-light: #66fcf1;
   --color-primary-accent-dark: #3a8a7a;
   --color-primary-glow: rgba(68, 160, 141, 0.5);
@@ -18,7 +18,7 @@
   --color-text-secondary: #8f9c94;
   --color-text-on-accent: #1a201c;
   --color-code-background: rgba(42, 52, 48, 0.8);
-  --color-heading: #ffffff;
+  --color-heading: var(--color-text-primary);
 }
 
 h1, h2, h3, h4, h5, h6 {

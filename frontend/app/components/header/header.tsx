@@ -29,19 +29,20 @@ const Header: React.FC = () => {
               <StatsIcon />
             </a>
             <a
-              href="#"
+              href="/api/rss"
+              target="_blank"
               className="transition-colors px-2 py-1"
               style={{ color: "var(--color-text-secondary)" }}
             >
               RSS
             </a>
-            <a
-              href="#"
+            <Link
+              href="/about"
               className="transition-colors px-2 py-1"
               style={{ color: "var(--color-text-secondary)" }}
             >
               ABOUT
-            </a>
+            </Link>
             <ColorPicker />
           </div>
         </div>

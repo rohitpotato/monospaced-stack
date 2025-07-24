@@ -106,7 +106,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [baseColor, setBaseColor] = useState("#44a08d"); // Initial theme color
+  const [baseColor, setBaseColor] = useState("#05FFCD"); // Initial theme color
 
   useEffect(() => {
     const root = document.documentElement;
@@ -115,19 +115,20 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
     const { h, s, l } = hsl;
-    const isLight = l > 0.6; // Use a brightness threshold to decide theme type
+    const isLight = l > 0.6;
 
     // Calculate hover accent color based on theme mode
     const hoverAccentColor = isLight
-      ? adjustHslLightness(baseColor, -0.2) // Darker for light theme
-      : adjustHslLightness(baseColor, 0.2); // Lighter for dark theme
+      ? adjustHslLightness(baseColor, -0.2)
+      : adjustHslLightness(baseColor, 0.2);
 
-    // Calculate dot pattern color - use contrasting color based on theme
+    // Calculate dot pattern color with much better contrast
     const dotPatternColor = isLight
-      ? hslToHex(h, Math.min(s * 1.2, 1), 0.8) // Darker dots for light theme
-      : hslToHex(h, Math.min(s * 1.2, 1), 0.3); // Lighter dots for dark theme
+      ? hslToHex(h, Math.min(s * 1.5, 1), 0.5) // Much darker dots for light theme
+      : hslToHex(h, Math.min(s * 1.2, 1), 0.5); // Lighter dots for dark theme
 
     const dotPatternRgb = hexToRgb(dotPatternColor) || rgb;
+    const dotPatternOpacity = isLight ? 0.15 : 0.25; // Adjusted opacity for better visibility
 
     const theme: { [key: string]: string } = {
       "--color-primary-accent": baseColor,
@@ -140,9 +141,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
         isLight ? 0.2 : 0.3
       })`,
       "--color-text-on-accent": getContrastYIQ(baseColor),
-      "--color-dot-pattern": `rgba(${dotPatternRgb.r}, ${dotPatternRgb.g}, ${
-        dotPatternRgb.b
-      }, ${isLight ? 0.15 : 0.25})`,
+      "--color-dot-pattern": `rgba(${dotPatternRgb.r}, ${dotPatternRgb.g}, ${dotPatternRgb.b}, ${dotPatternOpacity})`,
     };
 
     if (isLight) {
