@@ -15,7 +15,7 @@ export const Document: React.FC<IconProps> = ({ size, ...rest }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      fill: "var(--color-primary-accent)",
+      // fill: "var(--color-primary-accent)",
       transition: "fill 0.3s ease",
       minWidth: size,
       minHeight: size,
@@ -42,7 +42,7 @@ export const Juice: React.FC<IconProps> = ({ size, ...rest }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      fill: "var(--color-primary-accent)",
+      // fill: "var(--color-primary-accent)",
       transition: "fill 0.3s ease",
       minWidth: size,
       minHeight: size,
@@ -68,7 +68,7 @@ export const Css3D: React.FC<IconProps> = ({ size, ...rest }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      fill: "var(--color-primary-accent)",
+      // fill: "var(--color-primary-accent)",
       transition: "fill 0.3s ease",
       minWidth: size,
       minHeight: size,
@@ -93,7 +93,7 @@ export const AnimateSphere: React.FC<IconProps> = ({ size, ...rest }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      fill: "var(--color-primary-accent)",
+      // fill: "var(--color-primary-accent)",
       transition: "fill 0.3s ease",
       minWidth: size,
       minHeight: size,
@@ -120,7 +120,7 @@ export const Write: React.FC<IconProps> = ({ size, ...rest }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      fill: "var(--color-primary-accent)",
+      // fill: "var(--color-primary-accent)",
       transition: "fill 0.3s ease",
       minWidth: size,
       minHeight: size,
@@ -144,7 +144,7 @@ export const ScrollDraw: React.FC<IconProps> = ({ size, ...rest }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      fill: "var(--color-primary-accent)",
+      // fill: "var(--color-primary-accent)",
       transition: "fill 0.3s ease",
       minWidth: size,
       minHeight: size,
@@ -171,7 +171,7 @@ export const Shaders: React.FC<IconProps> = ({ size, ...rest }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      fill: "var(--color-primary-accent)",
+      // fill: "var(--color-primary-accent)",
       transition: "fill 0.3s ease",
       minWidth: size,
       minHeight: size,
@@ -196,7 +196,7 @@ export const Camera: React.FC<IconProps> = ({ size, ...rest }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      fill: "var(--color-primary-accent)",
+      // fill: "var(--color-primary-accent)",
       transition: "fill 0.3s ease",
       minWidth: size,
       minHeight: size,
@@ -227,7 +227,7 @@ export const Browser: React.FC<IconProps> = ({ size, ...rest }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      fill: "var(--color-primary-accent)",
+      // fill: "var(--color-primary-accent)",
       transition: "fill 0.3s ease",
       minWidth: size,
       minHeight: size,
@@ -254,7 +254,7 @@ export const Toc: React.FC<IconProps> = ({ size, ...rest }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      fill: "var(--color-primary-accent)",
+      // fill: "var(--color-primary-accent)",
       transition: "fill 0.3s ease",
       minWidth: size,
       minHeight: size,
@@ -280,7 +280,7 @@ export const UserUi: React.FC<IconProps> = ({ size, ...rest }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      fill: "var(--color-primary-accent)",
+      // fill: "var(--color-primary-accent)",
       transition: "fill 0.3s ease",
       minWidth: size,
       minHeight: size,
@@ -305,7 +305,7 @@ export const Blend: React.FC<IconProps> = ({ size, ...rest }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      fill: "var(--color-primary-accent)",
+      // fill: "var(--color-primary-accent)",
       transition: "fill 0.3s ease",
       minWidth: size,
       minHeight: size,
@@ -341,7 +341,7 @@ export const Observer: React.FC<IconProps> = ({ size, ...rest }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      fill: "var(--color-primary-accent)",
+      // fill: "var(--color-primary-accent)",
       transition: "fill 0.3s ease",
       minWidth: size,
       minHeight: size,
@@ -365,7 +365,7 @@ export const News: React.FC<IconProps> = ({ size, ...rest }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      fill: "var(--color-primary-accent)",
+      // fill: "var(--color-primary-accent)",
       transition: "fill 0.3s ease",
       minWidth: size,
       minHeight: size,
@@ -389,7 +389,7 @@ export const Personalization: React.FC<IconProps> = ({ size, ...rest }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      fill: "var(--color-primary-accent)",
+      // fill: "var(--color-primary-accent)",
       transition: "fill 0.3s ease",
       minWidth: size,
       minHeight: size,
@@ -412,7 +412,7 @@ export const ScrollPercent: React.FC<IconProps> = ({ size, ...rest }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      fill: "var(--color-primary-accent)",
+      // fill: "var(--color-primary-accent)",
       transition: "fill 0.3s ease",
       minWidth: size,
       minHeight: size,

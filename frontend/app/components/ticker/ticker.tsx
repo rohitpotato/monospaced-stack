@@ -26,7 +26,7 @@ const Ticker: React.FC<TickerProps> = ({ posts }) => {
   return (
     <div className="border-y" style={{ borderColor: "var(--color-border)" }}>
       <div
-        className={`w-full ${styles.tickerContainer} font-mono tracking-widest text-xs sm:text-sm py-2 overflow-hidden relative`}
+        className={`w-full ${styles.tickerContainer} font-roboto tracking-widest text-xs sm:text-sm py-2 overflow-hidden relative`}
         style={{
           backgroundColor: "var(--color-background)",
         }}

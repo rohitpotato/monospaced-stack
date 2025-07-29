@@ -1,0 +1,132 @@
+---
+title: "The journey of a packet"
+publishedAt: "2025-07-30"
+summary: "Understanding Kubernetes Building Blocks: Pods, Deployments, and Services"
+icon: "Browser"
+---
+
+Imagine you're a packet of data, zipping through a Kubernetes cluster, carrying a message from one app to another. Your journey is full of twists—finding the right destination, navigating secure paths, and avoiding dead ends. As a developer new to infrastructure, I found Kubernetes networking daunting, but tracing a packet's path made it click.
+
+In this post, we'll follow that packet to understand Kubernetes' core building blocks—pods, deployments, and services. We'll explore how they communicate, why their IPs shift like sand, how names keep things stable, and how tools like Cilium secure the journey. This is my story of unraveling Kubernetes networking, step by step, and I'm sharing it for anyone curious about how apps talk in a cluster.
+
+## Step 1: A Packet's Journey Begins—Entering the Cluster
+
+Picture yourself as a packet, born in a pod running my Next.js app, monospaced, in the blog-website namespace. You're tasked with fetching data from another service, but where do you go? Kubernetes networking is like a postal system for packets, with addresses (IPs), routes (CNI plugins), and rules (network policies). Let's start with where you live: a pod.
+
+A pod is Kubernetes' smallest unit, like an apartment housing one or more containers. Each pod gets a unique IP address, say 10.42.1.5, assigned by the Container Network Interface (CNI) plugin—in my case, Cilium. This IP is your home address, used at the OSI model's Layer 3 (Network Layer), which handles IP routing. Your monospaced container listens on a port (e.g., 3000 for HTTP), part of the OSI Layer 4 (Transport Layer), which manages TCP/UDP traffic.
+
+Here's a simple pod for monospaced:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: monospaced-test
+  namespace: blog-website
+  labels:
+    app: monospaced
+spec:
+  containers:
+    - name: monospaced
+      image: ghcr.io/rohitpotato/monospaced:abc123
+      ports:
+        - containerPort: 3000
+```
+
+This pod is your starting point, but its IP isn't stable. Pods are ephemeral—they can crash, restart, or scale, getting new IPs each time. If you, the packet, rely on a pod's IP, you might end up lost. This is why Kubernetes uses services to give packets a reliable destination.
+
+## Step 2: Navigating with Services—Stable Addresses for Packets
+
+As a packet, you need a dependable address to reach other apps. Kubernetes services provide this, acting like a post office that forwards your data to the right pods. A service assigns a stable IP (called a cluster IP, e.g., 10.43.0.1) and a DNS name (e.g., monospaced.blog-website.svc.cluster.local) to a group of pods selected by labels (e.g., app=monospaced). This operates at OSI Layer 4, using TCP/UDP to route traffic.
+
+For monospaced, I created a ClusterIP service (the default type) to let other pods in the cluster reach it:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: monospaced
+  namespace: blog-website
+spec:
+  selector:
+    app: monospaced
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP
+```
+
+The port (80) is the service's public port, where packets arrive, and targetPort (3000) is the pod's container port, where packets are forwarded. These ports are local to the service—other apps use monospaced:80 to send packets, unaware of the pods' internal ports. This abstraction is like a storefront: customers (packets) enter through a single door (service port), and the shop (service) directs them to the right worker (pod).
+
+The service's cluster IP is stable, unlike pod IPs, because it's a virtual IP managed by Kubernetes. But why are pod IPs unstable? Pods are created and destroyed dynamically—when a pod crashes or scales, the CNI assigns a new IP from the node's subnet (e.g., 10.42.1.0/24). Service IPs, while more stable, can also change if the service is recreated, so we rely on DNS names for consistency. This leads us to DNS resolution.
+
+## Step 3: Finding the Way—DNS Resolution with CoreDNS
+
+As a packet, you don't know the IP of monospaced—you just know its name, monospaced.blog-website.svc.cluster.local. Kubernetes uses CoreDNS, its default DNS server, to resolve this name to the service's cluster IP. CoreDNS runs as a deployment in the kube-system namespace, handling queries at the OSI Layer 7 (Application Layer).
+
+When a pod sends an HTTP request to `http://monospaced:80`, CoreDNS resolves it to the service's IP (e.g., 10.43.0.1). You can test this from another pod:
+
+```bash
+kubectl exec -n blog-website monospaced-test -- nslookup monospaced
+```
+
+This returns the cluster IP, ensuring packets find their destination. DNS names are stable because they're based on service metadata, not IPs, which is why we use names like monospaced instead of hardcoding IPs. As developers, we appreciate this—it's like using a domain name instead of an IP for a website.
+
+## Step 4: How Packets Travel—NAT and Veth Pairs
+
+Now, as a packet, you're sent to the monospaced service's IP. How do you reach the right pod? Kubernetes uses NAT (Network Address Translation) at OSI Layer 3 to map the service's virtual IP to a pod's IP. NAT rewrites your packet's destination IP (e.g., from 10.43.0.1 to 10.42.1.5), ensuring you reach a monospaced pod. This is handled by the CNI plugin and Kubernetes' kube-proxy, which maintains iptables or IPVS rules for routing.
+
+Within a node, packets travel from the container to the pod's network namespace via veth pairs (virtual Ethernet pairs), operating at OSI Layer 2 (Data Link Layer). A veth pair is like a virtual cable connecting the container to the node's network stack. One end (e.g., veth0) is in the pod's namespace, and the other (e.g., eth0) is in the node's root namespace, bridged to the node's physical network. This lets your packet move from the monospaced container to the node and beyond.
+
+## Step 5: Crossing Nodes—VXLAN Overlays with Flannel
+
+What if your destination pod is on another node? K3s' default CNI, Flannel, uses a VXLAN overlay to connect nodes, operating at OSI Layer 3. Each node gets a subnet (e.g., 10.42.1.0/24 for node 1, 10.42.2.0/24 for node 2), and pods get IPs from these. VXLAN encapsulates your packet in a UDP packet, tunneling it across nodes over the physical network (e.g., via node IPs like 192.168.1.x). At the destination node, the packet is decapsulated and routed to the target pod's IP via another veth pair.
+
+Flannel's simplicity is great for beginners—it sets up routing and NAT automatically—but it lacks advanced features. Without restrictions, any pod can send packets to any other, which is a security risk.
+
+## Step 6: Securing the Path—Network Policies
+
+As a packet, you want to travel safely. Kubernetes network policies act like traffic rules, restricting which packets can reach which pods at OSI Layers 3/4. For example, I want only specific pods to access monospaced. Here's a policy:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: monospaced-access
+  namespace: blog-website
+spec:
+  podSelector:
+    matchLabels:
+      app: monospaced
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: frontend-client
+      ports:
+        - protocol: TCP
+          port: 3000
+```
+
+This allows only pods labeled `app=frontend-client` in the blog-website namespace to send packets to monospaced on port 3000. Without a policy, all pods can communicate, like an open highway. The CNI enforces these rules, shaping your packet's journey.
+
+## Step 7: Upgrading with Cilium
+
+Flannel works, but I switched to Cilium for its eBPF-based networking. eBPF runs programs in the Linux kernel, making routing and policies faster than Flannel's iptables. Cilium supports Layer 7 policies, letting me restrict packets to specific HTTP paths (e.g., `/api/*` for monospaced), and offers Hubble for observing packet flows. For example, I can see if your packet was allowed or blocked:
+
+```bash
+cilium hubble observe --namespace blog-website --pod monospaced
+```
+
+Cilium's identity-based policies use pod labels, not IPs, making them robust despite pod IP churn. It's like upgrading from a basic router to a smart traffic system, giving me control and visibility.
+
+## The Packet's Lesson
+
+Following a packet's journey through pods, services, and networks taught me Kubernetes isn't just about running apps—it's about orchestrating communication. Pods give packets a home, services provide stable addresses, CoreDNS ensures they find their way, and tools like Cilium secure and observe the path. As developers, we're used to building systems that work together, and Kubernetes networking is just that—a system we can shape and understand, one packet at a time.
+
+## Try This
+
+Deploy a pod and a ClusterIP service in a K3s cluster. Test DNS resolution with nslookup from another pod. Share your packet's journey in the comments—I'd love to hear how it feels to connect your first Kubernetes service!

@@ -12,7 +12,7 @@ const Logo = ({ size = 40, ...props }: LogoProps) => (
     height={size}
     viewBox="0 0 1024 1024"
     style={{
-      fill: "var(--color-primary-accent)",
+      fill: "#fff",
       transition: "fill 0.3s ease",
       minWidth: size,
       minHeight: size,

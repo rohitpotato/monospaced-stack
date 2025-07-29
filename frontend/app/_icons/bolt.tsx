@@ -14,7 +14,7 @@ const Bolt = ({ size = 24, ...props }: LogoProps) => {
       stroke="currentColor"
       className={`size-${size}`}
       style={{
-        fill: "var(--color-primary-accent)",
+        // fill: "var(--color-primary-accent)",
         transition: "fill 0.3s ease",
         minWidth: size,
         minHeight: size,
