@@ -70,7 +70,7 @@ export function generateBaseMetadata(config: MetadataConfig): Metadata {
   ]
 
   return {
-    title,
+    title: title.length < 30 ? title : description,
     description,
     keywords: defaultKeywords.join(', '),
     authors: [{ name: author }],
