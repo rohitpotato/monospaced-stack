@@ -1,5 +1,7 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
   --background: oklch(1 0 0);
@@ -73,7 +75,6 @@
 }
 
 @theme inline {
-  /* optional: --font-sans, --font-serif, --font-mono if they are applied in the layout.tsx */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -118,39 +119,5 @@
   }
   body {
     @apply bg-background text-foreground;
-  }
-}
-
-@layer utilities {
-  .text-theme-primary {
-    color: rgb(var(--color-primary));
-  }
-  .text-theme-secondary {
-    color: rgb(var(--color-secondary));
-  }
-  .text-theme-accent {
-    color: rgb(var(--color-accent));
-  }
-  .bg-theme-primary {
-    background-color: rgb(var(--color-primary));
-  }
-  .bg-theme-secondary {
-    background-color: rgb(var(--color-secondary));
-  }
-  .bg-theme-accent {
-    background-color: rgb(var(--color-accent));
-  }
-  .border-theme-primary {
-    border-color: rgb(var(--color-primary));
-  }
-  .from-theme-primary {
-    --tw-gradient-from: rgb(var(--color-primary));
-  }
-  .to-theme-secondary {
-    --tw-gradient-to: rgb(var(--color-secondary));
-  }
-  .shadow-theme-primary {
-    --tw-shadow-color: rgb(var(--color-primary) / 0.2);
-    box-shadow: var(--tw-shadow-colored);
   }
 }
