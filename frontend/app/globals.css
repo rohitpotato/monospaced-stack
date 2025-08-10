@@ -154,3 +154,95 @@
     box-shadow: var(--tw-shadow-colored);
   }
 }
+
+/* MDX Content Styles */
+.prose {
+  @apply text-slate-300;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  @apply text-slate-100 font-mono font-bold;
+}
+
+.prose h1 {
+  @apply text-3xl mb-6 mt-8;
+}
+
+.prose h2 {
+  @apply text-2xl mb-4 mt-6;
+}
+
+.prose h3 {
+  @apply text-xl mb-3 mt-5;
+}
+
+.prose p {
+  @apply mb-4 leading-relaxed;
+}
+
+.prose ul,
+.prose ol {
+  @apply mb-4 pl-6;
+}
+
+.prose li {
+  @apply mb-2;
+}
+
+.prose code {
+  @apply bg-slate-800 text-emerald-400 px-2 py-1 rounded text-sm font-mono;
+}
+
+.prose pre {
+  @apply bg-slate-900 border border-slate-800 rounded-lg p-4 mb-6 overflow-x-auto;
+}
+
+.prose pre code {
+  @apply bg-transparent p-0 text-slate-300;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-emerald-400 pl-4 italic text-slate-400 mb-6;
+}
+
+.prose a {
+  @apply text-emerald-400 hover:text-blue-400 transition-colors;
+}
+
+.prose strong {
+  @apply text-slate-200 font-semibold;
+}
+
+.prose em {
+  @apply text-slate-400;
+}
+
+.prose table {
+  @apply w-full border-collapse border border-slate-700 mb-6;
+}
+
+.prose th,
+.prose td {
+  @apply border border-slate-700 px-4 py-2 text-left;
+}
+
+.prose th {
+  @apply bg-slate-800 text-slate-200 font-semibold;
+}
+
+.prose td {
+  @apply text-slate-300;
+}
+
+.prose img {
+  @apply rounded-lg border border-slate-800 my-6;
+}
+
+.prose hr {
+  @apply border-slate-700 my-8;
+}

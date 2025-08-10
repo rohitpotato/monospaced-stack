@@ -5,7 +5,7 @@ import path from "path"
 
 const STATS_DIR = path.join(process.cwd(), "data", "stats")
 
-type BlogStats = {
+export type BlogStats = {
   views: number
   likes: number
   likedBy: string[] // Store user IDs/sessions

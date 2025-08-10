@@ -4,25 +4,15 @@ import { useState, useEffect } from "react"
 import { TrendingUp, Clock, Eye } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import Link from "next/link"
+import { Post } from "@/lib/posts"
+import { formatDistanceToNow } from "date-fns"
 
-const recentPosts = [
-  {
-    title: "The journey of a packet",
-    excerpt: "Understanding Kubernetes networking through a packet's perspective",
-    date: "2 days ago",
-    views: "1.2k",
-    trending: true,
-  },
-  {
-    title: "You don't need Vercel",
-    excerpt: "Deploy Next.js with GitOps and K3s for full control",
-    date: "1 week ago",
-    views: "856",
-    trending: false,
-  },
-]
+interface OptimizedHeroProps {
+  recentPosts: Post[]
+}
 
-export function OptimizedHero() {
+export function OptimizedHero({ recentPosts }: OptimizedHeroProps) {
   const [currentTime, setCurrentTime] = useState("")
 
   useEffect(() => {
@@ -44,12 +34,12 @@ export function OptimizedHero() {
   }, [])
 
   return (
-    <section className="py-8 px-6 border-b border-slate-800/50">
+    <section className="py-6 sm:py-8 px-4 sm:px-6 border-b border-slate-800/50">
       <div className="container mx-auto max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-center">
           {/* Left: Tagline & Status */}
           <div className="space-y-4">
-            <p className="text-lg text-slate-400 font-mono leading-relaxed">
+            <p className="text-base sm:text-lg text-slate-400 font-mono leading-relaxed">
               Notes about web dev, infrastructure, and some other stuff.
             </p>
 
@@ -69,41 +59,40 @@ export function OptimizedHero() {
               <TrendingUp className="w-4 h-4 text-theme-primary" />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {recentPosts.map((post, index) => (
-                <Card
-                  key={index}
-                  className="bg-slate-900/30 border-slate-800/50 hover:border-theme-primary/50 transition-all duration-300 cursor-pointer group"
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-mono font-semibold text-slate-200 text-sm group-hover:text-theme-primary transition-colors line-clamp-1">
-                        {post.title}
-                      </h3>
-                      {post.trending && (
-                        <Badge
-                          variant="secondary"
-                          className="bg-theme-primary/10 text-theme-primary border-theme-primary/20 text-xs ml-2"
-                        >
-                          Hot
-                        </Badge>
-                      )}
-                    </div>
-
-                    <p className="text-xs text-slate-400 font-mono mb-3 line-clamp-2">{post.excerpt}</p>
-
-                    <div className="flex items-center justify-between text-xs text-slate-500 font-mono">
-                      <div className="flex items-center space-x-1">
-                        <Clock className="w-3 h-3" />
-                        <span>{post.date}</span>
+                <Link key={post.slug} href={`/thoughts/${post.slug}`}>
+                  <Card className="bg-slate-900/30 border-slate-800/50 hover:border-theme-primary/50 transition-all duration-300 cursor-pointer group">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="font-mono font-semibold text-slate-200 text-sm group-hover:text-theme-primary transition-colors line-clamp-1">
+                          {post.title}
+                        </h3>
+                        {index === 0 && (
+                          <Badge
+                            variant="secondary"
+                            className="bg-theme-primary/10 text-theme-primary border-theme-primary/20 text-xs ml-2"
+                          >
+                            Hot
+                          </Badge>
+                        )}
                       </div>
-                      <div className="flex items-center space-x-1">
-                        <Eye className="w-3 h-3" />
-                        <span>{post.views}</span>
+
+                      <p className="text-xs text-slate-400 font-mono mb-3 line-clamp-2">{post.summary}</p>
+
+                      <div className="flex items-center justify-between text-xs text-slate-500 font-mono">
+                        <div className="flex items-center space-x-1">
+                          <Clock className="w-3 h-3" />
+                          <span>{formatDistanceToNow(new Date(post.publishedAt), { addSuffix: true })}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Eye className="w-3 h-3" />
+                          <span>{post.readingTime}</span>
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           </div>

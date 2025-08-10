@@ -1,53 +1,71 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Heart, Eye, MessageCircle } from "lucide-react"
+import { Heart, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { getBlogStats, incrementViews, toggleLike } from "@/lib/blog-stats"
+import { toast } from "sonner"
 
 interface BlogStatsProps {
   slug: string
+  stats: Stats
 }
 
-export function BlogStats({ slug }: BlogStatsProps) {
-  const [stats, setStats] = useState({ views: 0, likes: 0, likedBy: [] })
+interface Stats {
+  likes: number
+  views: number
+}
+
+export function BlogStats({ slug, stats: initialStats }: BlogStatsProps) {
+  const [stats, setStats] = useState<Stats>(initialStats)
   const [isLiked, setIsLiked] = useState(false)
-  const [userId, setUserId] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleAction = async (action: 'like' | 'view') => {
+    try {
+      const response = await fetch(`/api/stats/${slug}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action })
+      })
+      const updatedStats = await response.json()
+      setStats(updatedStats)
+    } catch {
+      console.error("Failed to record action")
+    }
+  }
 
   useEffect(() => {
-    // Generate or get user ID from localStorage
-    let id = localStorage.getItem("digital-backyard-user-id")
-    if (!id) {
-      id = Math.random().toString(36).substring(2, 15)
-      localStorage.setItem("digital-backyard-user-id", id)
+    // Check if user has liked this post
+    const likedPosts = JSON.parse(localStorage.getItem('liked-posts') || '[]')
+    setIsLiked(likedPosts.includes(slug))
+
+    // Check if this session has viewed this post
+    const viewedPosts = JSON.parse(sessionStorage.getItem('viewed-posts') || '[]')
+    const hasViewed = viewedPosts.includes(slug)
+    if (!hasViewed) {
+      handleAction('view')
     }
-    setUserId(id)
-
-    // Load initial stats and increment views
-    const loadStats = async () => {
-      try {
-        const initialStats = await getBlogStats(slug)
-        setStats(initialStats)
-        setIsLiked(initialStats.likedBy.includes(id))
-
-        // Increment views
-        const updatedStats = await incrementViews(slug)
-        setStats(updatedStats)
-      } catch (error) {
-        console.error("Failed to load blog stats:", error)
-      }
-    }
-
-    loadStats()
   }, [slug])
 
   const handleLike = async () => {
+    if (isLoading) return
+
+    setIsLoading(true)
     try {
-      const updatedStats = await toggleLike(slug, userId)
-      setStats(updatedStats)
-      setIsLiked(updatedStats.likedBy.includes(userId))
-    } catch (error) {
-      console.error("Failed to toggle like:", error)
+      await handleAction('like')
+      setIsLiked(true)
+      toast.success('Post liked!')
+      // Store in localStorage
+      const likedPosts = JSON.parse(localStorage.getItem('liked-posts') || '[]')
+      if (!likedPosts.includes(slug)) {
+        likedPosts.push(slug)
+        localStorage.setItem('liked-posts', JSON.stringify(likedPosts))
+      }
+    } catch {
+      console.error("Failed to like post")
+      toast.error('Failed to like post')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -57,9 +75,9 @@ export function BlogStats({ slug }: BlogStatsProps) {
         variant="ghost"
         size="sm"
         onClick={handleLike}
-        className={`${
-          isLiked ? "text-red-400 hover:text-red-300" : "text-slate-400 hover:text-slate-100"
-        } hover:bg-slate-800/50 transition-all`}
+        disabled={isLiked || isLoading}
+        className={`${isLiked ? "text-red-400 hover:text-red-300" : "text-slate-400 hover:text-slate-100"
+          } hover:bg-slate-800/50 transition-all`}
       >
         <Heart className={`w-4 h-4 mr-2 ${isLiked ? "fill-current" : ""}`} />
         {stats.likes}
@@ -69,11 +87,6 @@ export function BlogStats({ slug }: BlogStatsProps) {
         <Eye className="w-4 h-4" />
         <span>{stats.views.toLocaleString()}</span>
       </div>
-
-      <Button variant="ghost" size="sm" className="text-slate-400 hover:text-slate-100 hover:bg-slate-800/50">
-        <MessageCircle className="w-4 h-4 mr-2" />
-        12
-      </Button>
     </div>
   )
 }

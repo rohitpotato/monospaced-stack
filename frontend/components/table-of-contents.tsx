@@ -1,37 +1,70 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Heading } from "@/lib/posts"
 
-const tocItems = [
-  { id: 1, title: "A Packet's Journey Begins—Entering the Cluster", level: 1 },
-  { id: 2, title: "Navigating with Services—Stable Addresses for Packets", level: 1 },
-  { id: 3, title: "Finding the Way—DNS Resolution with CoreDNS", level: 1 },
-  { id: 4, title: "How Packets Travel—NAT and Veth Pairs", level: 1 },
-  { id: 5, title: "Crossing Nodes—VXLAN Overlays with Flannel", level: 1 },
-  { id: 6, title: "Securing the Path—Network Policies", level: 1 },
-  { id: 7, title: "Upgrading with Cilium", level: 1 },
-  { id: 8, title: "The Packet's Lesson", level: 0 },
-  { id: 9, title: "Try This", level: 0 },
-]
+interface TableOfContentsProps {
+  headings: Heading[]
+  title: string
+}
 
-export function TableOfContents() {
-  return (
-    <Card className="bg-slate-900/50 border-slate-800/50 sticky top-24">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-sm font-mono text-slate-300">The journey of a packet</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-1">
-        {tocItems.map((item) => (
-          <a
-            key={item.id}
-            href={`#step-${item.id}`}
-            className={`block text-sm font-mono transition-colors hover:text-emerald-400 py-2 px-3 rounded-md hover:bg-slate-800/50 ${
-              item.level === 0 ? "text-slate-300 font-semibold" : "text-slate-400 pl-6"
-            }`}
-          >
-            {item.level === 1 && <span className="text-emerald-400 mr-2">Step {item.id}:</span>}
-            {item.title}
-          </a>
-        ))}
-      </CardContent>
-    </Card>
-  )
+export function TableOfContents({ headings, title }: TableOfContentsProps) {
+  const [activeHeading, setActiveHeading] = useState<string>("")
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const headingElements = headings.map((heading) => 
+        document.getElementById(heading.id)
+      ).filter(Boolean) as HTMLElement[]
+
+      if (headingElements.length === 0) return
+
+      const scrollPosition = window.scrollY + 100
+
+      for (let i = headingElements.length - 1; i >= 0; i--) {
+        const element = headingElements[i]
+        if (element.offsetTop <= scrollPosition) {
+          setActiveHeading(headings[i].id)
+          break
+        }
+      }
+    }
+
+    window.addEventListener("scroll", handleScroll)
+    handleScroll() // Check on mount
+
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [headings])
+
+  const scrollToHeading = (headingId: string) => {
+    const element = document.getElementById(headingId)
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" })
+    }
+  }
+      return (
+      <Card className="bg-slate-900/50 border-slate-800/50 sticky top-24">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-sm font-mono text-slate-300">{title}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-1">
+          {headings.map((heading) => (
+            <button
+              key={heading.id}
+              onClick={() => scrollToHeading(heading.id)}
+              className={`block w-full text-left text-xs sm:text-sm font-mono transition-colors hover:text-theme-primary py-2 px-2 sm:px-3 rounded-md hover:bg-slate-800/50 ${
+                activeHeading === heading.id 
+                  ? "text-theme-primary bg-slate-800/50" 
+                  : "text-slate-400"
+              } ${
+                heading.level === 1 ? "pl-2 sm:pl-3" : `pl-${Math.min((heading.level - 1) * 2 + 4, 8)} sm:pl-${(heading.level - 1) * 3 + 6}`
+              }`}
+            >
+              <span className="line-clamp-2">{heading.title}</span>
+            </button>
+          ))}
+        </CardContent>
+      </Card>
+    )
 }
