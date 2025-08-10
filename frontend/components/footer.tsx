@@ -18,7 +18,7 @@ export function Footer() {
             <a href={process.env.NEXT_PUBLIC_TWITTER_URL} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-slate-100 hover:bg-slate-800/50">
               <Twitter className="w-4 h-4" />
             </a>
-            <a href={`mailto:${process.env.NEXT_PUBLIC_MAIL_TO}`} className="text-slate-400 hover:text-slate-100 hover:bg-slate-800/50">
+            <a href={`mailto:${process.env.NEXT_PUBLIC_MAIL_ID}`} className="text-slate-400 hover:text-slate-100 hover:bg-slate-800/50">
               <Mail className="w-4 h-4" />
             </a>
             <a href={process.env.NEXT_PUBLIC_SPOTIFY_URL} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-slate-100 hover:bg-slate-800/50">

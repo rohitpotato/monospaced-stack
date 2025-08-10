@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { BarChart3, Rss, User, Palette, Menu, X, Clover } from "lucide-react"
+import { BarChart3, Rss, User, Palette, Menu, X, Clover, Drum } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ColorPicker } from "@/components/color-picker"
 import Link from "next/link"
@@ -40,12 +40,18 @@ export function Header() {
                   RSS
                 </Button>
               </Link>
+              <Link href={process.env.NEXT_PUBLIC_SPOTIFY_URL || ''} target="_blank" rel="noopener noreferrer">
+                <Button variant="ghost" size="sm" className="text-slate-400 hover:text-slate-100 hover:bg-slate-800/50">
+                  <Drum className="w-4 h-4 mr-2" />
+                </Button>
+              </Link>
               <Link href="/about">
                 <Button variant="ghost" size="sm" className="text-slate-400 hover:text-slate-100 hover:bg-slate-800/50">
                   <User className="w-4 h-4 mr-2" />
                   About
                 </Button>
               </Link>
+
               <Button
                 variant="ghost"
                 size="sm"
