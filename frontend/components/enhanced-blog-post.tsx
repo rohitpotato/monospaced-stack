@@ -1,5 +1,4 @@
 import { Calendar, Clock } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import { BlogStats } from "@/components/blog-stats"
 import { Post } from "@/lib/posts"
 import { format } from "date-fns"
@@ -18,14 +17,6 @@ export function EnhancedBlogPost({ post }: EnhancedBlogPostProps) {
       <ReadingProgress />
 
       <header className="mb-12">
-        <div className="flex items-center space-x-2 mb-6">
-          <Badge
-            variant="secondary"
-            className="bg-theme-primary/10 text-theme-primary border-theme-primary/20 font-mono"
-          >
-            {post.icon || "Article"}
-          </Badge>
-        </div>
 
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-mono font-bold text-slate-100 mb-4 sm:mb-6 leading-tight">
           {post.title}
