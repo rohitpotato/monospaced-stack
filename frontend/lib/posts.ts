@@ -4,13 +4,14 @@ import matter from 'gray-matter'
 import readingTime from 'reading-time'
 import { cache } from 'react'
 import { getBlogStats, BlogStats } from './blog-stats'
+import { IconName } from 'lucide-react/dynamic'
 
 export interface Post {
   slug: string
   title: string
   publishedAt: string
   summary: string
-  icon?: string
+  icon?: IconName
   image?: string
   readingTime: string
   content: string
