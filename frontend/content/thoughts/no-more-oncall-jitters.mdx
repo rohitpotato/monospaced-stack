@@ -8,15 +8,15 @@ image: "/images/thoughts/no-more-oncall-jitters/no-more-oncall-jitters.webp"
 
 ![Title Image: A sleek, modern visualization of log streams flowing from Kubernetes pods into a centralized dashboard, with Grafana interfaces and Loki architecture elements, appealing to developers. SEO keywords: Kubernetes Log Management, Loki, Promtail, Next.js Debugging](/images/thoughts/no-more-oncall-jitters/no-more-oncall-jitters.webp)
 
-As a frontend developer on call, few things are more frustrating than an alert at 3 AM signaling errors in your Next.js app. You dive into the Kubernetes cluster, only to wrestle with scattered logs from multiple pods, piecing together what went wrong with a failed API call or a rendering issue. Logs are essential for debugging, but in a dynamic environment like Kubernetes, they can feel elusive and overwhelming. 
+It’s 3 AM, and your phone buzzes—an alert for your frontend application is down. As a frontend dev on call, you log into Kubernetes, facing a flood of kubectl logs commands across scattered pods. Tracking that elusive API error feels like a treasure hunt with no map, compounded by the pressure to resolve it fast. You’re the one responsible for delivering answers to the team, often with incomplete data, adding to the stress of those late-night shifts. 
+
+While SSH access to nodes might theoretically help advanced users debug deeper issues, it’s rarely available to devs, leaving you reliant on cluster tools.
 
 What if you had a streamlined system to centralize, search, and correlate those logs? 
 
-Enter Grafana `Loki and Promtail`, lightweight, cost-effective duo designed for Kubernetes. In this post, we'll explore why logs are crucial for frontend devs, the design principles behind these tools, how Next.js logs are captured, and practical steps to integrate them. By building this setup, you'll gain a pragmatic toolset for faster troubleshooting, turning chaotic on-call nights into efficient problem-solving sessions.
-
 ## Why Logs Matter for Frontend Devs in Kubernetes
 
-Logs are the unfiltered voice of your application—recording events, errors, and performance details that explain why your Next.js app, like `monospaced` in the `blog-website` namespace, is behaving unexpectedly. In Kubernetes, where pods scale and restart dynamically, logs help answer critical questions: "Why did this API request time out?" or "What's causing the hydration error in production?" They provide context for issues that metrics alone can't capture, such as stack traces or user session details.
+Logs are the unfiltered voice of your application—recording events, errors, and performance details that explain why your Next.js app is behaving unexpectedly. In Kubernetes, where pods scale and restart dynamically, logs help answer critical questions: **"Why did this API request time out?" or "What's causing the hydration error in production?"** They provide context for issues that metrics alone can't capture, such as stack traces or user session details.
 
 For frontend devs on call, centralized logging is a game-changer. It eliminates the tedium of manually fetching logs from individual pods via `kubectl logs`, allowing quick searches across the cluster. This speeds up root cause analysis, reduces downtime, and integrates with dashboards for correlating logs with metrics (e.g., CPU spikes during a render loop). Tools like Loki and Promtail make this accessible, focusing on efficiency without the overhead of traditional systems.
 
@@ -36,7 +36,7 @@ These tools prioritize pragmatism: low resource usage, easy integration, and dev
 
 ## How Next.js Apps Expose Logs (and How They're Scraped)
 
-In a Kubernetes setup, your `monospaced` Next.js app generates logs through standard output (`stdout`) and standard error (`stderr`). For example, a `console.error("API timeout in fetch")` or an unhandled exception writes to these streams. The container runtime (e.g., containerd) captures them, storing files like `/var/log/pods/blog-website_monospaced-xyz/0.log` on the node.
+In a Kubernetes setup, your Next.js app generates logs through standard output (`stdout`) and standard error (`stderr`). For example, a `console.error("API timeout in fetch")` or an unhandled exception writes to these streams. The container runtime (e.g., containerd) captures them, storing files like `/var/log/pods/blog-website_monospaced-xyz/0.log` on the node.
 
 Promtail scrapes these files automatically:
 
@@ -89,7 +89,9 @@ Deploy via ArgoCD by creating an Application pointing to the chart, syncing in t
 
 ### Tip 2: Set Up Promtail for Cluster-Wide Scraping
 
-Deploy the `grafana/promtail` Helm chart as a DaemonSet. Tip: Point clients to Loki's service and add basic pipeline stages for parsing.
+Deploy the `grafana/promtail` Helm chart as a DaemonSet. 
+
+Tip: Point clients to Loki's service and add basic pipeline stages for parsing.
 
 Sample values snippet:
 
