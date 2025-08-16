@@ -1,58 +1,43 @@
-import { Calendar, Clock } from "lucide-react"
-import { BlogStats } from "@/components/blog-stats"
+import React from "react"
 import { Post } from "@/lib/posts"
 import { format } from "date-fns"
-import { ReadingProgress } from "@/components/reading-progress"
-import { MDXContent } from "@/components/mdx-content"
-import ShareButton from "./share-button"
+import Typography from "./typography"
+import { MDXRemote } from "next-mdx-remote/rsc"
+import { mdxComponents } from "./markdown/mapping"
 
 interface EnhancedBlogPostProps {
   post: Post
 }
 
 export function EnhancedBlogPost({ post }: EnhancedBlogPostProps) {
+  const formatDate = (dateString: string) => {
+    return format(new Date(dateString), 'MMMM d, yyyy')
+  }
 
   return (
-    <article className="max-w-4xl">
-      <ReadingProgress />
-
+    <article className="w-full py-8">
+      {/* Header */}
       <header className="mb-12">
-
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-mono font-bold text-slate-100 mb-4 sm:mb-6 leading-tight">
+        <Typography variant="heading-large" className="mb-6">
           {post.title}
-        </h1>
-
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 text-sm text-slate-400 font-mono space-y-2 sm:space-y-0">
-            <div className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4" />
-              <span>{format(new Date(post.publishedAt), "MMMM d, yyyy")}</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Clock className="w-4 h-4" />
-              <span>{post.readingTime}</span>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <BlogStats slug={post.slug} stats={post.stats} />
-            <ShareButton key={post.slug} post={post} />
-          </div>
+        </Typography>
+        <div className="flex items-center gap-4 text-gray-600 text-sm">
+          <time dateTime={post.publishedAt}>
+            {formatDate(post.publishedAt)}
+          </time>
+          <span>•</span>
+          <span>{post.readingTime}</span>
         </div>
-
-
+        {post.summary && (
+          <p className="mt-6 text-lg text-gray-600 leading-relaxed">
+            {post.summary}
+          </p>
+        )}
       </header>
 
-      {/* Article Content */}
-      <div className="prose prose-invert prose-slate max-w-none">
-        <div className="text-lg leading-relaxed text-slate-300 font-mono space-y-8">
-          <div className="bg-slate-900/30 border-l-4 border-theme-primary p-6 rounded-r-lg backdrop-blur-sm">
-            <p className="text-theme-primary font-semibold mb-2">TL;DR</p>
-            <p className="text-slate-300">{post.summary}</p>
-          </div>
-
-          <MDXContent content={post.content} />
-        </div>
+      {/* Content */}
+      <div className="prose prose-gray max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-code:text-gray-800 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-50 prose-pre:border prose-pre:border-gray-200">
+        <MDXRemote source={post.content} components={mdxComponents} />
       </div>
     </article>
   )

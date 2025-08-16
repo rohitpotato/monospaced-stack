@@ -105,3 +105,9 @@ export async function getPostSlugs(): Promise<string[]> {
     .filter((fileName) => fileName.endsWith('.mdx'))
     .map((fileName) => fileName.replace(/\.mdx$/, ''))
 }
+
+export async function getAbout(): Promise<string> {
+  const fullPath = path.join(process.cwd(), 'app/about/about.mdx')
+  const fileContents = await fs.promises.readFile(fullPath, 'utf8')
+  return fileContents
+}
