@@ -1,9 +1,10 @@
 import type React from "react"
-import { Inter } from "next/font/google"
-import { ThemeProvider } from "@/lib/theme-context"
+import { Bricolage_Grotesque, DM_Serif_Display } from "next/font/google"
 import "./globals.css"
-
-const inter = Inter({ subsets: ["latin"] })
+import Layout from "./_layout"
+import { cn } from "@/lib/utils"
+const bricolage = Bricolage_Grotesque({ subsets: ["latin"] })
+const dmSerifDisplay = DM_Serif_Display({ subsets: ["latin"], weight: "400" })
 
 export const metadata = {
   title: {
@@ -123,8 +124,8 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#0f172a" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
       </head>
-      <body className={inter.className}>
-        <ThemeProvider>{children}</ThemeProvider>
+      <body className={cn(bricolage.className)}>
+        <Layout>{children}</Layout>
       </body>
     </html>
   )

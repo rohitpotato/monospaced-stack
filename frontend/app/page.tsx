@@ -1,19 +1,16 @@
-import { Header } from "@/components/header"
-import { OptimizedHero } from "@/components/optimized-hero"
-import { BlogGrid } from "@/components/blog-grid"
-import { InfiniteStrip } from "@/components/infinite-strip"
-import { Footer } from "@/components/footer"
+
 import { getRecentPosts, getAllPosts } from "@/lib/posts"
 import { Metadata } from "next"
 import { generateHomePageMetadata } from "@/lib/metadata"
 import { generateWebsiteStructuredData, generateBlogStructuredData } from "@/lib/structured-data"
+import About from "@/components/about"
 
 export async function generateMetadata(): Promise<Metadata> {
   return generateHomePageMetadata()
 }
 
 export default async function HomePage() {
-  const [recentPosts, allPosts] = await Promise.all([getRecentPosts(2), getAllPosts()])
+  const [recentPosts] = await Promise.all([getRecentPosts(2)])
 
   const websiteStructuredData = generateWebsiteStructuredData()
   const blogStructuredData = generateBlogStructuredData(recentPosts)
@@ -28,14 +25,10 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogStructuredData) }}
       />
-      <div className="min-h-screen bg-slate-950 text-slate-100">
-        <Header />
+      <div className="min-h-screen">
         <main>
-          <OptimizedHero recentPosts={recentPosts} />
-          <BlogGrid posts={allPosts} />
-          <InfiniteStrip />
+          <About />
         </main>
-        <Footer />
       </div>
     </>
   )
