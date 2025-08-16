@@ -1,5 +1,4 @@
 import { Post } from './posts'
-import Fuse from 'fuse.js'
 
 export interface SearchResult {
   post: Post
@@ -9,22 +8,6 @@ export interface SearchResult {
     text: string
     indices: number[][]
   }[]
-}
-
-// Fuse.js configuration for optimal search
-const fuseOptions = {
-  includeScore: true,
-  includeMatches: true,
-  threshold: 0.5, // Lower threshold = more strict matching
-  keys: [
-    { name: 'title', weight: 3 },
-    { name: 'summary', weight: 2 },
-    { name: 'content', weight: 1 }
-  ],
-  ignoreLocation: true,
-  findAllMatches: true,
-  minMatchCharLength: 2,
-  shouldSort: true
 }
 
 // Extract text content from markdown (simple implementation)
@@ -41,56 +24,82 @@ function extractTextFromMarkdown(markdown: string): string {
 
 // Search through posts using Fuse.js
 export function searchPosts(posts: Post[], query: string): SearchResult[] {
-  if (!query.trim() && query.trim().length < 3) return []
+  if (!query.trim() || query.trim().length < 3) return []
   
-  // Prepare posts for Fuse.js search
-  const searchablePosts = posts.map(post => ({
-    ...post,
-    content: extractTextFromMarkdown(post.content)
-  }))
+  const trimmedQuery = query.trim().toLowerCase()
+  const results: SearchResult[] = []
   
-  // Create Fuse instance
-  const fuse = new Fuse(searchablePosts, fuseOptions)
-  
-  // Perform search
-  const fuseResults = fuse.search(query)
-    
-  // Transform Fuse.js results to our format
-  const results: SearchResult[] = fuseResults.map(fuseResult => {
-    const post = fuseResult.item
+  // Search through posts manually for exact substring matches
+  for (const post of posts) {
     const matches: SearchResult['matches'] = []
     
-    // Process matches from Fuse.js
-    if (fuseResult.matches) {
-      for (const match of fuseResult.matches) {
-        if (match.key && match.indices) {
-          const field = match.key as 'title' | 'summary' | 'content'
-          const text = match.value || ''
-          
-          // For content matches, extract snippet
-          if (field === 'content' && text.length > 150) {
-            const snippet = extractSnippet(text, match.indices.flat(), 150)
-            matches.push({
-              field: 'content',
-              text: snippet.text,
-              indices: [match.indices.flat().map(i => i - snippet.startIndex)]
-            })
-          } else {
-            matches.push({
-              field,
-              text,
-              indices: [match.indices.flat()]
-            })
-          }
-        }
+    // Check title
+    const titleLower = post.title.toLowerCase()
+    if (titleLower.includes(trimmedQuery)) {
+      const startIndex = titleLower.indexOf(trimmedQuery)
+      const indices = Array.from({ length: trimmedQuery.length }, (_, i) => startIndex + i)
+      matches.push({
+        field: 'title',
+        text: post.title,
+        indices: [indices]
+      })
+    }
+    
+    // Check summary
+    if (post.summary) {
+      const summaryLower = post.summary.toLowerCase()
+      if (summaryLower.includes(trimmedQuery)) {
+        const startIndex = summaryLower.indexOf(trimmedQuery)
+        const indices = Array.from({ length: trimmedQuery.length }, (_, i) => startIndex + i)
+        matches.push({
+          field: 'summary',
+          text: post.summary,
+          indices: [indices]
+        })
       }
     }
     
-    return {
-      post,
-      score: fuseResult.score || 0,
-      matches
+    // Check content
+    const contentText = extractTextFromMarkdown(post.content)
+    const contentLower = contentText.toLowerCase()
+    if (contentLower.includes(trimmedQuery)) {
+      const startIndex = contentLower.indexOf(trimmedQuery)
+      const indices = Array.from({ length: trimmedQuery.length }, (_, i) => startIndex + i)
+      
+      // Extract snippet around the match
+      const snippet = extractSnippet(contentText, indices, 150)
+      matches.push({
+        field: 'content',
+        text: snippet.text,
+        indices: [indices.map(i => i - snippet.startIndex)]
+      })
     }
+    
+    // Only include posts that have matches
+    if (matches.length > 0) {
+      results.push({
+        post,
+        score: 0, // All matches are equally relevant for exact substring matching
+        matches
+      })
+    }
+  }
+  
+  // Sort by relevance (title matches first, then summary, then content)
+  results.sort((a, b) => {
+    const aHasTitle = a.matches.some(m => m.field === 'title')
+    const bHasTitle = b.matches.some(m => m.field === 'title')
+    
+    if (aHasTitle && !bHasTitle) return -1
+    if (!aHasTitle && bHasTitle) return 1
+    
+    const aHasSummary = a.matches.some(m => m.field === 'summary')
+    const bHasSummary = b.matches.some(m => m.field === 'summary')
+    
+    if (aHasSummary && !bHasSummary) return -1
+    if (!aHasSummary && bHasSummary) return 1
+    
+    return 0
   })
   
   return results

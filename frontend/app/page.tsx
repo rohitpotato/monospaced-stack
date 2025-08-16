@@ -4,6 +4,7 @@ import { Metadata } from "next"
 import { generateHomePageMetadata } from "@/lib/metadata"
 import { generateWebsiteStructuredData, generateBlogStructuredData } from "@/lib/structured-data"
 import About from "@/components/about"
+import PageWrapper from "@/components/page-wrapper"
 
 export async function generateMetadata(): Promise<Metadata> {
   return generateHomePageMetadata()
@@ -25,11 +26,13 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogStructuredData) }}
       />
-      <div className="min-h-screen">
-        <main>
-          <About />
-        </main>
-      </div>
+      <PageWrapper>
+        <div className="min-h-screen">
+          <main>
+            <About />
+          </main>
+        </div>
+      </PageWrapper>
     </>
   )
 }

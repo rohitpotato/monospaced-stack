@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 
 body {
+  min-height: 100vh;
   background: #FFEFBA;  /* fallback for old browsers */
   background: -webkit-linear-gradient(to right, #FFFFFF, #FFEFBA);  /* Chrome 10-25, Safari 5.1-6 */
   background: linear-gradient(to right, #FFFFFF, #FFEFBA); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
@@ -64,9 +65,13 @@ gap: 5px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 0;
+    padding: 1rem;
     margin-bottom: 1rem;
     gap: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
   }
   
   .mobile-header .search-container {

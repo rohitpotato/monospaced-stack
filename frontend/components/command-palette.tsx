@@ -21,7 +21,7 @@ const CommandPalette = ({ posts, isOpen, onClose }: CommandPaletteProps) => {
 
   // Search effect
   useEffect(() => {
-    if (search.trim() && search.trim().length >= 2) {
+    if (search.trim() && search.trim().length >= 3) {
       setIsSearching(true)
       // Small delay to show loading state
       const timeoutId = setTimeout(() => {
@@ -40,6 +40,7 @@ const CommandPalette = ({ posts, isOpen, onClose }: CommandPaletteProps) => {
 
   // Handle result selection
   const handleSelect = (post: Post) => {
+    console.log('post', post)
     router.push(`/thoughts/${post.slug}`)
     onClose()
     setSearch('')
@@ -111,7 +112,7 @@ const CommandPalette = ({ posts, isOpen, onClose }: CommandPaletteProps) => {
               </div>
             )}
 
-            {!isSearching && search.trim() && search.trim().length >= 2 && results.length === 0 && (
+            {!isSearching && search.trim() && search.trim().length >= 3 && results.length === 0 && (
               <div className="px-4 py-8 text-center text-gray-500">
                 <Search className="w-8 h-8 mx-auto mb-2 text-gray-300" />
                 <p>No results found for "{search}"</p>
@@ -119,11 +120,11 @@ const CommandPalette = ({ posts, isOpen, onClose }: CommandPaletteProps) => {
               </div>
             )}
 
-            {!isSearching && (!search.trim() || search.trim().length < 2) && (
+            {!isSearching && (!search.trim() || search.trim().length < 3) && (
               <div className="px-4 py-8 text-center text-gray-500">
                 <Search className="w-8 h-8 mx-auto mb-2 text-gray-300" />
                 <p>Start typing to search posts...</p>
-                <p className="text-sm">Search through titles, summaries, and content (minimum 2 characters)</p>
+                <p className="text-sm">Search through titles, summaries, and content (minimum 3 characters)</p>
               </div>
             )}
 
@@ -132,7 +133,9 @@ const CommandPalette = ({ posts, isOpen, onClose }: CommandPaletteProps) => {
                 key={`${result.post.slug}-${index}`}
                 value={`${result.post.title} ${result.post.summary || ''}`}
                 onSelect={() => handleSelect(result.post)}
-                className="flex items-start p-3 rounded-lg cursor-pointer hover:bg-[#ead595] transition-colors focus:bg-[#ead595] focus:outline-none"
+                onClick={() => handleSelect(result.post)}
+                onMouseDown={() => handleSelect(result.post)}
+                className='flex items-start p-3 rounded-lg cursor-pointer hover:bg-[#ead595] transition-colors focus:bg-[#ead595] focus:outline-none'
               >
                 <div className="flex-1 min-w-0">
                   {/* Title */}

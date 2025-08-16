@@ -1,12 +1,13 @@
 import { EnhancedBlogPost } from "@/components/enhanced-blog-post"
 import TableOfContents from "@/components/table-of-contents"
-import MobileTableOfContents from "@/components/mobile-table-of-contents"
 import { Footer } from "@/components/footer"
 import { getPostBySlug, getPostSlugs } from "@/lib/posts"
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
 import { generateBlogPostMetadata, generateNotFoundMetadata } from "@/lib/metadata"
 import { generateBlogPostStructuredData } from "@/lib/structured-data"
+import PageWrapper from "@/components/page-wrapper"
+import FadeIn from "@/components/fade-in"
 
 interface BlogPostPageProps {
   params: Promise<{
@@ -44,15 +45,18 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8 max-w-7xl mx-auto px-1">
-          <div className="lg:col-span-1">
-            <EnhancedBlogPost post={post} />
+        <PageWrapper>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8 max-w-7xl mx-auto px-1">
+            <div className="lg:col-span-1">
+              <EnhancedBlogPost post={post} />
+            </div>
+            <FadeIn delay={0.3}>
+              <div className="hidden lg:block lg:col-span-1">
+                <TableOfContents headings={post.headings} title={post.title} />
+              </div>
+            </FadeIn>
           </div>
-          <div className="hidden lg:block lg:col-span-1">
-            <TableOfContents headings={post.headings} title={post.title} />
-          </div>
-        </div>
-        <MobileTableOfContents headings={post.headings} title={post.title} />
+        </PageWrapper>
       </>
     )
   } catch {
