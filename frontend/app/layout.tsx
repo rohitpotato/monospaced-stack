@@ -3,6 +3,7 @@ import { Bricolage_Grotesque, DM_Serif_Display } from "next/font/google"
 import "./globals.css"
 import Layout from "./_layout"
 import { cn } from "@/lib/utils"
+import Script from "next/script"
 const bricolage = Bricolage_Grotesque({ subsets: ["latin"] })
 const dmSerifDisplay = DM_Serif_Display({ subsets: ["latin"], weight: "400" })
 
@@ -123,6 +124,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://rohitpotato.xyz" />
         <meta name="msapplication-TileColor" content="#0f172a" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
+        <Script defer src="https://analytics.rohitpotato.xyz/script.js" data-website-id="94df3d9d-929c-4095-a309-ece2e6d5bbe1"></Script>
       </head>
       <body className={cn(bricolage.className)}>
         <Layout>{children}</Layout>
