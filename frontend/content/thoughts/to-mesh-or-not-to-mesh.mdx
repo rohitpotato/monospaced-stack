@@ -1,0 +1,105 @@
+---
+title: "To mesh or not to mesh"
+publishedAt: "2025-09-01"
+summary: "Understanding service mesh, and do you really need them?"
+icon: "route"
+image: "/images/thoughts/to-mesh-or-not-to-mesh/to-mesh-or-not-to-mesh.png"
+---
+
+![Title Image: To mesh or not to mesh](/images/thoughts/to-mesh-or-not-to-mesh/to-mesh-or-not-to-mesh.png)
+
+Recently, i have been exploring the idea of a service mesh. But rohit, you just run a blog with maybe 2 users a month, why do YOU need a service mesh at all? Short answer?
+
+**FAFO.**
+
+Long answer, the itch in my brain won't let me be in peace unless i understand how all of the peices fit together. Back in 2020, when i was working at an e-commerce giant, i was told to look at *istio* logs during my on-call. I never really understood what it was back then, neither did i have the courage to ask after a certain time had passed. Few years later, i was in the same boat. But this time around, i had a better understanding of the fundamentals than before, so it was easier for me to really dig in.
+
+The basic gist of a service mesh is, it makes your east-west traffic observable, secure and configurable. This allows you to have circuit breakers, retries, metrics, tracing, load balancing and more **without touching your application code**. Which means, your developers do not need to worry about the above things, as long you have a devops-first culture in your organisation.
+
+I used a lot of big words up there, lets go through them one by one.
+
+## East-West Traffic
+
+![Service mesh architecture](/images/thoughts/to-mesh-or-not-to-mesh/service-mesh.png)
+
+It basically means the traffic between the services in your cluster. For example, consider an e-commerce application. Your product description page needs a lot of information. It needs to talk with your reviews service, a product-detail service, a rating service, a coupon service and so on, you get the idea. 
+
+Now, how do you make sure the traffic between each of these services is observable, encrypted and can be configured to accept or reject inbound connection. Well, there are a lot of answers to this question, one of them is a service mesh. There are a lot of different service mesh options available, one of them and arguably the most popular one is [istio](https://istio.io/latest/docs/overview/what-is-istio/). Another option is [linkerd](https://linkerd.io/2.18/overview/) (i chose this). 
+
+Both istio and linkerd work on the same principle, they deploy a sidecar container with your pods, which intercept the inbound and outbound traffic using iptables, apply the configuration you specify, and redirects to the application container. But here's the catch, these sidecar containers are not cheap, atleast not in the case of istio. Istio uses something called a `envoy-proxy` as a sidecar container within each pod, which is a resource hungry proxy which intercepts all the traffic. 
+
+In case of linkerd, it uses a rust based proxy, which is very lightweight in nature. So naturally, since i am running my own bare-metal cluster, i chose this. 
+
+## Mutual TLS
+
+Another selling point of a service mesh is mutual TLS. Rather than a traditional TLS, where only the server has to prove its identity, both the client and the server have to be prove their identity for the communication to happen. That means, you get encryption out of the box with a service mesh. 
+
+In case of linkerd, which i am using, there is a trust root certificate, which acts as the certificate authority, which in turn signs the intermediate certificate, and this intermediate certificate signs each workload certificate. 
+
+So, do you need it? It depends. You need to ask yourself, am i running sensitive enough services which require encryption on a bare-metal cluster? I mentioned bare-metal, the reason being, a lot of cloud providers already handle north-south encryption for you via load balacners. So, if your only motivation for using a service-mesh was mTLS, you should first check if your cloud provider already supports this out of the box, and you really need pod to pod encryption.
+
+## Configurable
+
+So, your backend needs to talk to your product detail service, which in-turn calls your coupons service, or your rating service, which calls your database and so on. But, what if you wanted to restrict inbound calls to your rating service, only from your product detail service?
+
+Kubernetes with a CNI like calico supports network policies, which solve these exact problems for you. But here's the catch, they operate on layer 3 and 4 of the OSI model layer. Which means, you can control ingress and egress traffic based on ports, protocols etc, but not based on HTTP headers. (Layer 3 and 4 do not have access to this.) 
+
+You might be thinking *"doesn't cilium offer layer 7 based network policies?"* And you are right, it does. But service-mesh offers more advanced HTTP-based routing and traffic management.
+
+For example, you wanted to do canary deployments, and route traffic to your canary pods using a http header (`canary: true`), you can use a service mesh like istio or linkerd to distribute traffic percentile to the respective pods. 
+
+Since service-mesh operate on layer 7, you have access to these primtivies, they give you greater flexibility and control over how your traffic flows between your services. 
+
+An example of canary deployments using `Linkerd` `TrafficSplit` resource.
+
+```yaml
+apiVersion: split.smi-spec.io/v1alpha2
+kind: TrafficSplit
+metadata:
+  name: reviews-traffic-split
+  namespace: default
+spec:
+  service: reviews.default.svc.cluster.local
+  backends:
+  - service: reviews-v1.default.svc.cluster.local
+    weight: 90
+    conditions:
+      http:
+        headers:
+          canary:
+            exact: "false"
+  - service: reviews-canary.default.svc.cluster.local
+    weight: 10
+    conditions:
+      http:
+        headers:
+          canary:
+            exact: "true"
+  - service: reviews-v1.default.svc.cluster.local
+    weight: 100
+    conditions: {}
+```
+
+### Circuit breakers, load-balacing and retries
+
+Another cool thing about a service mesh is, you can configure retries and circuit breaking. Lets dig in.
+
+Retries are straight-forward, your services can retry failed calls automatically, based on your configuration. Service mesh can also handle load-balacing and circuit breaking for you out of the box.
+
+Service meshes provide client-side load balancing, where the sidecar proxy selects a pod from a list of IPs provided by the mesh’s control plane (e.g., Linkerd’s control plane or Istio’s Pilot). This allows advanced load balancing strategies like round-robin or least connections, alongside circuit breakers (to limit traffic to overwhelmed pods).
+
+Lets say service A is calling service B. Now, the pods for service B might be overwhelmed. Service A, if meshed, can protect service B by limiting connections or requests to overwhelmed pods. If a pod is unhealthy, the sidecar stops sending traffic to it, and the mesh’s load balancing selects a healthier pod.
+
+Its pretty cool that all of this just works out of the box, and is completely platform agnostic. 
+
+### Observability
+
+The biggest selling point of a service mesh arguably is observability. In services with a lot of inbound and outbound traffic, you need to be able to see, how traffic is flowing inside your cluster(s). You need real time metrics like RPM, success and error rates. Service mesh can do all of that and more for you. 
+
+Moreover, you can something like jaeger to export mesh logs to inspect them in real time. This gives you real time visiblity inside your services, and can you debug your services much quickly if something goes wrong. This also gives you a clear picture of the traffic flow, and how to optimise your services based on the metrics available. 
+
+### All of it sounds great, but are there any cons?
+
+There are trade-offs with everything you bring into your architecture. For instance, each sidecar proxies (atleast with istio) are resource intenstive, which means, you will be scaling and end up paying infrastructure cost. If the infrastructure cost is justfied by the feature set you get, and you are going to be using the full feature-set of a service mesh, go for it. 
+
+If not, you need to ask yourself. Am i doing this because everyone does it, or does my infrastructure really needs the added complexity?
