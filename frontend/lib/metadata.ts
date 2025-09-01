@@ -44,6 +44,19 @@ export function resolveImageUrl(post: Post): string {
   return `https://rohitpotato.xyz${post.image}`
 }
 
+/**
+ * Determines the MIME type of an image based on its file extension
+ */
+export function getImageMimeType(imageUrl: string): string {
+  if (imageUrl.includes('.webp')) return 'image/webp'
+  if (imageUrl.includes('.png')) return 'image/png'
+  if (imageUrl.includes('.jpg') || imageUrl.includes('.jpeg')) return 'image/jpeg'
+  if (imageUrl.includes('.gif')) return 'image/gif'
+  if (imageUrl.includes('.svg')) return 'image/svg+xml'
+  // Default to PNG if no extension is found
+  return 'image/png'
+}
+
 export function generateBaseMetadata(config: MetadataConfig): Metadata {
   const {
     title,
@@ -96,7 +109,7 @@ export function generateBaseMetadata(config: MetadataConfig): Metadata {
           width: 1200,
           height: 630,
           alt: title,
-          type: 'image/png',
+          type: getImageMimeType(imageUrl),
         },
       ] : undefined,
       locale: 'en_US',
