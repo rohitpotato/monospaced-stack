@@ -124,7 +124,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://rohitpotato.xyz" />
         <meta name="msapplication-TileColor" content="#0f172a" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
-        <Script defer src="https://analytics.rohitpotato.xyz/script.js" data-website-id="a8455acf-aa2f-4916-bd2a-a54ec282e869" />
+        <Script defer src="https://analytics.rohitpotato.xyz/script.js" data-website-id="ba838c03-a5b0-4560-a1d8-72c4f18aa565" />
       </head>
       <body className={cn(bricolage.className)}>
         <Layout>{children}</Layout>
