@@ -1,6 +1,7 @@
 import type React from 'react'
 import { VT323 } from 'next/font/google'
 import Script from 'next/script'
+import App from '@/_app'
 import Header from '@/components/header'
 import { cn } from '@/lib/utils'
 import './globals.css'
@@ -132,7 +133,7 @@ export default function RootLayout({
             <Header />
           </div>
           <div className="mt-16 px-4">
-            {children}
+            <App>{children}</App>
           </div>
         </div>
       </body>
