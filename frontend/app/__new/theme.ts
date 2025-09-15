@@ -33,5 +33,5 @@ export const typography = {
 
 export const layout = {
   window: `bg-${colors.background} border-2 border-${colors.border} p-1 shadow-[0_0_15px_rgba(50,255,50,0.5)]`,
-  container: `grid grid-cols-1 lg:grid-cols-2 gap-0`,
+  container: `grid grid-cols-1 lg:grid-cols-2 gap-0 p-2`,
 }

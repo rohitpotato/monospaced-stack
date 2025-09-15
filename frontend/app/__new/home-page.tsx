@@ -126,7 +126,7 @@ const HomePage: React.FC<{ posts: Post[] }> = ({ posts }) => {
   }
 
   return (
-    <RetroWindow title="MAINFRAME_TERMINAL.exe" variant="full">
+    <RetroWindow title="terminal.exe" variant="full">
       <div className={layout.container}>
         {/* Left Column: Content */}
         <div className={`bg-${colors.background}`}>

@@ -80,7 +80,7 @@ const DecorativeWindow: React.FC = () => {
         <div className={cn('border-t-2 border-green-500 w-full my-4')}></div>
 
         <Typography variant="body" as="p">
-          メイド・イン・インディア2025
+          メイド・イン・インディア - {new Date().getFullYear()}
         </Typography>
 
       </div>

@@ -131,7 +131,7 @@ export default function RootLayout({
           <div className="sticky top-0 z-50 bg-black">
             <Header />
           </div>
-          <div className="mt-16">
+          <div className="mt-16 px-4">
             {children}
           </div>
         </div>

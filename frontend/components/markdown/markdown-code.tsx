@@ -17,7 +17,8 @@ export function MarkdownCode({ children, className, inline = false, ...props }: 
         variant="code"
         // @ts-expect-error - TypographyColor is not defined
         color="accent"
-        className={cn('px-1.5 py-0.5 rounded', className)}
+        glow
+        className={cn('px-1.5 py-0.5 rounded bg-green-700 text-green-50', className)}
         {...props}
       >
         {children}
@@ -26,8 +27,8 @@ export function MarkdownCode({ children, className, inline = false, ...props }: 
   }
 
   return (
-    <Window>
-      <pre className={cn('overflow-x-auto mb-4', className)} {...props}>
+    <Window className='mb-4'>
+      <pre className={cn('overflow-x-auto', className)} {...props}>
         <Typography
           as="code"
           variant="code"
