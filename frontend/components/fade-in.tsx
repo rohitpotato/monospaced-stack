@@ -1,57 +1,51 @@
-'use client'
-import { motion } from "framer-motion"
+import React from 'react';
+import { motion, Variants } from 'framer-motion';
 
 interface FadeInProps {
-    children: React.ReactNode
-    delay?: number
-    duration?: number
-    direction?: 'up' | 'down' | 'left' | 'right'
-    className?: string
+  children: React.ReactNode;
+  stagger?: number;
+  delay?: number;
+  className?: string;
 }
 
-const FadeIn = ({
-    children,
-    delay = 0.1,
-    duration = 0.3,
-    direction = 'up',
-    className = ''
-}: FadeInProps) => {
-    const getDirectionOffset = () => {
-        switch (direction) {
-            case 'up':
-                return { y: 10 }
-            case 'down':
-                return { y: -10 }
-            case 'left':
-                return { x: 10 }
-            case 'right':
-                return { x: -10 }
-            default:
-                return { y: 10 }
-        }
-    }
+const containerVariants: Variants = {
+  hidden: {},
+  visible: (stagger: number = 0.1) => ({
+    transition: {
+      staggerChildren: stagger,
+    },
+  }),
+};
 
-    return (
-        <motion.div
-            initial={{
-                opacity: 0,
-                ...getDirectionOffset()
-            }}
-            animate={{
-                opacity: 1,
-                x: 0,
-                y: 0
-            }}
-            transition={{
-                duration,
-                ease: "easeInOut",
-                delay
-            }}
-            className={className}
-        >
-            {children}
-        </motion.div>
-    )
-}
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: 'easeOut',
+    },
+  },
+};
 
-export default FadeIn
+const FadeIn: React.FC<FadeInProps> = ({ children, stagger = 0.1, delay = 0, className }) => {
+  const motionChildren = React.Children.map(children, (child) => (
+    <motion.div variants={itemVariants}>{child}</motion.div>
+  ));
+
+  return (
+    <motion.div
+      className={className}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      custom={stagger}
+      style={{ transitionDelay: `${delay}s`}}
+    >
+      {motionChildren}
+    </motion.div>
+  );
+};
+
+export default FadeIn;

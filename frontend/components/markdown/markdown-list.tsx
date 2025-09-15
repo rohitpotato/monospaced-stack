@@ -1,5 +1,7 @@
 import React from 'react'
 import { cn } from '@/lib/utils'
+import Typography from '@/components/typography'
+import Window from '@/components/window'
 
 interface MarkdownListProps {
     children: React.ReactNode
@@ -11,15 +13,17 @@ export function MarkdownList({ children, className, ordered = false, ...props }:
     const Component = ordered ? 'ol' : 'ul'
 
     return (
-        <Component className={cn(
-            'mb-4 space-y-2',
-            ordered
-                ? 'list-decimal list-inside text-gray-700'
-                : 'list-disc list-inside text-gray-700',
-            className
-        )} {...props}>
-            {children}
-        </Component>
+        <Window className={cn('my-4', className)}>
+            <Component className={cn(
+                'space-y-2',
+                ordered
+                    ? 'list-decimal list-inside'
+                    : 'list-disc list-inside',
+                className
+            )} {...props}>
+                {children}
+            </Component>
+        </Window>
     )
 }
 
@@ -30,8 +34,14 @@ interface MarkdownListItemProps {
 
 export function MarkdownListItem({ children, className, ...props }: MarkdownListItemProps & React.LiHTMLAttributes<HTMLLIElement>) {
     return (
-        <li className={cn('leading-relaxed', className)} {...props}>
+        <Typography
+            as="li"
+            variant="body"
+            color="text"
+            className={cn('leading-relaxed', className)}
+            {...props}
+        >
             {children}
-        </li>
+        </Typography>
     )
 }
