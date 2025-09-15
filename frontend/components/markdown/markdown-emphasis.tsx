@@ -1,15 +1,23 @@
 import React from 'react'
+import Typography from '@/components/typography'
 import { cn } from '@/lib/utils'
 
 interface MarkdownEmphasisProps {
-    children: React.ReactNode
-    className?: string
+  children: React.ReactNode
+  className?: string
 }
 
 export function MarkdownEmphasis({ children, className, ...props }: MarkdownEmphasisProps & React.HTMLAttributes<HTMLElement>) {
   return (
-    <em className={cn('italic text-gray-800', className)} {...props}>
+    <Typography
+      as="em"
+      variant="body"
+      // @ts-expect-error - TypographyColor is not defined
+      color="text"
+      className={cn('italic', className)}
+      {...props}
+    >
       {children}
-    </em>
+    </Typography>
   )
 }

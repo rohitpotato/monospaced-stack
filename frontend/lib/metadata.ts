@@ -1,5 +1,5 @@
-import { Metadata } from "next"
-import { Post } from "./posts"
+import type { Metadata } from 'next'
+import type { Post } from './posts'
 
 export interface MetadataConfig {
   title: string
@@ -13,14 +13,14 @@ export interface MetadataConfig {
 
 /**
  * Resolves the image URL for a blog post.
- * 
+ *
  * Priority order:
  * 1. Custom image from frontmatter (if provided)
  * 2. Generated OG image using title and description
- * 
+ *
  * @param post - The blog post object
  * @returns The resolved image URL
- * 
+ *
  * @example
  * // In your MDX frontmatter:
  * ---
@@ -34,12 +34,12 @@ export function resolveImageUrl(post: Post): string {
   if (!post.image) {
     return `https://rohitpotato.xyz/api/og?title=${encodeURIComponent(post.title)}&description=${encodeURIComponent(post.summary)}`
   }
-  
+
   // If it's already a full URL, use it as is
   if (post.image.startsWith('http')) {
     return post.image
   }
-  
+
   // If it's a relative path, prepend the domain
   return `https://rohitpotato.xyz${post.image}`
 }
@@ -48,11 +48,16 @@ export function resolveImageUrl(post: Post): string {
  * Determines the MIME type of an image based on its file extension
  */
 export function getImageMimeType(imageUrl: string): string {
-  if (imageUrl.includes('.webp')) return 'image/webp'
-  if (imageUrl.includes('.png')) return 'image/png'
-  if (imageUrl.includes('.jpg') || imageUrl.includes('.jpeg')) return 'image/jpeg'
-  if (imageUrl.includes('.gif')) return 'image/gif'
-  if (imageUrl.includes('.svg')) return 'image/svg+xml'
+  if (imageUrl.includes('.webp'))
+    return 'image/webp'
+  if (imageUrl.includes('.png'))
+    return 'image/png'
+  if (imageUrl.includes('.jpg') || imageUrl.includes('.jpeg'))
+    return 'image/jpeg'
+  if (imageUrl.includes('.gif'))
+    return 'image/gif'
+  if (imageUrl.includes('.svg'))
+    return 'image/svg+xml'
   // Default to PNG if no extension is found
   return 'image/png'
 }
@@ -65,7 +70,7 @@ export function generateBaseMetadata(config: MetadataConfig): Metadata {
     imageUrl,
     publishedAt,
     author = 'Rohit',
-    keywords = []
+    keywords = [],
   } = config
 
   const defaultKeywords = [
@@ -79,7 +84,7 @@ export function generateBaseMetadata(config: MetadataConfig): Metadata {
     'full stack development',
     'devops',
     'cloud computing',
-    ...keywords
+    ...keywords,
   ]
 
   return {
@@ -103,15 +108,17 @@ export function generateBaseMetadata(config: MetadataConfig): Metadata {
       description,
       url,
       siteName: 'Digital Backyard',
-      images: imageUrl ? [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
-          alt: title,
-          type: getImageMimeType(imageUrl),
-        },
-      ] : undefined,
+      images: imageUrl
+        ? [
+            {
+              url: imageUrl,
+              width: 1200,
+              height: 630,
+              alt: title,
+              type: getImageMimeType(imageUrl),
+            },
+          ]
+        : undefined,
       locale: 'en_US',
       type: publishedAt ? 'article' : 'website',
       ...(publishedAt && {
@@ -133,8 +140,8 @@ export function generateBaseMetadata(config: MetadataConfig): Metadata {
       index: true,
       follow: true,
       googleBot: {
-        index: true,
-        follow: true,
+        'index': true,
+        'follow': true,
         'max-video-preview': -1,
         'max-image-preview': 'large',
         'max-snippet': -1,
@@ -161,7 +168,7 @@ export function generateBlogPostMetadata(post: Post): Metadata {
   const url = `https://rohitpotato.xyz/thoughts/${post.slug}`
   const imageUrl = resolveImageUrl(post)
   const keywords = post.title.toLowerCase().split(' ').slice(0, 5)
-  
+
   return generateBaseMetadata({
     title: `${post.title} | Digital Backyard`,
     description: post.summary,
@@ -175,7 +182,7 @@ export function generateBlogPostMetadata(post: Post): Metadata {
 export function generateHomePageMetadata(): Metadata {
   const url = 'https://rohitpotato.xyz'
   const imageUrl = 'https://rohitpotato.xyz/api/og?title=Digital%20Backyard&description=Notes%20about%20web%20dev%2C%20infrastructure%2C%20and%20some%20other%20stuff.'
-  
+
   return generateBaseMetadata({
     title: 'Digital Backyard | Web Development & Infrastructure Blog',
     description: 'Notes about web development, infrastructure, and technology insights. Explore articles on programming, software engineering, and modern web technologies.',

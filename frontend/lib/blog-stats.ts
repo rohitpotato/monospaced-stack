@@ -1,11 +1,12 @@
-"use server"
+'use server'
 
-import { promises as fs } from "fs"
-import path from "path"
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
+import process from 'node:process'
 
-const STATS_DIR = path.join(process.cwd(), "data", "stats")
+const STATS_DIR = path.join(process.cwd(), 'data', 'stats')
 
-export type BlogStats = {
+export interface BlogStats {
   views: number
   likes: number
   likedBy: string[] // Store user IDs/sessions
@@ -14,7 +15,8 @@ export type BlogStats = {
 async function ensureStatsDir() {
   try {
     await fs.access(STATS_DIR)
-  } catch {
+  }
+  catch {
     await fs.mkdir(STATS_DIR, { recursive: true })
   }
 }
@@ -27,9 +29,10 @@ async function getStatsFilePath(slug: string) {
 export async function getBlogStats(slug: string): Promise<BlogStats> {
   try {
     const filePath = await getStatsFilePath(slug)
-    const data = await fs.readFile(filePath, "utf-8")
+    const data = await fs.readFile(filePath, 'utf-8')
     return JSON.parse(data)
-  } catch {
+  }
+  catch {
     return { views: 0, likes: 0, likedBy: [] }
   }
 }
@@ -49,8 +52,9 @@ export async function toggleLike(slug: string, userId: string): Promise<BlogStat
 
   if (stats.likedBy.includes(userId)) {
     stats.likes -= 1
-    stats.likedBy = stats.likedBy.filter((id) => id !== userId)
-  } else {
+    stats.likedBy = stats.likedBy.filter(id => id !== userId)
+  }
+  else {
     stats.likes += 1
     stats.likedBy.push(userId)
   }
@@ -68,14 +72,15 @@ export async function getAllStats(): Promise<Record<string, BlogStats>> {
     const stats: Record<string, BlogStats> = {}
 
     for (const file of files) {
-      if (file.endsWith(".json")) {
-        const slug = file.replace(".json", "")
+      if (file.endsWith('.json')) {
+        const slug = file.replace('.json', '')
         stats[slug] = await getBlogStats(slug)
       }
     }
 
     return stats
-  } catch {
+  }
+  catch {
     return {}
   }
 }

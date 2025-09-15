@@ -1,10 +1,12 @@
-import fs from 'fs'
-import path from 'path'
+import type { IconName } from 'lucide-react/dynamic'
+import type { BlogStats } from './blog-stats'
+import fs from 'node:fs'
+import path from 'node:path'
+import process from 'node:process'
 import matter from 'gray-matter'
-import readingTime from 'reading-time'
 import { cache } from 'react'
-import { getBlogStats, BlogStats } from './blog-stats'
-import { IconName } from 'lucide-react/dynamic'
+import readingTime from 'reading-time'
+import { getBlogStats } from './blog-stats'
 
 export interface Post {
   slug: string
@@ -32,20 +34,6 @@ export const getStats = cache(async (slug: string): Promise<BlogStats> => {
   return stats
 })
 
-export const getAllPosts = cache(async (): Promise<Post[]> => {
-  const fileNames = await fs.promises.readdir(postsDirectory)
-  const allPostsData = await Promise.all(
-    fileNames
-      .filter((fileName) => fileName.endsWith('.mdx'))
-      .map(async (fileName) => {
-        const slug = fileName.replace(/\.mdx$/, '')
-        return await getPostBySlug(slug)
-      })
-  )
-
-  return allPostsData.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
-})
-
 export const getPostBySlug = cache(async (slug: string): Promise<Post> => {
   const fullPath = path.join(postsDirectory, `${slug}.mdx`)
   const fileContents = await fs.promises.readFile(fullPath, 'utf8')
@@ -71,16 +59,32 @@ export const getPostBySlug = cache(async (slug: string): Promise<Post> => {
   }
 })
 
+export const getAllPosts = cache(async (): Promise<Post[]> => {
+  const fileNames = await fs.promises.readdir(postsDirectory)
+  const allPostsData = await Promise.all(
+    fileNames
+      .filter(fileName => fileName.endsWith('.mdx'))
+      .map(async (fileName) => {
+        const slug = fileName.replace(/\.mdx$/, '')
+        return await getPostBySlug(slug)
+      }),
+  )
+
+  return allPostsData.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+})
+
 export const getRecentPosts = cache(async (limit: number = 5): Promise<Post[]> => {
   const allPosts = await getAllPosts()
   return allPosts.slice(0, limit)
 })
 
 function extractHeadings(content: string): Heading[] {
+  // eslint-disable-next-line regexp/no-super-linear-backtracking
   const headingRegex = /^(#{1,6})\s+(.+)$/gm
   const headings: Heading[] = []
   let match
 
+  // eslint-disable-next-line no-cond-assign
   while ((match = headingRegex.exec(content)) !== null) {
     const level = match[1].length
     const title = match[2].trim()
@@ -102,8 +106,8 @@ function extractHeadings(content: string): Heading[] {
 export async function getPostSlugs(): Promise<string[]> {
   const fileNames = await fs.promises.readdir(postsDirectory)
   return fileNames
-    .filter((fileName) => fileName.endsWith('.mdx'))
-    .map((fileName) => fileName.replace(/\.mdx$/, ''))
+    .filter(fileName => fileName.endsWith('.mdx'))
+    .map(fileName => fileName.replace(/\.mdx$/, ''))
 }
 
 export async function getAbout(): Promise<string> {

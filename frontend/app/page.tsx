@@ -1,20 +1,18 @@
-
-import { getRecentPosts, getAllPosts } from "@/lib/posts"
-import { Metadata } from "next"
-import { generateHomePageMetadata } from "@/lib/metadata"
-import { generateWebsiteStructuredData, generateBlogStructuredData } from "@/lib/structured-data"
-import About from "@/components/about"
-import PageWrapper from "@/components/page-wrapper"
+import type { Metadata } from 'next'
+import { generateHomePageMetadata } from '@/lib/metadata'
+import { getAllPosts } from '@/lib/posts'
+import { generateBlogStructuredData, generateWebsiteStructuredData } from '@/lib/structured-data'
+import HomePage from './__new/home-page'
 
 export async function generateMetadata(): Promise<Metadata> {
   return generateHomePageMetadata()
 }
 
-export default async function HomePage() {
-  const [recentPosts] = await Promise.all([getRecentPosts(2)])
+export default async function Home() {
+  const [allPosts] = await Promise.all([getAllPosts()])
 
   const websiteStructuredData = generateWebsiteStructuredData()
-  const blogStructuredData = generateBlogStructuredData(recentPosts)
+  const blogStructuredData = generateBlogStructuredData(allPosts)
 
   return (
     <>
@@ -26,13 +24,13 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogStructuredData) }}
       />
-      <PageWrapper>
-        <div className="min-h-screen">
-          <main>
-            <About />
-          </main>
-        </div>
-      </PageWrapper>
+
+      <div className="min-h-screen">
+        <main>
+          <HomePage posts={allPosts} />
+        </main>
+      </div>
+
     </>
   )
 }

@@ -1,12 +1,15 @@
 import React from 'react'
+import Window from '@/components/window'
 import { cn } from '@/lib/utils'
 
 interface MarkdownHrProps {
-    className?: string
+  className?: string
 }
 
 export function MarkdownHr({ className, ...props }: MarkdownHrProps & React.HTMLAttributes<HTMLHRElement>) {
-    return (
-        <hr className={cn('border-gray-200 my-8', className)} {...props} />
-    )
+  return (
+    <Window className={cn('my-8', className)}>
+      <hr className="border-green-500 w-full" {...props} />
+    </Window>
+  )
 }

@@ -1,9 +1,9 @@
-import React from "react"
-import { Post } from "@/lib/posts"
-import { format } from "date-fns"
-import Typography from "./typography"
-import { MDXRemote } from "next-mdx-remote/rsc"
-import { mdxComponents } from "./markdown/mapping"
+import type { Post } from '@/lib/posts'
+import { format } from 'date-fns'
+import { MDXRemote } from 'next-mdx-remote/rsc'
+import React from 'react'
+import Typography from '@/components/typography'
+import { mdxComponents } from './markdown/mapping'
 
 interface EnhancedBlogPostProps {
   post: Post
@@ -18,10 +18,10 @@ export function EnhancedBlogPost({ post }: EnhancedBlogPostProps) {
     <article className="w-full py-8">
       {/* Header */}
       <header className="mb-12">
-        <Typography variant="heading-large" className="mb-6">
+        <Typography variant="h1" className="mb-6">
           {post.title}
         </Typography>
-        <div className="flex items-center gap-4 text-gray-600 text-sm">
+        <div className="flex items-center gap-4 text-green-500 text-sm">
           <time dateTime={post.publishedAt}>
             {formatDate(post.publishedAt)}
           </time>
@@ -29,7 +29,7 @@ export function EnhancedBlogPost({ post }: EnhancedBlogPostProps) {
           <span>{post.readingTime}</span>
         </div>
         {post.summary && (
-          <p className="mt-6 text-lg text-gray-600 leading-relaxed">
+          <p className="mt-6 text-lg text-green-500 leading-relaxed">
             {post.summary}
           </p>
         )}
