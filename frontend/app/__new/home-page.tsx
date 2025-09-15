@@ -93,7 +93,7 @@ const HomePage: React.FC<{ posts: Post[] }> = ({ posts }) => {
       return text
 
     const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
-    return text.replace(regex, '<mark class="bg-green-400/30 text-green-100 px-1 rounded font-medium font-mono">$1</mark>')
+    return text.replace(regex, '<mark class="bg-green-400/30 text-green-100 px-1 rounded font-medium">$1</mark>')
   }
 
   const handleSearch = () => {
@@ -129,7 +129,7 @@ const HomePage: React.FC<{ posts: Post[] }> = ({ posts }) => {
     <RetroWindow title="MAINFRAME_TERMINAL.exe" variant="full">
       <div className={layout.container}>
         {/* Left Column: Content */}
-        <div className={`bg-${colors.background} p-4`}>
+        <div className={`bg-${colors.background}`}>
           <Typography variant="h1" className="mb-2">Welcome to the Mainframe→</Typography>
           <Typography variant="bodyLarge" color="textMuted" className="mb-6">Accessing archived transmissions...</Typography>
 

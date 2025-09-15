@@ -1,16 +1,15 @@
 'use client'
 
-import React from 'react'
-import { Calendar, Clock, FileText, ArrowUpRight } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import type { SearchResult } from '@/lib/search'
 import type { Post } from '@/lib/posts'
-import { HighlightedTextHTML } from './highlighted-text'
+import type { SearchResult } from '@/lib/search'
+import { ArrowUpRight, Calendar, Clock, FileText } from 'lucide-react'
+import React from 'react'
 import { useSearchHighlight } from '@/hooks/use-search-highlight'
+import { cn } from '@/lib/utils'
+import { HighlightedTextHTML } from './highlighted-text'
 
 interface SearchResultItemProps {
   result: SearchResult
-  index: number
   isSelected?: boolean
   onSelect: (post: Post) => void
   className?: string
@@ -19,14 +18,13 @@ interface SearchResultItemProps {
 
 export function SearchResultItem({
   result,
-  index,
   isSelected = false,
   onSelect,
   className,
-  variant = 'default'
+  variant = 'default',
 }: SearchResultItemProps) {
   const { getHighlightedHTML } = useSearchHighlight('', {
-    highlightClass: 'bg-green-400/30 text-green-100 px-1 rounded font-medium font-mono'
+    highlightClass: 'bg-green-400/30 text-green-100 px-1 rounded font-medium font-mono',
   })
 
   const handleClick = () => {
@@ -38,7 +36,7 @@ export function SearchResultItem({
     'hover:bg-green-500/10 focus:bg-green-500/10 focus:outline-none',
     'border border-transparent hover:border-green-500/30',
     isSelected && 'bg-green-500/20 border-green-500/50',
-    className
+    className,
   )
 
   const compactClasses = cn(
@@ -46,7 +44,7 @@ export function SearchResultItem({
     'hover:bg-green-500/10 focus:bg-green-500/10 focus:outline-none',
     'border border-transparent hover:border-green-500/30',
     isSelected && 'bg-green-500/20 border-green-500/50',
-    className
+    className,
   )
 
   const detailedClasses = cn(
@@ -54,7 +52,7 @@ export function SearchResultItem({
     'hover:bg-green-500/10 focus:bg-green-500/10 focus:outline-none',
     'border border-transparent hover:border-green-500/30',
     isSelected && 'bg-green-500/20 border-green-500/50',
-    className
+    className,
   )
 
   if (variant === 'compact') {
@@ -124,7 +122,11 @@ export function SearchResultItem({
           </div>
           <div className="flex items-center gap-1">
             <Clock className="w-3 h-3" />
-            <span>{result.post.readingTime} min read</span>
+            <span>
+              {result.post.readingTime}
+              {' '}
+              min read
+            </span>
           </div>
         </div>
       </button>
@@ -155,7 +157,7 @@ export function SearchResultItem({
             <HighlightedTextHTML
               html={getHighlightedHTML(result, 'summary')}
               className="text-green-400 text-sm overflow-hidden text-ellipsis"
-              style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
+              // style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
               as="p"
             />
           </div>
@@ -167,7 +169,7 @@ export function SearchResultItem({
             <HighlightedTextHTML
               html={getHighlightedHTML(result, 'content')}
               className="text-green-500 text-sm overflow-hidden text-ellipsis italic"
-              style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
+              // style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
               as="p"
             />
           </div>
@@ -181,7 +183,11 @@ export function SearchResultItem({
           </div>
           <div className="flex items-center gap-1">
             <Clock className="w-3 h-3" />
-            <span>{result.post.readingTime} min</span>
+            <span>
+              {result.post.readingTime}
+              {' '}
+              min
+            </span>
           </div>
         </div>
       </div>

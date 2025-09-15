@@ -18,8 +18,8 @@ export const colors = {
     900: 'gray-900',
     800: 'gray-800',
     500: 'gray-500',
-  }
-};
+  },
+}
 
 export const typography = {
   h1: `text-5xl font-bold text-${colors.primary}`,
@@ -28,10 +28,10 @@ export const typography = {
   body: `text-xl text-${colors.textMuted} leading-relaxed`,
   bodyLarge: `text-xl text-${colors.text}`,
   small: `text-sm text-${colors.tertiary}`,
-  code: `font-mono bg-${colors.background} text-${colors.primary}`
-};
+  code: `font-mono bg-${colors.background} text-${colors.primary}`,
+}
 
 export const layout = {
   window: `bg-${colors.background} border-2 border-${colors.border} p-1 shadow-[0_0_15px_rgba(50,255,50,0.5)]`,
-  container: `grid grid-cols-1 lg:grid-cols-2 gap-0`
+  container: `grid grid-cols-1 lg:grid-cols-2 gap-0`,
 }

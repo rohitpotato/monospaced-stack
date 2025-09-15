@@ -1,10 +1,10 @@
 import React from 'react'
-import { cn } from '@/lib/utils'
 import Typography from '@/components/typography'
+import { cn } from '@/lib/utils'
 
 interface MarkdownStrongProps {
-    children: React.ReactNode
-    className?: string
+  children: React.ReactNode
+  className?: string
 }
 
 export function MarkdownStrong({ children, className, ...props }: MarkdownStrongProps & React.HTMLAttributes<HTMLElement>) {
@@ -12,6 +12,7 @@ export function MarkdownStrong({ children, className, ...props }: MarkdownStrong
     <Typography
       as="strong"
       variant="body"
+      // @ts-expect-error - TypographyColor is not defined
       color="text"
       className={cn('font-semibold', className)}
       {...props}

@@ -1,22 +1,21 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { colors } from '../app/__new/theme';
+import { motion } from 'framer-motion'
+import React from 'react'
 
 interface LoadingBarProps {
-  progress: number;
+  progress: number
 }
 
 const LoadingBar: React.FC<LoadingBarProps> = ({ progress }) => {
   return (
-    <div className={`w-full h-4 bg-black border border-green-500 mt-1`}>
+    <div className="w-full h-4 bg-black border border-green-500 mt-1">
       <motion.div
-        className={`h-full bg-green-500`}
+        className="h-full bg-green-500"
         initial={{ width: 0 }}
         animate={{ width: `${progress}%` }}
-        transition={{ duration: 0.05, ease: "linear" }}
+        transition={{ duration: 0.05, ease: 'linear' }}
       />
     </div>
-  );
-};
+  )
+}
 
-export default LoadingBar;
+export default LoadingBar

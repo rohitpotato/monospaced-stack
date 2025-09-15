@@ -1,7 +1,7 @@
 'use client'
 
-import React from 'react'
 import { Search, X } from 'lucide-react'
+import React from 'react'
 import { cn } from '@/lib/utils'
 
 interface SearchInputProps {
@@ -20,14 +20,14 @@ interface SearchInputProps {
 export function SearchInput({
   value,
   onChange,
-  placeholder = "Search articles...",
+  placeholder = 'Search articles...',
   className,
   disabled = false,
   showClearButton = true,
   onClear,
   onFocus,
   onBlur,
-  autoFocus = false
+  autoFocus = false,
 }: SearchInputProps) {
   const handleClear = () => {
     onChange('')
@@ -45,7 +45,7 @@ export function SearchInput({
       <input
         type="text"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         disabled={disabled}
         onFocus={onFocus}
@@ -58,7 +58,7 @@ export function SearchInput({
           'transition-all duration-200',
           'disabled:opacity-50 disabled:cursor-not-allowed',
           'hover:border-green-500/70',
-          className
+          className,
         )}
         aria-label="Search articles"
       />
@@ -90,7 +90,7 @@ interface SearchInputWithLabelProps extends SearchInputProps {
 }
 
 export function SearchInputWithLabel({
-  label = "Search Database",
+  label = 'Search Database',
   description,
   ...props
 }: SearchInputWithLabelProps) {

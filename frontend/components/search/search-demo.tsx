@@ -1,13 +1,12 @@
 'use client'
 
+import type { Post } from '@/lib/posts'
 import React, { useState } from 'react'
 import { cn } from '@/lib/utils'
-import type { Post } from '@/lib/posts'
-import { 
-  SearchInput, 
-  SearchResultsSection, 
+import {
+  SearchInputWithLabel,
+  SearchResultsSection,
   useSearch,
-  SearchInputWithLabel 
 } from './index'
 
 interface SearchDemoProps {
@@ -18,7 +17,7 @@ interface SearchDemoProps {
 
 export function SearchDemo({ posts, className, variant = 'full' }: SearchDemoProps) {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
-  
+
   const {
     searchQuery,
     setSearchQuery,
@@ -28,14 +27,14 @@ export function SearchDemo({ posts, className, variant = 'full' }: SearchDemoPro
     hasResults,
     clearSearch,
     selectedIndex,
-    setSelectedIndex
+    setSelectedIndex,
   } = useSearch(posts, {
     debounceMs: 300,
     minQueryLength: 3,
     maxResults: 10,
     highlightConfig: {
-      highlightClass: 'bg-green-400/30 text-green-100 px-1 rounded font-medium font-mono'
-    }
+      highlightClass: 'bg-green-400/30 text-green-100 px-1 rounded font-medium font-mono',
+    },
   })
 
   const handleResultSelect = (post: Post) => {
@@ -48,7 +47,7 @@ export function SearchDemo({ posts, className, variant = 'full' }: SearchDemoPro
     variant === 'sidebar' && 'w-80',
     variant === 'compact' && 'w-96',
     variant === 'full' && 'w-full max-w-4xl',
-    className
+    className,
   )
 
   return (
@@ -112,8 +111,16 @@ export function SearchDemo({ posts, className, variant = 'full' }: SearchDemoPro
                 </p>
               )}
               <div className="flex items-center gap-4 text-xs text-green-500 font-mono">
-                <span>Published: {new Date(selectedPost.publishedAt).toLocaleDateString()}</span>
-                <span>Read time: {selectedPost.readingTime} min</span>
+                <span>
+                  Published:
+                  {new Date(selectedPost.publishedAt).toLocaleDateString()}
+                </span>
+                <span>
+                  Read time:
+                  {selectedPost.readingTime}
+                  {' '}
+                  min
+                </span>
               </div>
             </div>
           </div>

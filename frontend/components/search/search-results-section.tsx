@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useEffect } from 'react'
-import { cn } from '@/lib/utils'
-import type { SearchResult } from '@/lib/search'
 import type { Post } from '@/lib/posts'
-import { SearchResultsList } from './search-results-list'
+import type { SearchResult } from '@/lib/search'
+import React, { useEffect } from 'react'
 import { RetroWindow } from '@/components/retro-window'
+import { cn } from '@/lib/utils'
+import { SearchResultsList } from './search-results-list'
 
 interface SearchResultsSectionProps {
   searchResults: SearchResult[]
@@ -32,21 +32,24 @@ export function SearchResultsSection({
   maxResults = 10,
   selectedIndex = -1,
   onSelectionChange,
-  showKeyboardHints = true
+  showKeyboardHints = true,
 }: SearchResultsSectionProps) {
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!hasResults || isSearching) return
+      if (!hasResults || isSearching)
+        return
 
       switch (e.key) {
         case 'ArrowDown':
           e.preventDefault()
+          // eslint-disable-next-line no-case-declarations
           const nextIndex = selectedIndex < searchResults.length - 1 ? selectedIndex + 1 : 0
           onSelectionChange?.(nextIndex)
           break
         case 'ArrowUp':
           e.preventDefault()
+          // eslint-disable-next-line no-case-declarations
           const prevIndex = selectedIndex > 0 ? selectedIndex - 1 : searchResults.length - 1
           onSelectionChange?.(prevIndex)
           break
@@ -73,7 +76,7 @@ export function SearchResultsSection({
 
   return (
     <div className={cn('w-full', className)}>
-      <RetroWindow 
+      <RetroWindow
         title="SEARCH_RESULTS.exe"
         className="border-green-500/50 shadow-[0_0_15px_rgba(0,255,0,0.3)]"
         contentClassName="p-0"
@@ -107,10 +110,15 @@ export function SearchResultsSection({
           <div className="border-t border-green-500/30 px-4 py-2">
             <div className="flex items-center justify-between text-xs font-mono text-green-500/80">
               <span>
-                Query: "{searchQuery}"
+                Query: "
+                {searchQuery}
+                "
               </span>
               <span>
-                {searchResults.length} result{searchResults.length !== 1 ? 's' : ''}
+                {searchResults.length}
+                {' '}
+                result
+                {searchResults.length !== 1 ? 's' : ''}
               </span>
             </div>
           </div>

@@ -34,20 +34,6 @@ export const getStats = cache(async (slug: string): Promise<BlogStats> => {
   return stats
 })
 
-export const getAllPosts = cache(async (): Promise<Post[]> => {
-  const fileNames = await fs.promises.readdir(postsDirectory)
-  const allPostsData = await Promise.all(
-    fileNames
-      .filter(fileName => fileName.endsWith('.mdx'))
-      .map(async (fileName) => {
-        const slug = fileName.replace(/\.mdx$/, '')
-        return await getPostBySlug(slug)
-      }),
-  )
-
-  return allPostsData.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
-})
-
 export const getPostBySlug = cache(async (slug: string): Promise<Post> => {
   const fullPath = path.join(postsDirectory, `${slug}.mdx`)
   const fileContents = await fs.promises.readFile(fullPath, 'utf8')
@@ -73,12 +59,27 @@ export const getPostBySlug = cache(async (slug: string): Promise<Post> => {
   }
 })
 
+export const getAllPosts = cache(async (): Promise<Post[]> => {
+  const fileNames = await fs.promises.readdir(postsDirectory)
+  const allPostsData = await Promise.all(
+    fileNames
+      .filter(fileName => fileName.endsWith('.mdx'))
+      .map(async (fileName) => {
+        const slug = fileName.replace(/\.mdx$/, '')
+        return await getPostBySlug(slug)
+      }),
+  )
+
+  return allPostsData.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+})
+
 export const getRecentPosts = cache(async (limit: number = 5): Promise<Post[]> => {
   const allPosts = await getAllPosts()
   return allPosts.slice(0, limit)
 })
 
 function extractHeadings(content: string): Heading[] {
+  // eslint-disable-next-line regexp/no-super-linear-backtracking
   const headingRegex = /^(#{1,6})\s+(.+)$/gm
   const headings: Heading[] = []
   let match

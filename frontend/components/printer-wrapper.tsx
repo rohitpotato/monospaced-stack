@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { RetroWindow } from '@/components/retro-window'
 import { cn } from '@/lib/utils'
 
@@ -12,13 +12,13 @@ interface PrinterWrapperProps {
   steps?: number
 }
 
-export function PrinterWrapper({ 
-  children, 
+export function PrinterWrapper({
+  children,
   className,
-  windowTitle = "PRINTER.exe",
+  windowTitle = 'PRINTER.exe',
   showProgress = true,
-  animationDuration = 2500, // 2.5 seconds
-  steps = 50
+  animationDuration = 800, // 2.5 seconds
+  steps = 50,
 }: PrinterWrapperProps) {
   const [isPrinting, setIsPrinting] = useState(true)
   const [printProgress, setPrintProgress] = useState(0)
@@ -33,13 +33,13 @@ export function PrinterWrapper({
       if (contentRef.current) {
         const naturalHeight = contentRef.current.scrollHeight
         setFullHeight(naturalHeight)
-        
+
         // Start printing effect
         const printInterval = setInterval(() => {
-          setAnimatedHeight(prev => {
+          setAnimatedHeight((prev) => {
             const increment = naturalHeight / steps
             const newHeight = prev + increment
-            
+
             if (newHeight >= naturalHeight) {
               setIsPrinting(false)
               clearInterval(printInterval)
@@ -47,8 +47,8 @@ export function PrinterWrapper({
             }
             return newHeight
           })
-          
-          setPrintProgress(prev => {
+
+          setPrintProgress((prev) => {
             const increment = 100 / steps
             const newProgress = prev + increment
             return newProgress >= 100 ? 100 : newProgress
@@ -64,11 +64,11 @@ export function PrinterWrapper({
 
   return (
     <div className={cn('my-6', className)}>
-      <RetroWindow 
+      <RetroWindow
         title={isPrinting ? windowTitle : 'VIEWER.exe'}
         className="w-full"
       >
-        <div 
+        <div
           ref={containerRef}
           className="relative max-w-full overflow-hidden"
           style={{ height: `${fullHeight}px` }}
@@ -76,17 +76,18 @@ export function PrinterWrapper({
           {/* Printer progress indicator */}
           {isPrinting && showProgress && (
             <div className="absolute top-2 right-2 z-20 text-green-400 text-xs font-mono">
-              {Math.round(printProgress)}%
+              {Math.round(printProgress)}
+              %
             </div>
           )}
-          
-          <div 
+
+          <div
             ref={contentRef}
             className="w-full"
-            style={{ 
+            style={{
               height: `${animatedHeight}px`,
               maxWidth: '100%',
-              overflow: 'hidden'
+              overflow: 'hidden',
             }}
           >
             {children}

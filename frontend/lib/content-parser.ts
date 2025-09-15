@@ -32,17 +32,18 @@ export function parseContentToBlocks(content: string): ContentBlock[] {
         blocks.push(createBlock(currentBlock.join('\n'), blockIndex++))
         currentBlock = []
       }
-      
+
       // Add heading block
       const level = trimmedLine.match(/^#+/)?.[0].length || 1
       blocks.push({
         id: `heading-${blockIndex}`,
         type: 'heading',
         content: trimmedLine,
-        level: Math.min(level, 6) as 1 | 2 | 3 | 4 | 5 | 6
+        level: Math.min(level, 6) as 1 | 2 | 3 | 4 | 5 | 6,
       })
       blockIndex++
-    } else if (trimmedLine.startsWith('```')) {
+    }
+    else if (trimmedLine.startsWith('```')) {
       // Flush current block if exists
       if (currentBlock.length > 0) {
         blocks.push(createBlock(currentBlock.join('\n'), blockIndex++))
@@ -53,20 +54,21 @@ export function parseContentToBlocks(content: string): ContentBlock[] {
       const language = trimmedLine.slice(3).trim()
       const codeLines: string[] = []
       i++ // Skip the opening ```
-      
+
       while (i < lines.length && !lines[i].trim().startsWith('```')) {
         codeLines.push(lines[i])
         i++
       }
-      
+
       blocks.push({
         id: `code-${blockIndex}`,
         type: 'code',
         content: codeLines.join('\n'),
-        language: language || 'text'
+        language: language || 'text',
       })
       blockIndex++
-    } else if (trimmedLine.startsWith('>')) {
+    }
+    else if (trimmedLine.startsWith('>')) {
       // Flush current block if exists
       if (currentBlock.length > 0) {
         blocks.push(createBlock(currentBlock.join('\n'), blockIndex++))
@@ -84,10 +86,11 @@ export function parseContentToBlocks(content: string): ContentBlock[] {
       blocks.push({
         id: `blockquote-${blockIndex}`,
         type: 'blockquote',
-        content: quoteLines.join('\n')
+        content: quoteLines.join('\n'),
       })
       blockIndex++
-    } else if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ') || /^\d+\./.test(trimmedLine)) {
+    }
+    else if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ') || /^\d+\./.test(trimmedLine)) {
       // Flush current block if exists
       if (currentBlock.length > 0) {
         blocks.push(createBlock(currentBlock.join('\n'), blockIndex++))
@@ -105,10 +108,11 @@ export function parseContentToBlocks(content: string): ContentBlock[] {
       blocks.push({
         id: `list-${blockIndex}`,
         type: 'list',
-        content: listLines.join('\n')
+        content: listLines.join('\n'),
       })
       blockIndex++
-    } else if (trimmedLine === '---' || trimmedLine === '***' || trimmedLine === '___') {
+    }
+    else if (trimmedLine === '---' || trimmedLine === '***' || trimmedLine === '___') {
       // Flush current block if exists
       if (currentBlock.length > 0) {
         blocks.push(createBlock(currentBlock.join('\n'), blockIndex++))
@@ -119,10 +123,11 @@ export function parseContentToBlocks(content: string): ContentBlock[] {
       blocks.push({
         id: `hr-${blockIndex}`,
         type: 'hr',
-        content: ''
+        content: '',
       })
       blockIndex++
-    } else if (trimmedLine.startsWith('![')) {
+    }
+    else if (trimmedLine.startsWith('![')) {
       // Flush current block if exists
       if (currentBlock.length > 0) {
         blocks.push(createBlock(currentBlock.join('\n'), blockIndex++))
@@ -133,16 +138,18 @@ export function parseContentToBlocks(content: string): ContentBlock[] {
       blocks.push({
         id: `image-${blockIndex}`,
         type: 'image',
-        content: line
+        content: line,
       })
       blockIndex++
-    } else if (trimmedLine === '') {
+    }
+    else if (trimmedLine === '') {
       // Empty line - if we have content, flush it
       if (currentBlock.length > 0) {
         blocks.push(createBlock(currentBlock.join('\n'), blockIndex++))
         currentBlock = []
       }
-    } else {
+    }
+    else {
       // Regular content line
       currentBlock.push(line)
     }
@@ -158,21 +165,20 @@ export function parseContentToBlocks(content: string): ContentBlock[] {
 
 function createBlock(content: string, index: number): ContentBlock {
   const trimmedContent = content.trim()
-  
+
   // Determine block type based on content
   if (trimmedContent.startsWith('![')) {
     return {
       id: `image-${index}`,
       type: 'image',
-      content: trimmedContent
+      content: trimmedContent,
     }
   }
-  
+
   // Default to paragraph
   return {
     id: `paragraph-${index}`,
     type: 'paragraph',
-    content: trimmedContent
+    content: trimmedContent,
   }
 }
-

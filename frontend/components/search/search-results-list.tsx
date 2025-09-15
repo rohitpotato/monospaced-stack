@@ -1,10 +1,10 @@
 'use client'
 
-import React from 'react'
-import { Search, Loader2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import type { SearchResult } from '@/lib/search'
 import type { Post } from '@/lib/posts'
+import type { SearchResult } from '@/lib/search'
+import { Loader2, Search } from 'lucide-react'
+import React from 'react'
+import { cn } from '@/lib/utils'
 import { SearchResultItem } from './search-result-item'
 
 interface SearchResultsListProps {
@@ -26,7 +26,7 @@ export function SearchResultsList({
   onResultSelect,
   className,
   variant = 'default',
-  maxResults = 10
+  maxResults = 10,
 }: SearchResultsListProps) {
   const displayedResults = results.slice(0, maxResults)
 
@@ -38,7 +38,9 @@ export function SearchResultsList({
           <span className="font-mono text-sm">Searching database...</span>
         </div>
         <div className="mt-2 text-green-500 text-xs font-mono">
-          Query: "{searchQuery}"
+          Query: "
+          {searchQuery}
+          "
         </div>
       </div>
     )
@@ -53,7 +55,9 @@ export function SearchResultsList({
             No results found
           </h3>
           <p className="text-green-500 text-sm font-mono mb-1">
-            Query: "{searchQuery}"
+            Query: "
+            {searchQuery}
+            "
           </p>
           <p className="text-green-600 text-xs font-mono">
             Try different keywords or check spelling
@@ -84,11 +88,22 @@ export function SearchResultsList({
       {/* Results header */}
       <div className="flex items-center justify-between px-2 py-1 border-b border-green-500/20">
         <span className="text-xs font-mono text-green-400">
-          {displayedResults.length} result{displayedResults.length !== 1 ? 's' : ''} found
+          {displayedResults.length}
+          {' '}
+          result
+          {displayedResults.length !== 1 ? 's' : ''}
+          {' '}
+          found
         </span>
         {results.length > maxResults && (
           <span className="text-xs font-mono text-green-500">
-            Showing {maxResults} of {results.length}
+            Showing
+            {' '}
+            {maxResults}
+            {' '}
+            of
+            {' '}
+            {results.length}
           </span>
         )}
       </div>
@@ -99,7 +114,6 @@ export function SearchResultsList({
           <SearchResultItem
             key={`${result.post.slug}-${index}`}
             result={result}
-            index={index}
             isSelected={index === selectedIndex}
             onSelect={onResultSelect}
             variant={variant}
@@ -111,7 +125,10 @@ export function SearchResultsList({
       {results.length > maxResults && (
         <div className="px-2 py-1 border-t border-green-500/20 text-center">
           <span className="text-xs font-mono text-green-500">
-            +{results.length - maxResults} more results available
+            +
+            {results.length - maxResults}
+            {' '}
+            more results available
           </span>
         </div>
       )}

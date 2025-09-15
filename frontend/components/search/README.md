@@ -196,13 +196,13 @@ Components adapt to different screen sizes:
 
 ```tsx
 interface UseSearchOptions {
-  debounceMs?: number          // Debounce delay (default: 300ms)
-  minQueryLength?: number      // Minimum query length (default: 3)
-  maxResults?: number          // Maximum results to show (default: 10)
+  debounceMs?: number // Debounce delay (default: 300ms)
+  minQueryLength?: number // Minimum query length (default: 3)
+  maxResults?: number // Maximum results to show (default: 10)
   highlightConfig?: {
-    highlightClass?: string    // CSS classes for highlights
-    caseSensitive?: boolean    // Case sensitivity (default: false)
-    maxSnippetLength?: number  // Max snippet length (default: 150)
+    highlightClass?: string // CSS classes for highlights
+    caseSensitive?: boolean // Case sensitivity (default: false)
+    maxSnippetLength?: number // Max snippet length (default: 150)
   }
 }
 ```

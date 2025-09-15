@@ -50,7 +50,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
 
           <div className="hidden lg:block lg:col-span-1">
-            <TableOfContents headings={post.headings} title={post.title} />
+            <TableOfContents headings={post.headings} />
           </div>
 
         </div>

@@ -1,12 +1,12 @@
-import React from 'react';
-import Typography from './typography';
-import { colors } from '../app/__new/theme';
+import React from 'react'
+import { colors } from '../app/__new/theme'
+import Typography from './typography'
 
 interface WindowProps {
-  title?: string;
-  children: React.ReactNode;
-  className?: string;
-  onClose?: () => void;
+  title?: string
+  children: React.ReactNode
+  className?: string
+  onClose?: () => void
 }
 
 const Window: React.FC<WindowProps> = ({ title, children, className = '', onClose }) => {
@@ -24,7 +24,7 @@ const Window: React.FC<WindowProps> = ({ title, children, className = '', onClos
         {children}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Window;
+export default Window
