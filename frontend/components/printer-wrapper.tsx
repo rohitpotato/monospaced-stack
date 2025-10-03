@@ -15,7 +15,7 @@ interface PrinterWrapperProps {
 export function PrinterWrapper({
   children,
   className,
-  windowTitle = 'PRINTER.exe',
+  windowTitle = 'PRINTER',
   showProgress = true,
   animationDuration = 800, // 2.5 seconds
   steps = 50,
@@ -65,7 +65,7 @@ export function PrinterWrapper({
   return (
     <div className={cn('my-6', className)}>
       <RetroWindow
-        title={isPrinting ? windowTitle : 'VIEWER.exe'}
+        title={isPrinting ? windowTitle : 'VIEWER'}
         className="w-full"
       >
         <div

@@ -56,7 +56,7 @@ export function RetroWindow({
     >
       {/* Window title bar */}
       <div className="text-green-500 flex justify-between items-center p-1 select-none border-b border-green-500/30">
-        <span className={cn('font-mono', styles.title)}>
+        <span className={cn(styles.title)}>
           {title}
         </span>
         {showWindowControls && (

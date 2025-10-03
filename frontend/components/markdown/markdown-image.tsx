@@ -14,7 +14,7 @@ export function MarkdownImage({ src, alt, className, width, height, ...props }: 
   return (
     <PrinterWrapper
       className={className}
-      windowTitle="IMAGE_PRINTER.exe"
+      windowTitle="IMAGE_PRINTER"
       showProgress={true}
       animationDuration={2500}
       steps={50}

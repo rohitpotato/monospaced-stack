@@ -77,7 +77,7 @@ export function SearchResultsSection({
   return (
     <div className={cn('w-full', className)}>
       <RetroWindow
-        title="SEARCH_RESULTS.exe"
+        title="SEARCH_RESULTS"
         className="border-green-500/50 shadow-[0_0_15px_rgba(0,255,0,0.3)]"
         contentClassName="p-0"
       >

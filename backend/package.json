@@ -9,7 +9,10 @@
     "dev": "nodemon index.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
-    "prisma:push": "prisma db push"
+    "prisma:push": "prisma db push",
+    "format": "prettier --write .",
+    "lint": "eslint . ",
+    "lint:fix": "eslint . --fix "
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -20,21 +23,34 @@
   "description": "",
   "dependencies": {
     "@fastify/autoload": "^6.0.3",
+    "@fastify/cors": "^11.1.0",
     "@fastify/postgres": "^6.0.1",
     "@prisma/client": "^6.0.1",
+    "bullmq": "^5.59.0",
     "dotenv": "^16.4.7",
     "fastify": "^5.2.0",
     "fastify-metrics": "^12.1.0",
+    "ioredis": "^5.8.0",
     "pg": "^8.13.1",
     "prisma": "^6.0.1",
     "rimraf": "^6.0.1",
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@types/node": "^22.10.2",
+    "@eslint/js": "^9.37.0",
+    "@types/node": "^22.18.8",
+    "@typescript-eslint/eslint-plugin": "^8.45.0",
+    "@typescript-eslint/parser": "^8.45.0",
+    "eslint": "^9.37.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "globals": "^16.4.0",
+    "jiti": "^2.6.1",
     "pino-pretty": "^13.0.0",
+    "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.45.0"
   }
 }

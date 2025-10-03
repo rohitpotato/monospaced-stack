@@ -56,7 +56,7 @@ export function SearchDemo({ posts, className, variant = 'full' }: SearchDemoPro
       <div className="border-b border-green-500/30 p-3">
         <div className="flex items-center justify-between">
           <h2 className="font-mono font-semibold text-green-400 text-sm">
-            SEARCH_DEMO.exe
+            SEARCH_DEMO
           </h2>
           <div className="flex space-x-1">
             <div className="w-2 h-2 bg-green-500/50 rounded-full"></div>
@@ -99,7 +99,7 @@ export function SearchDemo({ posts, className, variant = 'full' }: SearchDemoPro
         {selectedPost && (
           <div className="border-t border-green-500/30 pt-4">
             <h3 className="font-mono font-semibold text-green-400 mb-2">
-              SELECTED_ARTICLE.exe
+              SELECTED_ARTICLE
             </h3>
             <div className="bg-black/50 border border-green-500/30 rounded p-3">
               <h4 className="font-mono font-medium text-green-300 mb-2">

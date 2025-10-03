@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
+import MonitorBoi from '@/monitor-boi'
 
 function playClickSound() {
   try {
@@ -24,7 +25,26 @@ function playClickSound() {
   }
 }
 
+const monitorBoi = new MonitorBoi({
+  // eslint-disable-next-line node/prefer-global/process
+  endpoint: process.env.NEXT_PUBLIC_METRICS_ENDPOINT || '',
+
+})
+
 function App({ children }: { children: React.ReactNode }) {
+  const isInitialized = useRef(false)
+  useEffect(() => {
+    async function init() {
+      if (isInitialized.current) {
+        return
+      }
+      await monitorBoi.init()
+      // await monitorBoi.flush()
+      isInitialized.current = true
+    }
+    init()
+  }, [])
+
   useEffect(() => {
     const handleClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement

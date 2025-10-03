@@ -78,7 +78,7 @@ function TableOfContents({ headings }: TableOfContentsProps) {
 
   return (
     <div className="sticky top-24 w-full max-h-[calc(100vh-8rem)] overflow-y-auto lg p-4">
-      <RetroWindow title="TOC_NAVIGATOR.exe">
+      <RetroWindow title="TOC_NAVIGATOR">
         {/* Header */}
         <div className="flex items-center justify-between mb-4 pb-2 border-b border-green-500/30">
           <h2 className="text-lg font-mono font-semibold text-green-400">Table of Contents</h2>
