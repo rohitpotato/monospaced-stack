@@ -7,14 +7,16 @@ WORKDIR /app
 # Copy only package files first (for caching npm install)
 COPY package.json package-lock.json ./
 
-# Install dependencies
-RUN npm install
+# Install ALL dependencies (including dev dependencies for build)
+RUN npm ci
 
-# Copy Prisma schema and migrations
+# Copy Prisma schema
 COPY prisma ./prisma/
 
-# Copy the rest of the application code
-COPY . .
+# Copy source code
+COPY src ./src/
+COPY tsconfig.json ./
+COPY index.ts ./
 
 # Generate Prisma Client
 RUN npx prisma generate
@@ -22,19 +24,17 @@ RUN npx prisma generate
 # Build the application
 RUN npm run build
 
-# Remove development dependencies
-# RUN npm prune --production
-
 # Production Stage
 FROM node:lts AS runtime
-
 WORKDIR /app
 
-# Copy the built application from the builder stage
 COPY --from=builder /app /app
 
-ENV NODE_ENV=production
+RUN npm prune --production
 
-EXPOSE 4000
+ENV NODE_ENV=production
+ENV PORT=5001
+
+EXPOSE 5001
 
 CMD ["npm", "run", "start"]
