@@ -120,7 +120,7 @@ class MonitorBoi {
           const blob = new Blob([JSON.stringify(this.batch)], {
             type: 'application/json',
           })
-          navigator.sendBeacon(`${this.endpoint}/posts`, blob)
+          navigator.sendBeacon(`${this.endpoint}/api/track`, blob)
         }
       })
     }
@@ -187,7 +187,7 @@ class MonitorBoi {
 
   private async sendBatch(batch: IBatch) {
     const result = await this.fetchClient.POST(
-      '/posts',
+      '/api/track',
       JSON.stringify(batch),
       {
         'Content-Type': 'application/json',
