@@ -10,13 +10,8 @@ COPY package.json package-lock.json ./
 # Install ALL dependencies (including dev dependencies for build)
 RUN npm ci
 
-# Copy Prisma schema
-COPY prisma ./prisma/
-
-# Copy source code
-COPY src ./src/
-COPY tsconfig.json ./
-COPY index.ts ./
+# Copy all source code
+COPY . .
 
 # Generate Prisma Client
 RUN npx prisma generate
