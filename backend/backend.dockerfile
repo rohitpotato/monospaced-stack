@@ -25,11 +25,15 @@ WORKDIR /app
 
 COPY --from=builder /app /app
 
-RUN npm prune --production
-
+# Set environment variables
 ENV NODE_ENV=production
 ENV PORT=5001
 
+# Add health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:5001/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+
 EXPOSE 5001
 
-CMD ["npm", "run", "start"]
+# Use exec form and add error handling
+CMD ["sh", "-c", "npm run start || (echo 'Server failed to start' && exit 1)"]
