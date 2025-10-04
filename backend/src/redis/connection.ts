@@ -1,7 +1,7 @@
 import Redis from 'ioredis'
 
 const connectionConfig = {
-  host: process.env.REDIS_HOST,
+  host: "redis://default:monospaced@redis.redis.svc.cluster.local:6379/0",
   port: 6379,
   maxRetriesPerRequest: null,
 }
