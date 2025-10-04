@@ -35,5 +35,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 
 EXPOSE 5001
 
-# Use exec form and add error handling
-CMD ["sh", "-c", "npm run start || (echo 'Server failed to start' && exit 1)"]
+# Run migrations and start server
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
