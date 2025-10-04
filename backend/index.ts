@@ -11,6 +11,7 @@ loadConfig()
 import './src/queue/metrics-queue'
 import './src/workers/track-metric-worker'
 import metricsRouter from './src/routes/metrics'
+console.log('Starting server')
 
 const port = Number(process.env.PORT) || 5001
 console.log('Configured Port', port)
