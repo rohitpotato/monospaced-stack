@@ -46,6 +46,7 @@ class MonitorBoi {
   private isFlushing: boolean = false
   private isDestroyed: boolean = false
   private onError?: (error: Error, batch: IBatch) => void
+  private isWebVitalsSetup: boolean = false
 
   constructor(options: MonitorBoiOptions) {
     // Validate options
@@ -68,7 +69,6 @@ class MonitorBoi {
 
     this.setupFlushInterval()
     this.setupBeforeUnload()
-    this.setupNavigationHandler()
   }
 
   private setupFlushInterval() {
@@ -84,33 +84,8 @@ class MonitorBoi {
     }, this.batchInterval) as unknown as number
   }
 
-  private setupNavigationHandler() {
-    if (typeof window !== 'undefined') {
-      // @ts-expect-error - navigation is not typed
-      if (window.navigation) {
-        // @ts-expect-error - navigate is not typed
-        window.navigation.addEventListener('navigate', (event: any) => {
-          event.preventDefault()
-          this.sendWebVitals().catch((error) => {
-            console.error('Failed to send web vitals', error)
-          })
-        })
-      }
-      else {
-        window.addEventListener('popstate', () => {
-          this.sendWebVitals().catch((error) => {
-            console.error('Failed to send web vitals', error)
-          })
-        })
-
-        window.addEventListener('pushstate', () => {
-          this.sendWebVitals().catch((error) => {
-            console.error('Failed to send web vitals', error)
-          })
-        })
-      }
-    }
-  }
+  // Navigation tracking removed - not needed for Core Web Vitals
+  // Web Vitals measure the initial page load experience, not route changes
 
   private setupBeforeUnload() {
     if (typeof window !== 'undefined') {
@@ -199,10 +174,18 @@ class MonitorBoi {
     }
   }
 
-  async sendWebVitals() {
+  private setupWebVitalsObservers() {
+    // Prevent duplicate setup
+    if (this.isWebVitalsSetup) {
+      return
+    }
+
+    this.isWebVitalsSetup = true
+
     // Track which metrics we've already logged to prevent duplicates
     const loggedMetrics = new Set<string>()
 
+    // Use web-vitals library for accurate measurements
     onCLS((v) => {
       const key = `CLS-${v.id}`
       if (!loggedMetrics.has(key)) {
@@ -267,6 +250,11 @@ class MonitorBoi {
         })
       }
     })
+  }
+
+  async sendWebVitals() {
+    // Set up initial Web Vitals measurement
+    this.setupWebVitalsObservers()
   }
 
   async init() {
