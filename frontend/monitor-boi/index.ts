@@ -1,5 +1,5 @@
 import type { IFetchClient } from './lib/fetch-wrapper'
-import { onCLS, onFCP, onLCP, onTTFB } from 'web-vitals'
+import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals'
 import { FetchClient } from './lib/fetch-wrapper'
 import generateUUID from './lib/generate-uuid'
 
@@ -248,6 +248,19 @@ class MonitorBoi {
         loggedMetrics.add(key)
         this.triggerEvent({
           name: 'TTFB',
+          value: v.value,
+          delta: v.delta,
+          label: 'core-web-vital',
+        })
+      }
+    })
+
+    onINP((v) => {
+      const key = `INP-${v.id}`
+      if (!loggedMetrics.has(key)) {
+        loggedMetrics.add(key)
+        this.triggerEvent({
+          name: 'INP',
           value: v.value,
           delta: v.delta,
           label: 'core-web-vital',
