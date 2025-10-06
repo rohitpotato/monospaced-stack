@@ -25,4 +25,9 @@ model Metrics {
   device String?
   connection String?
   userAgent String?
+  errorMessage String?
+  errorStack String?
+  errorFile String?
+  errorLine Int?
+  errorColumn Int?
 }

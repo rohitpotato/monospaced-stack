@@ -9,6 +9,11 @@ export type IMetricsEvent = {
   device?: string
   connection?: string
   userAgent?: string
+  errorMessage?: string
+  errorStack?: string
+  errorFile?: string
+  errorLine?: number
+  errorColumn?: number
 }
 
 export type IMetricsBatch = {

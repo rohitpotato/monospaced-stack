@@ -17,7 +17,13 @@ const trackMetricsWorker = new Worker(QUEUE_NAME, async (job) => {
         route: event.route,
         device: event.device,
         connection: event.connection,
-        userAgent: event.userAgent
+        userAgent: event.userAgent,
+        // Error-specific fields
+        errorMessage: event.errorMessage,
+        errorStack: event.errorStack,
+        errorFile: event.errorFile,
+        errorLine: event.errorLine,
+        errorColumn: event.errorColumn,
       }))
     })
     console.log(

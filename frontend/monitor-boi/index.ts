@@ -7,13 +7,19 @@ interface IEvent {
   id: string
   timestamp: number
   name: string
-  value: number
+  value: number // Always numeric for Prometheus compatibility
   delta?: number
-  label?: string
+  label?: 'core-web-vital' | 'error' | 'custom'
   route?: string
   device?: string
   connection?: string
   userAgent?: string
+  // Error-specific fields
+  errorMessage?: string
+  errorStack?: string
+  errorFile?: string
+  errorLine?: number
+  errorColumn?: number
 }
 
 interface IBatch {
@@ -69,6 +75,7 @@ class MonitorBoi {
 
     this.setupFlushInterval()
     this.setupBeforeUnload()
+    this.setupErrorBoundary()
   }
 
   private setupFlushInterval() {
@@ -86,6 +93,59 @@ class MonitorBoi {
 
   // Navigation tracking removed - not needed for Core Web Vitals
   // Web Vitals measure the initial page load experience, not route changes
+
+  private setupErrorBoundary() {
+    if (typeof window !== 'undefined') {
+      // Capture unhandled JavaScript errors
+      window.addEventListener('error', (event) => {
+        this.trackError({
+          name: event.error?.name || 'Error',
+          message: event.error?.message || event.message || 'Unknown error',
+          stack: event.error?.stack || '',
+          filename: event.filename,
+          lineno: event.lineno,
+          colno: event.colno,
+        })
+      })
+
+      // Capture unhandled promise rejections
+      window.addEventListener('unhandledrejection', (event) => {
+        this.trackError({
+          name: 'UnhandledPromiseRejection',
+          message: event.reason?.message || String(event.reason) || 'Unhandled promise rejection',
+          stack: event.reason?.stack || '',
+        })
+      })
+    }
+  }
+
+  private trackError(errorInfo: {
+    name: string
+    message: string
+    stack?: string
+    filename?: string
+    lineno?: number
+    colno?: number
+  }) {
+    // Use value = 1 for counting errors (Prometheus compatible)
+    // Store actual error message in errorMessage field
+    this.triggerEvent({
+      name: errorInfo.name,
+      value: 1, // Numeric: count this error occurrence
+      label: 'error',
+      // Include full error details for debugging
+      route: window.location.pathname,
+      device: window.innerWidth < 768 ? 'mobile' : window.innerWidth < 1024 ? 'tablet' : 'desktop',
+      connection: (navigator as any).connection?.effectiveType,
+      userAgent: navigator.userAgent,
+      // Add complete error information
+      errorMessage: errorInfo.message, // Actual error message here
+      errorStack: errorInfo.stack,
+      errorFile: errorInfo.filename,
+      errorLine: errorInfo.lineno,
+      errorColumn: errorInfo.colno,
+    })
+  }
 
   private setupBeforeUnload() {
     if (typeof window !== 'undefined') {
@@ -257,8 +317,40 @@ class MonitorBoi {
     this.setupWebVitalsObservers()
   }
 
+  // Manual error tracking for React Error Boundaries or custom error handling
+  trackCustomError(error: Error, _errorInfo?: { componentStack?: string }) {
+    this.trackError({
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+    })
+  }
+
   async init() {
     await this.sendWebVitals()
+    this.trackAppLaunch()
+  }
+
+  private trackAppLaunch() {
+    if (typeof window === 'undefined')
+      return
+
+    const sessionKey = 'monitor_boi_app_launched'
+
+    // Check if app has already been launched in this session
+    if (sessionStorage.getItem(sessionKey)) {
+      return // Already launched in this session
+    }
+
+    // Mark as launched for this session
+    sessionStorage.setItem(sessionKey, 'true')
+
+    // Track the app launch event
+    this.triggerEvent({
+      name: 'app_launched',
+      value: 1,
+      label: 'custom',
+    })
   }
 
   async destroy() {
