@@ -4,7 +4,7 @@ export type IMetricsEvent = {
   name: string
   value: number
   delta?: number
-  label?: string
+  label?: 'core-web-vital' | 'error' | 'custom'
   route?: string
   device?: string
   connection?: string
