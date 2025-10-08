@@ -13,7 +13,6 @@ export default async function Home() {
 
   const websiteStructuredData = generateWebsiteStructuredData()
   const blogStructuredData = generateBlogStructuredData(allPosts)
-  throw new Error('error emitted by main page')
 
   return (
     <>

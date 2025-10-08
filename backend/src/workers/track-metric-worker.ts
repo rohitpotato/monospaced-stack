@@ -1,7 +1,6 @@
 import { Worker } from 'bullmq'
 import { QUEUE_NAME } from '../queue/metrics-queue'
 import prisma from '../database/index'
-import { IMetricsEvent } from '../types/metrics-batch'
 import redis from '../redis/connection'
 
 const trackMetricsWorker = new Worker(QUEUE_NAME, async (job) => {
