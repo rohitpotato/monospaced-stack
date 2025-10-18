@@ -1,23 +1,54 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+:root {
+  --substack-orange: #ff6719;
+  --substack-orange-light: #ff8a4c;
+  --substack-orange-dark: #e55a0a;
+}
+
 body {
   min-height: 100vh;
-  font-family: 'VT323';
-  /* Custom 90s pixelated cursor - high contrast */
-  cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAGKADAAQAAAABAAAAGAAAAADiNXA3AAAApklEQVRIDWNgwA/8////hAImBob///9/wMDAsIABA58pBgaG/3/+//9/BhL//f//Z2BgYBgwMDD8//f/PwwMW3///g8DAwPD/38M/P//fwwMP378CMTAwMDA8P//fwwMf/788Z+BgYGBgYGB4T8DA8P//v37/x8DAwOD////GRgY/P379/+fDAwMDAwMDAz/GRgY/v79+x8DAwOD/x8DA8N/BgaGZ2BgYAAAQYAAe+VyS25b5vAAAAAASUVORK5CYII='), auto;
-  
-  /* New Matrix/CRT Theme Background */
-  background-color: #000;
-  color: #0f0; /* Default text color to green */
-  background-image: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) 1px, transparent 1px, transparent 2px);
-
-}
-a, button, input[type="submit"], input[type="button"], .interactive-cursor {
-  /* Custom 90s pixelated hand cursor - high contrast */
-  cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAGKADAAQAAAABAAAAGAAAAADiNXA3AAAAzElEQVRIDbVWsQ2AMAz8q08kPoAJSBRsXEBJVQdYQI+hY1AwiEGJt/S0SXoE8vGzvfcm6X/kF5Z/3n1gAQ4AewFeAF8BqwBbwAFwBtx9gB8B3AM/3QL4I7j7APgC/gEcACdAGeAB8ED4LdGWd2sBtv45YAXoA2b/PkAW8Cb3QPkI3wVOgLNAMfJ9A1wBLoAboA3wAOgB/y6AP/ACCAGbAGWAK2AE3B3AExAFrANnQI2AD/cBfgCvAJOABfADCAGXAEfAGfABXAVdED4IfwE2aY3PgiQvCgAAAABJRU5ErkJggg=='), pointer;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  background-color: #fffafa;
+  color: #1a1a1a;
+  line-height: 1.6;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
 }
 
-pre {
-  font-family: 'VT323', monospace;
+/* Headings use Spectral font */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-spectral), 'Spectral', Georgia, 'Times New Roman', serif;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+/* Clean, minimal link styles - no hover effects */
+a {
+  color: #1a1a1a;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--substack-orange);
+}
+
+/* Clean code styling */
+pre, code {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Source Code Pro', monospace;
+  font-feature-settings: 'liga' 0;
+}
+
+/* Substack orange accent for special elements */
+.accent-orange {
+  color: var(--substack-orange);
+}
+
+.bg-accent-orange {
+  background-color: var(--substack-orange);
+}
+
+.border-accent-orange {
+  border-color: var(--substack-orange);
 }

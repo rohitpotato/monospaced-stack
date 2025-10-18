@@ -1,80 +1,41 @@
 'use client'
-import type { Article } from './types'
 import type { Post } from '@/lib/posts'
 import Link from 'next/link'
 import React, { useState } from 'react'
-import AuthorProfile from '@/components/author-profile'
-import Button from '@/components/button'
-import DecorativeWindow from '@/components/decorative-window'
-import Input from '@/components/input'
-import LoadingBar from '@/components/loading-bar'
-import { RetroWindow } from '@/components/retro-window'
-import Typography from '@/components/typography'
-import { colors, layout } from './theme'
+import Header from '@/components/header'
 
-// Convert Post to Article for ArticleCard compatibility
-function postToArticle(post: Post): Article {
-  return {
-    slug: post.slug,
-    title: post.title,
-    description: post.summary,
-    readingTime: Number.parseInt(post.readingTime) || 0,
-    content: [], // ArticleCard doesn't use content
-  }
-}
-
-// Highlighted Article Card Component
-interface HighlightedArticleCardProps {
+// Clean Article Card Component
+interface ArticleCardProps {
   post: Post
-  searchQuery: string
-  hasSearchQuery: boolean
-  highlightText: (text: string, query: string) => string
 }
 
-const HighlightedArticleCard: React.FC<HighlightedArticleCardProps> = ({
-  post,
-  searchQuery,
-  hasSearchQuery,
-  highlightText,
-}) => {
-  const article = postToArticle(post)
-
+const ArticleCard: React.FC<ArticleCardProps> = ({ post }) => {
   return (
     <Link
-      href={`/thoughts/${article.slug}`}
-      className="block mb-2 p-2 border-2 border-transparent hover:border-green-500 focus:border-green-500 active:bg-green-500 active:text-black group"
+      href={`/thoughts/${post.slug}`}
+      className="block py-6 border-b border-gray-100 hover:bg-gray-50 transition-colors group"
     >
-      <div className="flex items-start">
-        <Typography variant="bodyLarge" color="tertiary" className="mr-2 font-bold flex-shrink-0">&gt;</Typography>
-        <div>
-          {hasSearchQuery
-            ? (
-                <>
-                  <div
-                    className="group-active:text-black"
-                    dangerouslySetInnerHTML={{
-                      __html: highlightText(article.title, searchQuery),
-                    }}
-                  />
-                  <div
-                    className="group-active:text-gray-900"
-                    dangerouslySetInnerHTML={{
-                      __html: highlightText(article.description, searchQuery),
-                    }}
-                  />
-                </>
-              )
-            : (
-                <>
-                  <Typography variant="h3" className="group-active:text-black">{article.title}</Typography>
-                  <Typography variant="body" color="textMuted" className="group-active:text-gray-900">{article.description}</Typography>
-                </>
-              )}
-          <Typography variant="small" className="mt-1 group-active:text-gray-800">
-            {article.readingTime}
+      <div className="space-y-2">
+        <h3 className="text-lg font-medium text-gray-900 group-hover:text-orange-600 transition-colors">
+          {post.title}
+        </h3>
+        <p className="text-gray-600 text-sm leading-relaxed">
+          {post.summary}
+        </p>
+        <div className="flex items-center space-x-4 text-xs text-gray-500">
+          <span>
+            {post.readingTime}
             {' '}
             min read
-          </Typography>
+          </span>
+          <span>•</span>
+          <span>
+            {new Date(post.publishedAt).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </span>
         </div>
       </div>
     </Link>
@@ -83,107 +44,63 @@ const HighlightedArticleCard: React.FC<HighlightedArticleCardProps> = ({
 
 const HomePage: React.FC<{ posts: Post[] }> = ({ posts }) => {
   const [searchQuery, setSearchQuery] = useState('')
-  const [isSearching, setIsSearching] = useState(false)
   const [displayedPosts, setDisplayedPosts] = useState<Post[]>(posts)
-  const [hasSearchQuery, setHasSearchQuery] = useState(false)
 
-  // Simple highlighting function
-  const highlightText = (text: string, query: string): string => {
-    if (!query.trim())
-      return text
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value
+    setSearchQuery(query)
 
-    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
-    return text.replace(regex, '<mark class="bg-green-400/30 text-green-100 px-1 rounded font-medium">$1</mark>')
-  }
-
-  const handleSearch = () => {
-    if (isSearching)
-      return
-
-    setIsSearching(true)
-
-    // Simulate network delay for aesthetic
-    setTimeout(() => {
-      if (searchQuery.trim().length === 0) {
-        // Show all posts when query is empty
-        setDisplayedPosts(posts)
-        setHasSearchQuery(false)
-      }
-      else {
-        // Filter posts that match the search query
-        const filteredPosts = posts.filter(post =>
-          post.title.toLowerCase().includes(searchQuery.toLowerCase())
-          || post.summary.toLowerCase().includes(searchQuery.toLowerCase())
-          || post.content.toLowerCase().includes(searchQuery.toLowerCase()),
-        )
-
-        setDisplayedPosts(filteredPosts)
-        setHasSearchQuery(true)
-      }
-
-      setIsSearching(false)
-    }, 1000) // 1 second search simulation
+    if (query.trim().length === 0) {
+      setDisplayedPosts(posts)
+    }
+    else {
+      const filteredPosts = posts.filter(post =>
+        post.title.toLowerCase().includes(query.toLowerCase())
+        || post.summary.toLowerCase().includes(query.toLowerCase())
+        || post.content.toLowerCase().includes(query.toLowerCase()),
+      )
+      setDisplayedPosts(filteredPosts)
+    }
   }
 
   return (
-    <RetroWindow title="terminal" variant="full">
-      <div className={layout.container}>
-        {/* Left Column: Content */}
-        <div className={`bg-${colors.background}`}>
-          <Typography variant="h1" className="mb-2">Welcome to the Mainframe→</Typography>
-          <Typography variant="bodyLarge" color="textMuted" className="mb-6">Accessing archived transmissions...</Typography>
-
-          {/* Search Bar & Loading Bar */}
-          <div className="mb-8">
-            <div className="flex items-center space-x-2">
-              <Input
-                type="text"
-                placeholder="Query database..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                aria-label="Search articles"
-                onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                disabled={isSearching}
-              />
-              <Button
-                onClick={handleSearch}
-                disabled={isSearching}
-              >
-                {isSearching ? 'SEARCHING...' : 'Execute'}
-              </Button>
-            </div>
-            {/* Add a container to prevent layout shift when loading bar appears */}
-            <div className="h-4 mt-2">
-              {isSearching && <LoadingBar progress={100} />}
-            </div>
-          </div>
-
-          {/* Article Display */}
-          <div>
-            {displayedPosts.map(post => (
-              <HighlightedArticleCard
-                key={post.slug}
-                post={post}
-                searchQuery={searchQuery}
-                hasSearchQuery={hasSearchQuery}
-                highlightText={highlightText}
-              />
-            ))}
-            {!isSearching && displayedPosts.length === 0 && searchQuery.trim().length > 0 && (
-              <Typography variant="body" color="error" className="text-center">
-                QUERY FAILED: No records found.
-              </Typography>
-            )}
-          </div>
-        </div>
-
-        {/* Right Column: Decorative & Author */}
-        <div className={`bg-${colors.background} p-4 relative space-y-4`}>
-          <AuthorProfile />
-          <DecorativeWindow />
+    <div className="min-h-screen">
+      <div className="sticky top-0 z-50 bg-gray-50/80 backdrop-blur-sm">
+        <div className="max-w-4xl mx-auto px-4">
+          <Header />
         </div>
       </div>
-    </RetroWindow>
+
+      <div className="max-w-4xl mx-auto px-4 pt-8">
+        <div className="space-y-1">
+          {/* Search */}
+          <div>
+            <input
+              type="text"
+              placeholder="Search articles..."
+              value={searchQuery}
+              onChange={handleSearch}
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-transparent"
+            />
+          </div>
+
+          {/* Articles List */}
+          <div>
+            {displayedPosts.length > 0
+              ? (
+                  displayedPosts.map(post => (
+                    <ArticleCard key={post.slug} post={post} />
+                  ))
+                )
+              : (
+                  <div className="text-center py-12">
+                    <p className="text-gray-500">No articles found.</p>
+                  </div>
+                )}
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 

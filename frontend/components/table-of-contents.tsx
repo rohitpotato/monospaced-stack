@@ -3,7 +3,6 @@
 import type { Heading } from '@/lib/posts'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import { RetroWindow } from '@/components/retro-window'
 import { cn } from '@/lib/utils'
 
 interface TableOfContentsProps {
@@ -78,68 +77,66 @@ function TableOfContents({ headings }: TableOfContentsProps) {
 
   return (
     <div className="sticky top-24 w-full max-h-[calc(100vh-8rem)] overflow-y-auto lg p-4">
-      <RetroWindow title="TOC_NAVIGATOR">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4 pb-2 border-b border-green-500/30">
-          <h2 className="text-lg font-mono font-semibold text-green-400">Table of Contents</h2>
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1 hover:bg-green-500/10 rounded transition-colors border border-green-500/30"
-            aria-label={isExpanded ? 'Collapse' : 'Expand'}
-          >
-            {isExpanded
-              ? (
-                  <ChevronUp className="w-4 h-4 text-green-400" />
-                )
-              : (
-                  <ChevronDown className="w-4 h-4 text-green-400" />
-                )}
-          </button>
-        </div>
-
-        {/* Navigation */}
-        {isExpanded && (
-          <nav className="space-y-1">
-            {headings.map((heading) => {
-              const isActive = activeHeading === heading.id
-              const indentClass = heading.level === 1
-                ? 'ml-0'
-                : heading.level === 2
-                  ? 'ml-3'
-                  : heading.level === 3
-                    ? 'ml-6'
-                    : heading.level === 4
-                      ? 'ml-9'
-                      : heading.level === 5 ? 'ml-12' : 'ml-15'
-
-              return (
-                <button
-                  key={heading.id}
-                  onClick={() => handleHeadingClick(heading.id)}
-                  className={cn(
-                    'w-full text-left px-2 py-1 rounded text-sm transition-colors hover:bg-green-500/10 font-mono border border-transparent hover:border-green-500/30',
-                    indentClass,
-                    isActive
-                      ? 'text-green-300 bg-green-500/20 border-green-500/50 font-medium'
-                      : heading.level === 1
-                        ? 'text-green-400 font-medium'
-                        : heading.level === 2
-                          ? 'text-green-500'
-                          : 'text-green-600',
-                  )}
-                  style={{
-                    fontSize: heading.level === 1
-                      ? '0.875rem'
-                      : heading.level === 2 ? '0.8125rem' : '0.75rem',
-                  }}
-                >
-                  {heading.title}
-                </button>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4 pb-2 border-b border-green-500/30">
+        <h2 className="text-lg font-mono font-semibold text-green-400">Table of Contents</h2>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="p-1 hover:bg-green-500/10 rounded transition-colors border border-green-500/30"
+          aria-label={isExpanded ? 'Collapse' : 'Expand'}
+        >
+          {isExpanded
+            ? (
+                <ChevronUp className="w-4 h-4 text-green-400" />
               )
-            })}
-          </nav>
-        )}
-      </RetroWindow>
+            : (
+                <ChevronDown className="w-4 h-4 text-green-400" />
+              )}
+        </button>
+      </div>
+
+      {/* Navigation */}
+      {isExpanded && (
+        <nav className="space-y-1">
+          {headings.map((heading) => {
+            const isActive = activeHeading === heading.id
+            const indentClass = heading.level === 1
+              ? 'ml-0'
+              : heading.level === 2
+                ? 'ml-3'
+                : heading.level === 3
+                  ? 'ml-6'
+                  : heading.level === 4
+                    ? 'ml-9'
+                    : heading.level === 5 ? 'ml-12' : 'ml-15'
+
+            return (
+              <button
+                key={heading.id}
+                onClick={() => handleHeadingClick(heading.id)}
+                className={cn(
+                  'w-full text-left px-2 py-1 rounded text-sm transition-colors hover:bg-green-500/10 font-mono border border-transparent hover:border-green-500/30',
+                  indentClass,
+                  isActive
+                    ? 'text-green-300 bg-green-500/20 border-green-500/50 font-medium'
+                    : heading.level === 1
+                      ? 'text-green-400 font-medium'
+                      : heading.level === 2
+                        ? 'text-green-500'
+                        : 'text-green-600',
+                )}
+                style={{
+                  fontSize: heading.level === 1
+                    ? '0.875rem'
+                    : heading.level === 2 ? '0.8125rem' : '0.75rem',
+                }}
+              >
+                {heading.title}
+              </button>
+            )
+          })}
+        </nav>
+      )}
     </div>
   )
 }

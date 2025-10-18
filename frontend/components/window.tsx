@@ -1,6 +1,5 @@
 import React from 'react'
-import { colors } from '../app/__new/theme'
-import Typography from './typography'
+import { cn } from '@/lib/utils'
 
 interface WindowProps {
   title?: string
@@ -11,16 +10,22 @@ interface WindowProps {
 
 const Window: React.FC<WindowProps> = ({ title, children, className = '', onClose }) => {
   return (
-    <div className={`bg-${colors.background} border-2 border-${colors.border} p-1 shadow-[0_0_15px_rgba(50,255,50,0.5)] ${className}`}>
-      <div className="text-green-500 flex justify-between items-center p-1 select-none">
-        {title && <Typography as="h2" variant="h5" color="tertiary">{title}</Typography>}
-        {onClose && (
-          <button onClick={onClose} className={`w-6 h-6 bg-${colors.background} border border-${colors.border} text-${colors.tertiary} flex items-center justify-center font-bold hover:bg-${colors.tertiary} hover:text-${colors.black}`} aria-label="Close">
-            X
-          </button>
-        )}
-      </div>
-      <div className={`p-4 max-h-[80vh] overflow-y-auto bg-${colors.background}`}>
+    <div className={cn('bg-white border border-gray-200 rounded-lg shadow-sm', className)}>
+      {title && (
+        <div className="flex justify-between items-center p-4 border-b border-gray-200">
+          <h2 className="text-lg font-medium text-gray-900">{title}</h2>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="w-6 h-6 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-800 flex items-center justify-center rounded transition-colors"
+              aria-label="Close"
+            >
+              ×
+            </button>
+          )}
+        </div>
+      )}
+      <div className="p-4 max-h-[80vh] overflow-y-auto">
         {children}
       </div>
     </div>
