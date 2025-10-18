@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import React from 'react'
-import { PrinterWrapper } from '@/components/printer-wrapper'
+import { cn } from '@/lib/utils'
 
 interface MarkdownImageProps {
   src: string
@@ -12,19 +12,13 @@ interface MarkdownImageProps {
 
 export function MarkdownImage({ src, alt, className, width, height, ...props }: MarkdownImageProps & React.ImgHTMLAttributes<HTMLImageElement>) {
   return (
-    <PrinterWrapper
-      className={className}
-      windowTitle="IMAGE_PRINTER"
-      showProgress={true}
-      animationDuration={2500}
-      steps={50}
-    >
+    <div className={cn('my-6', className)}>
       <Image
         src={src}
         alt={alt}
         width={width || 800}
         height={height || 600}
-        className="w-full h-auto max-w-full border border-green-500/30"
+        className="w-full h-auto rounded-lg border border-gray-200"
         style={{
           height: 'auto',
           maxWidth: '100%',
@@ -33,10 +27,10 @@ export function MarkdownImage({ src, alt, className, width, height, ...props }: 
       />
 
       {alt && (
-        <div className="mt-3 text-center text-sm text-green-400 italic font-mono bg-black/50 border border-green-500/30 p-2">
+        <div className="mt-3 text-center text-sm text-gray-600 italic">
           {alt}
         </div>
       )}
-    </PrinterWrapper>
+    </div>
   )
 }

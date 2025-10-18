@@ -1,6 +1,4 @@
 import React from 'react'
-import Typography from '@/components/typography'
-import Window from '@/components/window'
 import { cn } from '@/lib/utils'
 
 interface MarkdownListProps {
@@ -13,20 +11,18 @@ export function MarkdownList({ children, className, ordered = false, ...props }:
   const Component = ordered ? 'ol' : 'ul'
 
   return (
-    <Window className={cn('my-4', className)}>
-      <Component
-        className={cn(
-          'space-y-2',
-          ordered
-            ? 'list-decimal list-inside'
-            : 'list-disc list-inside',
-          className,
-        )}
-        {...props}
-      >
-        {children}
-      </Component>
-    </Window>
+    <Component
+      className={cn(
+        'my-4 space-y-2 pl-6',
+        ordered
+          ? 'list-decimal'
+          : 'list-disc',
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </Component>
   )
 }
 
@@ -37,15 +33,11 @@ interface MarkdownListItemProps {
 
 export function MarkdownListItem({ children, className, ...props }: MarkdownListItemProps & React.LiHTMLAttributes<HTMLLIElement>) {
   return (
-    <Typography
-      as="li"
-      variant="body"
-      // @ts-expect-error - TypographyColor is not defined
-      color="text"
-      className={cn('leading-relaxed', className)}
+    <li
+      className={cn('text-gray-700 leading-relaxed', className)}
       {...props}
     >
       {children}
-    </Typography>
+    </li>
   )
 }

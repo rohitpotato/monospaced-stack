@@ -1,12 +1,15 @@
 import type React from 'react'
-import { VT323 } from 'next/font/google'
+import { Spectral } from 'next/font/google'
 import Script from 'next/script'
 import App from '@/_app'
-import Header from '@/components/header'
 import { cn } from '@/lib/utils'
 import './globals.css'
 
-const vt323Font = VT323({ subsets: ['latin'], weight: ['400'] })
+const spectralFont = Spectral({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-spectral',
+})
 
 export const metadata = {
   title: {
@@ -127,14 +130,9 @@ export default function RootLayout({
         <meta name="msapplication-config" content="/browserconfig.xml" />
         <Script defer src="https://analytics.rohitpotato.xyz/script.js" data-website-id="ba838c03-a5b0-4560-a1d8-72c4f18aa565" />
       </head>
-      <body className={cn(vt323Font.className)}>
-        <div className="min-h-screen max-w-7xl mx-auto">
-          <div className="sticky top-0 z-50 bg-black">
-            <Header />
-          </div>
-          <div className="mt-16 px-4">
-            <App>{children}</App>
-          </div>
+      <body className={cn(spectralFont.className, spectralFont.variable)}>
+        <div className="min-h-screen">
+          <App>{children}</App>
         </div>
       </body>
     </html>

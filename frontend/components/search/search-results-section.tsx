@@ -3,7 +3,6 @@
 import type { Post } from '@/lib/posts'
 import type { SearchResult } from '@/lib/search'
 import React, { useEffect } from 'react'
-import { RetroWindow } from '@/components/retro-window'
 import { cn } from '@/lib/utils'
 import { SearchResultsList } from './search-results-list'
 
@@ -76,54 +75,49 @@ export function SearchResultsSection({
 
   return (
     <div className={cn('w-full', className)}>
-      <RetroWindow
-        title="SEARCH_RESULTS"
-        className="border-green-500/50 shadow-[0_0_15px_rgba(0,255,0,0.3)]"
-        contentClassName="p-0"
-      >
-        {/* Keyboard hints */}
-        {showKeyboardHints && hasResults && (
-          <div className="hidden sm:flex items-center gap-2 text-xs text-green-500/80 font-mono mb-4">
-            <span>↑↓ navigate</span>
-            <span>•</span>
-            <span>↵ select</span>
-            <span>•</span>
-            <span>esc clear</span>
-          </div>
-        )}
 
-        {/* Results content */}
-        <div className="p-4">
-          <SearchResultsList
-            results={searchResults}
-            isSearching={isSearching}
-            searchQuery={searchQuery}
-            selectedIndex={selectedIndex}
-            onResultSelect={handleResultSelect}
-            variant={variant}
-            maxResults={maxResults}
-          />
+      {/* Keyboard hints */}
+      {showKeyboardHints && hasResults && (
+        <div className="hidden sm:flex items-center gap-2 text-xs text-green-500/80 font-mono mb-4">
+          <span>↑↓ navigate</span>
+          <span>•</span>
+          <span>↵ select</span>
+          <span>•</span>
+          <span>esc clear</span>
         </div>
+      )}
 
-        {/* Footer with search info */}
-        {hasResults && (
-          <div className="border-t border-green-500/30 px-4 py-2">
-            <div className="flex items-center justify-between text-xs font-mono text-green-500/80">
-              <span>
-                Query: "
-                {searchQuery}
-                "
-              </span>
-              <span>
-                {searchResults.length}
-                {' '}
-                result
-                {searchResults.length !== 1 ? 's' : ''}
-              </span>
-            </div>
+      {/* Results content */}
+      <div className="p-4">
+        <SearchResultsList
+          results={searchResults}
+          isSearching={isSearching}
+          searchQuery={searchQuery}
+          selectedIndex={selectedIndex}
+          onResultSelect={handleResultSelect}
+          variant={variant}
+          maxResults={maxResults}
+        />
+      </div>
+
+      {/* Footer with search info */}
+      {hasResults && (
+        <div className="border-t border-green-500/30 px-4 py-2">
+          <div className="flex items-center justify-between text-xs font-mono text-green-500/80">
+            <span>
+              Query: "
+              {searchQuery}
+              "
+            </span>
+            <span>
+              {searchResults.length}
+              {' '}
+              result
+              {searchResults.length !== 1 ? 's' : ''}
+            </span>
           </div>
-        )}
-      </RetroWindow>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,6 +1,5 @@
 import React from 'react'
-import Typography from '@/components/typography'
-import Window from '@/components/window'
+import { SyntaxHighlighter } from '@/components/syntax-highlighter'
 import { cn } from '@/lib/utils'
 
 interface MarkdownCodeProps {
@@ -12,32 +11,27 @@ interface MarkdownCodeProps {
 export function MarkdownCode({ children, className, inline = false, ...props }: MarkdownCodeProps & React.HTMLAttributes<HTMLElement>) {
   if (inline) {
     return (
-      <Typography
-        as="code"
-        variant="code"
-        // @ts-expect-error - TypographyColor is not defined
-        color="accent"
-        glow
-        className={cn('px-1.5 py-0.5 rounded bg-green-700 text-green-50', className)}
+      <code
+        className={cn('px-1.5 py-0.5 rounded bg-gray-100 text-gray-800 text-sm font-mono', className)}
         {...props}
       >
         {children}
-      </Typography>
+      </code>
     )
   }
 
+  // Extract language from className if present (e.g., "language-javascript")
+  const language = className?.includes('language-')
+    ? className.replace('language-', '')
+    : undefined
+
   return (
-    <Window className='mb-4'>
-      <pre className={cn('overflow-x-auto', className)} {...props}>
-        <Typography
-          as="code"
-          variant="code"
-          color="accent"
-          className="leading-relaxed"
-        >
-          {children}
-        </Typography>
-      </pre>
-    </Window>
+    <SyntaxHighlighter
+      language={language}
+      className={cn('mb-4', className)}
+      {...props}
+    >
+      {children}
+    </SyntaxHighlighter>
   )
 }

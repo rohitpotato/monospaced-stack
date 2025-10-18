@@ -1,5 +1,4 @@
 import React from 'react'
-import Typography from '@/components/typography'
 import { cn } from '@/lib/utils'
 
 interface MarkdownHeadingProps {
@@ -22,34 +21,25 @@ export function MarkdownHeading({ level, children, id, className, ...props }: Ma
   }
 
   const headingId = id || generateId(children)
-  const variantMap = {
-    1: 'h1' as const,
-    2: 'h2' as const,
-    3: 'h3' as const,
-    4: 'h4' as const,
-    5: 'h5' as const,
-    6: 'h6' as const,
+
+  const headingClasses = {
+    1: 'text-4xl font-semibold text-gray-900 mb-6 mt-8 font-serif',
+    2: 'text-3xl font-semibold text-gray-900 mb-4 mt-6 font-serif',
+    3: 'text-2xl font-semibold text-gray-900 mb-3 mt-5 font-serif',
+    4: 'text-xl font-medium text-gray-900 mb-2 mt-4 font-serif',
+    5: 'text-lg font-medium text-gray-900 mb-2 mt-4 font-serif',
+    6: 'text-base font-medium text-gray-900 mb-2 mt-4 font-serif',
   }
 
-  const marginClasses = {
-    1: 'mb-6 mt-8',
-    2: 'mb-5 mt-7',
-    3: 'mb-4 mt-6',
-    4: 'mb-3 mt-5',
-    5: 'mb-2 mt-4',
-    6: 'mb-2 mt-4',
-  }
+  const Component = `h${level}` as React.ElementType
 
   return (
-    <Typography
-      variant={variantMap[level]}
-      // @ts-expect-error - TypographyColor is not defined
-      color="text"
-      className={cn('scroll-mt-24', marginClasses[level], className)}
+    <Component
+      className={cn('scroll-mt-24', headingClasses[level], className)}
       id={headingId}
       {...props}
     >
       {children}
-    </Typography>
+    </Component>
   )
 }
