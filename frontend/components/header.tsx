@@ -14,9 +14,9 @@ const Header: React.FC = () => {
             <Link href="/about" className="text-gray-600 hover:text-orange-600 transition-colors">
               About
             </Link>
-            <Link href="/thoughts" className="text-gray-600 hover:text-orange-600 transition-colors">
+            {/* <Link href="/thoughts" className="text-gray-600 hover:text-orange-600 transition-colors">
               Thoughts
-            </Link>
+            </Link> */}
           </nav>
         </div>
 

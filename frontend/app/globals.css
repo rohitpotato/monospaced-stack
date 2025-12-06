@@ -25,7 +25,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Clean, minimal link styles - no hover effects */
 a {
-  color: #1a1a1a;
+  /* color: #1a1a1a; */
   text-decoration: none;
   transition: color 0.2s ease;
 }

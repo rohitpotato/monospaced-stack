@@ -26,7 +26,6 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ post }) => {
           <span>
             {post.readingTime}
             {' '}
-            min read
           </span>
           <span>•</span>
           <span>

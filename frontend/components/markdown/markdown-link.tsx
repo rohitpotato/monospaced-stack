@@ -14,7 +14,7 @@ export function MarkdownLink({ href, children, className, ...props }: MarkdownLi
       target={href.startsWith('http') ? '_blank' : undefined}
       rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
       className={cn(
-        'text-gray-900 hover:text-orange-600 transition-colors duration-200',
+        'text-orange-600 active:text-orange-700 transition-colors duration-200',
         className,
       )}
       {...props}
