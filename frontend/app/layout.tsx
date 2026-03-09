@@ -128,7 +128,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://rohitpotato.xyz" />
         <meta name="msapplication-TileColor" content="#0f172a" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
-        <Script defer src="https://analytics.rohitpotato.xyz/script.js" data-website-id="ba838c03-a5b0-4560-a1d8-72c4f18aa565" />
+        <Script defer src="https://analytics.rohitpotato.xyz/script.js" data-website-id="646faaa8-72f8-445e-ae0a-c51b9b8a4c30" />
       </head>
       <body className={cn(spectralFont.className, spectralFont.variable)}>
         <div className="min-h-screen">
