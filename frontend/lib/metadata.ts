@@ -16,7 +16,7 @@ export interface MetadataConfig {
  *
  * Priority order:
  * 1. Custom image from frontmatter (if provided)
- * 2. Generated OG image using title and description
+ * 2. Default static OG image (no dynamic OG in static export)
  *
  * @param post - The blog post object
  * @returns The resolved image URL
@@ -30,9 +30,11 @@ export interface MetadataConfig {
  * image: "https://example.com/image.jpg" // Full URL
  * ---
  */
+const DEFAULT_OG_IMAGE = 'https://rohitpotato.xyz/apple-touch-icon.png'
+
 export function resolveImageUrl(post: Post): string {
   if (!post.image) {
-    return `https://rohitpotato.xyz/api/og?title=${encodeURIComponent(post.title)}&description=${encodeURIComponent(post.summary)}`
+    return DEFAULT_OG_IMAGE
   }
 
   // If it's already a full URL, use it as is
@@ -181,7 +183,7 @@ export function generateBlogPostMetadata(post: Post): Metadata {
 
 export function generateHomePageMetadata(): Metadata {
   const url = 'https://rohitpotato.xyz'
-  const imageUrl = 'https://rohitpotato.xyz/api/og?title=Digital%20Backyard&description=Notes%20about%20web%20dev%2C%20infrastructure%2C%20and%20some%20other%20stuff.'
+  const imageUrl = DEFAULT_OG_IMAGE
 
   return generateBaseMetadata({
     title: 'Digital Backyard | Web Development & Infrastructure Blog',
