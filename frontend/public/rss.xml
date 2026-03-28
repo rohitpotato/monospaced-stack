@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Digital Backyard</title>
+    <description>Notes about web dev, infrastructure, and some other stuff.</description>
+    <link>https://rohitpotato.xyz</link>
+    <atom:link href="https://rohitpotato.xyz/rss.xml" rel="self" type="application/rss+xml" />
+    <language>en-US</language>
+    <lastBuildDate>Sat, 28 Mar 2026 22:54:37 GMT</lastBuildDate>
+    
+    <item>
+      <title><![CDATA[You should know OpenTelemetry - As a frontend engineer]]></title>
+      <description><![CDATA[You should know OTEL as a frontend engineer - observability is not optional]]></description>
+      <link>https://rohitpotato.xyz/thoughts/you-should-know-opentelemetry-as-a-frontend-dev</link>
+      <guid>https://rohitpotato.xyz/thoughts/you-should-know-opentelemetry-as-a-frontend-dev</guid>
+      <pubDate>Sat, 06 Dec 2025 00:00:00 GMT</pubDate>
+    </item>
+    
+    <item>
+      <title><![CDATA[We Don't Care About Lighthouse Scores Anymore]]></title>
+      <description><![CDATA[We Don't Care About Lighthouse Scores Anymore - But We Obsess Over Real User Data]]></description>
+      <link>https://rohitpotato.xyz/thoughts/we-dont-care-about-lighthouse-scores</link>
+      <guid>https://rohitpotato.xyz/thoughts/we-dont-care-about-lighthouse-scores</guid>
+      <pubDate>Fri, 07 Nov 2025 00:00:00 GMT</pubDate>
+    </item>
+    
+    <item>
+      <title><![CDATA[To mesh or not to mesh]]></title>
+      <description><![CDATA[Understanding service mesh, and do you really need them?]]></description>
+      <link>https://rohitpotato.xyz/thoughts/to-mesh-or-not-to-mesh</link>
+      <guid>https://rohitpotato.xyz/thoughts/to-mesh-or-not-to-mesh</guid>
+      <pubDate>Mon, 01 Sep 2025 00:00:00 GMT</pubDate>
+    </item>
+    
+    <item>
+      <title><![CDATA[No more on-call jitters]]></title>
+      <description><![CDATA[No more oncall jitters: Understanding Loki, Prometheus and grafana to understand your logging infrastructure]]></description>
+      <link>https://rohitpotato.xyz/thoughts/no-more-oncall-jitters</link>
+      <guid>https://rohitpotato.xyz/thoughts/no-more-oncall-jitters</guid>
+      <pubDate>Wed, 30 Jul 2025 00:00:00 GMT</pubDate>
+    </item>
+    
+    <item>
+      <title><![CDATA[The journey of a packet]]></title>
+      <description><![CDATA[Understanding Kubernetes Building Blocks: Pods, Deployments, and Services]]></description>
+      <link>https://rohitpotato.xyz/thoughts/the-journey-of-a-packet</link>
+      <guid>https://rohitpotato.xyz/thoughts/the-journey-of-a-packet</guid>
+      <pubDate>Wed, 30 Jul 2025 00:00:00 GMT</pubDate>
+    </item>
+    
+    <item>
+      <title><![CDATA[You don't need vercel: Deploy a Next.js app with GitOps and K3s]]></title>
+      <description><![CDATA[You don't need vercel: Deploy a Next.js app with GitOps and K3s]]></description>
+      <link>https://rohitpotato.xyz/thoughts/you-dont-need-vercel</link>
+      <guid>https://rohitpotato.xyz/thoughts/you-dont-need-vercel</guid>
+      <pubDate>Tue, 22 Jul 2025 00:00:00 GMT</pubDate>
+    </item>
+    
+    <item>
+      <title><![CDATA[The quest for control]]></title>
+      <description><![CDATA[From Frontend to Infrastructure: A Developer’s Quest for Control]]></description>
+      <link>https://rohitpotato.xyz/thoughts/the-quest-for-control</link>
+      <guid>https://rohitpotato.xyz/thoughts/the-quest-for-control</guid>
+      <pubDate>Fri, 18 Jul 2025 00:00:00 GMT</pubDate>
+    </item>
+    
+  </channel>
+</rss>

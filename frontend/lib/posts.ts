@@ -1,12 +1,10 @@
 import type { IconName } from 'lucide-react/dynamic'
-import type { BlogStats } from './blog-stats'
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import matter from 'gray-matter'
 import { cache } from 'react'
 import readingTime from 'reading-time'
-import { getBlogStats } from './blog-stats'
 
 export interface Post {
   slug: string
@@ -18,7 +16,6 @@ export interface Post {
   readingTime: string
   content: string
   headings: Heading[]
-  stats: BlogStats
 }
 
 export interface Heading {
@@ -29,11 +26,6 @@ export interface Heading {
 
 const postsDirectory = path.join(process.cwd(), 'content/thoughts')
 
-export const getStats = cache(async (slug: string): Promise<BlogStats> => {
-  const stats = await getBlogStats(slug)
-  return stats
-})
-
 export const getPostBySlug = cache(async (slug: string): Promise<Post> => {
   const fullPath = path.join(postsDirectory, `${slug}.mdx`)
   const fileContents = await fs.promises.readFile(fullPath, 'utf8')
@@ -42,8 +34,8 @@ export const getPostBySlug = cache(async (slug: string): Promise<Post> => {
 
   const headings = extractHeadings(matterResult.content)
 
-  const stats = readingTime(matterResult.content)
-  const readingTimeText = `${Math.ceil(stats.minutes)} min read`
+  const rt = readingTime(matterResult.content)
+  const readingTimeText = `${Math.ceil(rt.minutes)} min read`
 
   return {
     slug,
@@ -55,7 +47,6 @@ export const getPostBySlug = cache(async (slug: string): Promise<Post> => {
     readingTime: readingTimeText,
     content: matterResult.content,
     headings,
-    stats: await getStats(slug),
   }
 })
 

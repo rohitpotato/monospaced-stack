@@ -59,7 +59,7 @@ const Header: React.FC = () => {
               LinkedIn
             </a>
             <a
-              href="/rss"
+              href="/rss.xml"
               className="text-gray-500 hover:text-orange-600 transition-colors text-sm"
             >
               RSS

@@ -20,7 +20,7 @@ export const metadata = {
   metadataBase: new URL('https://rohitpotato.xyz'),
   alternates: {
     types: {
-      'application/rss+xml': '/rss',
+      'application/rss+xml': '/rss.xml',
     },
   },
   viewport: {
@@ -65,7 +65,7 @@ export const metadata = {
     description: 'Notes about web dev, infrastructure, and some other stuff.',
     images: [
       {
-        url: 'https://rohitpotato.xyz/api/og?title=Digital%20Backyard&description=Notes%20about%20web%20dev%2C%20infrastructure%2C%20and%20some%20other%20stuff.',
+        url: 'https://rohitpotato.xyz/apple-touch-icon.png',
         width: 1200,
         height: 630,
         alt: 'Digital Backyard',

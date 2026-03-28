@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "node scripts/generate-rss.mjs && next build",
     "dev": "next dev",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "start": "next start"
+    "preview": "npx serve out"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.16",
