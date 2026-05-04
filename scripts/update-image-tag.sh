@@ -53,7 +53,11 @@ update_image_tag() {
     
     echo "Checking if file exists: $target_file"
     if [ ! -f "$target_file" ]; then
-        terminate "File not found: $target_file"
+        target_file="rollout.yaml"
+        echo "File not found: $target_file, checking for rollout.yaml"
+        if [ ! -f "$target_file" ]; then
+            terminate "File not found: $target_file"
+        fi
     fi
     
     echo "Current image configuration:"
