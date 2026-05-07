@@ -20,15 +20,15 @@ export function MarkdownCode({ children, className, inline = false, ...props }: 
     )
   }
 
-  // Extract language from className if present (e.g., "language-javascript")
-  const language = className?.includes('language-')
-    ? className.replace('language-', '')
-    : undefined
+  // Extract language from className (e.g. "language-javascript").
+  // Some MDX pipelines append extra classes, so we parse via regex.
+  const languageMatch = className?.match(/language-([\w-]+)/)
+  const language = languageMatch?.[1]
 
   return (
     <SyntaxHighlighter
       language={language}
-      className={cn('mb-4', className)}
+      className="mb-4"
       {...props}
     >
       {children}

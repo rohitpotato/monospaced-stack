@@ -1,4 +1,5 @@
 import React from 'react'
+import { Prism as ReactSyntaxHighlighter } from 'react-syntax-highlighter'
 import { cn } from '@/lib/utils'
 
 interface SyntaxHighlighterProps {
@@ -7,69 +8,63 @@ interface SyntaxHighlighterProps {
   className?: string
 }
 
-// Simple syntax highlighting using CSS classes
-function highlightSyntax(code: string, language?: string) {
+/** MDX / markdown often passes code children as arrays or nested nodes — String(children) breaks blocks. */
+function reactNodeToPlainText(node: React.ReactNode): string {
+  if (node == null || typeof node === 'boolean')
+    return ''
+  if (typeof node === 'string' || typeof node === 'number')
+    return String(node)
+  if (Array.isArray(node))
+    return node.map(reactNodeToPlainText).join('')
+  if (React.isValidElement(node))
+    return reactNodeToPlainText((node.props as { children?: React.ReactNode }).children)
+  return ''
+}
+
+function normalizeLanguage(language?: string): string {
   if (!language)
-    return code
-
-  // Basic syntax highlighting patterns
-  const patterns = {
-    javascript: [
-      { pattern: /\b(const|let|var|function|if|else|for|while|return|class|import|export|from|async|await)\b/g, className: 'text-blue-600 font-semibold' },
-      { pattern: /(['"`])((?:\\.|(?!\1)[^\\])*?)\1/g, className: 'text-green-600' },
-      { pattern: /\b(\d+(?:\.\d*)?)\b/g, className: 'text-orange-600' },
-      { pattern: /(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, className: 'text-gray-500 italic' },
-    ],
-    typescript: [
-      { pattern: /\b(const|let|var|function|if|else|for|while|return|class|import|export|from|async|await|interface|type|enum)\b/g, className: 'text-blue-600 font-semibold' },
-      { pattern: /(['"`])((?:\\.|(?!\1)[^\\])*?)\1/g, className: 'text-green-600' },
-      { pattern: /\b(\d+(?:\.\d*)?)\b/g, className: 'text-orange-600' },
-      { pattern: /(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, className: 'text-gray-500 italic' },
-    ],
-    python: [
-      { pattern: /\b(def|class|if|else|elif|for|while|return|import|from|try|except|finally|with|as)\b/g, className: 'text-blue-600 font-semibold' },
-      { pattern: /(['"`])((?:\\.|(?!\1)[^\\])*?)\1/g, className: 'text-green-600' },
-      { pattern: /\b(\d+(?:\.\d*)?)\b/g, className: 'text-orange-600' },
-      { pattern: /(#.*$)/gm, className: 'text-gray-500 italic' },
-    ],
-    yaml: [
-      { pattern: /^(\s*)([a-z_]\w*):/gim, className: 'text-blue-600 font-semibold' },
-      { pattern: /(['"`])((?:\\.|(?!\1)[^\\])*?)\1/g, className: 'text-green-600' },
-      { pattern: /\b(true|false|null)\b/g, className: 'text-orange-600' },
-    ],
-    json: [
-      { pattern: /(['"`])((?:\\.|(?!\1)[^\\])*?)\1/g, className: 'text-green-600' },
-      { pattern: /\b(true|false|null)\b/g, className: 'text-orange-600' },
-    ],
+    return 'text'
+  const lower = language.toLowerCase()
+  const aliases: Record<string, string> = {
+    yml: 'yaml',
+    shell: 'bash',
+    sh: 'bash',
+    ts: 'typescript',
+    js: 'javascript',
   }
-
-  const langPatterns = patterns[language as keyof typeof patterns] || []
-  let highlightedCode = code
-
-  langPatterns.forEach(({ pattern, className }) => {
-    highlightedCode = highlightedCode.replace(pattern, `<span class="${className}">$&</span>`)
-  })
-
-  return highlightedCode
+  return aliases[lower] || lower
 }
 
 export function SyntaxHighlighter({ children, language, className }: SyntaxHighlighterProps) {
-  const codeString = typeof children === 'string' ? children : String(children)
-  const highlightedCode = highlightSyntax(codeString, language)
+  const codeString = reactNodeToPlainText(children)
+  const normalizedLanguage = normalizeLanguage(language)
 
   return (
     <div className={cn('my-6 rounded-lg bg-gray-50 border border-gray-200 overflow-hidden', className)}>
       {language && (
         <div className="px-4 py-2 bg-gray-100 border-b border-gray-200 text-xs text-gray-600 font-mono">
-          {language}
+          {normalizedLanguage}
         </div>
       )}
-      <pre className="overflow-x-auto p-4">
-        <code
-          className="text-sm font-mono text-gray-800 leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: highlightedCode }}
-        />
-      </pre>
+      <ReactSyntaxHighlighter
+        language={normalizedLanguage}
+        PreTag="div"
+        customStyle={{
+          margin: 0,
+          borderRadius: 0,
+          background: 'transparent',
+          padding: '1rem',
+          overflowX: 'auto',
+        }}
+        codeTagProps={{
+          style: {
+            fontSize: '0.875rem',
+            lineHeight: 1.625,
+          },
+        }}
+      >
+        {codeString}
+      </ReactSyntaxHighlighter>
     </div>
   )
 }
