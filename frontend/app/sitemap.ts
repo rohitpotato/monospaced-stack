@@ -1,34 +1,38 @@
 import type { MetadataRoute } from 'next'
-import { getPostSlugs } from '@/lib/posts'
+import { getAllPosts } from '@/lib/posts'
 
 export const dynamic = 'force-static'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://rohitpotato.xyz'
-
-  // Get all blog post slugs
-  const slugs = await getPostSlugs()
+  const posts = await getAllPosts()
 
   // Static pages
   const staticPages = [
     {
       url: baseUrl,
-      lastModified: new Date(),
+      lastModified: new Date('2026-01-01'),
       changeFrequency: 'daily' as const,
       priority: 1,
     },
     {
       url: `${baseUrl}/about`,
-      lastModified: new Date(),
+      lastModified: new Date('2026-01-01'),
       changeFrequency: 'monthly' as const,
       priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/rss.xml`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.5,
     },
   ]
 
   // Blog post pages
-  const blogPages = slugs.map(slug => ({
-    url: `${baseUrl}/thoughts/${slug}`,
-    lastModified: new Date(),
+  const blogPages = posts.map(post => ({
+    url: `${baseUrl}/thoughts/${post.slug}`,
+    lastModified: new Date(post.publishedAt),
     changeFrequency: 'weekly' as const,
     priority: 0.7,
   }))

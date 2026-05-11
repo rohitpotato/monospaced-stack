@@ -1,0 +1,17 @@
+# Digital Backyard
+
+> Notes about web dev, infrastructure, and some other stuff.
+
+Site: https://rohitpotato.xyz
+Sitemap: https://rohitpotato.xyz/sitemap.xml
+RSS: https://rohitpotato.xyz/rss.xml
+
+## Preferred sources
+- https://rohitpotato.xyz/
+- https://rohitpotato.xyz/about
+- https://rohitpotato.xyz/thoughts/
+
+## Usage policy
+- You may index and cite public pages from this site.
+- Preserve attribution to "Rohit Kashyap" and the canonical URL.
+- Do not claim authored content as your own.

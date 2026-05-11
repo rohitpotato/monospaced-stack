@@ -9,6 +9,7 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/admin/'],
     },
+    host: 'https://rohitpotato.xyz',
     sitemap: 'https://rohitpotato.xyz/sitemap.xml',
   }
 }
