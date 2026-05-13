@@ -15,13 +15,12 @@ export function EnhancedBlogPost({ post }: EnhancedBlogPostProps) {
   }
 
   return (
-    <article className="w-full py-8">
-      {/* Header */}
-      <header className="mb-12">
-        <Typography variant="h1" className="mb-6">
+    <article className="andy-blog-body w-full pb-8 pt-4">
+      <header className="mb-10 border-divider border-b pb-7">
+        <Typography variant="h1" className="andy-blog-title mb-4">
           {post.title}
         </Typography>
-        <div className="flex items-center gap-4 text-gray-600 text-sm">
+        <div className="flex items-center gap-4 text-[0.98rem] text-[var(--color-reading-ink-subtle)]">
           <time dateTime={post.publishedAt}>
             {formatDate(post.publishedAt)}
           </time>
@@ -29,14 +28,13 @@ export function EnhancedBlogPost({ post }: EnhancedBlogPostProps) {
           <span>{post.readingTime}</span>
         </div>
         {post.summary && (
-          <p className="mt-6 text-lg text-gray-700 leading-relaxed">
+          <p className="mt-5 max-w-[70ch] text-[1.1rem] leading-snug text-[var(--color-reading-ink-soft)]">
             {post.summary}
           </p>
         )}
       </header>
 
-      {/* Content */}
-      <div className="prose prose-gray max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-gray-900 prose-a:no-underline hover:prose-a:text-orange-600 prose-strong:text-gray-900 prose-code:text-gray-800 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-50 prose-pre:border prose-pre:border-gray-200">
+      <div className="andy-prose prose max-w-none prose-headings:font-display prose-headings:text-accent prose-strong:text-accent prose-hr:border-divider">
         <MDXRemote source={post.content} components={mdxComponents} />
       </div>
     </article>

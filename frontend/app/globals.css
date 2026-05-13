@@ -1,54 +1,201 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "../styles/tokens.css";
 
-:root {
-  --substack-orange: #ff6719;
-  --substack-orange-light: #ff8a4c;
-  --substack-orange-dark: #e55a0a;
+@font-face {
+  font-family: "Spartan MB";
+  src: url("/fonts/spartan-mb/SpartanMB-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Spartan MB";
+  src: url("/fonts/spartan-mb/SpartanMB-SemiBold.otf") format("opentype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Spartan MB";
+  src: url("/fonts/spartan-mb/SpartanMB-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Spartan MB";
+  src: url("/fonts/spartan-mb/SpartanMB-Extra-Bold.otf") format("opentype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
 }
 
 body {
   min-height: 100vh;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-  background-color: #fffafa;
-  color: #1a1a1a;
-  line-height: 1.6;
+  font-family: var(--font-alegreya-sans), "Alegreya Sans", system-ui, sans-serif;
+  background-color: var(--color-page-bg);
+  color: var(--color-ink);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
   font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
 }
 
-/* Headings use Spectral font */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-spectral), 'Spectral', Georgia, 'Times New Roman', serif;
-  font-weight: 600;
+  font-family: var(--font-spartan-mb), "Spartan MB", "Alegreya Sans", sans-serif;
+  font-weight: 700;
   letter-spacing: -0.025em;
+  color: var(--color-ink);
 }
 
-/* Clean, minimal link styles - no hover effects */
 a {
-  /* color: #1a1a1a; */
+  color: inherit;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 a:hover {
-  color: var(--substack-orange);
+  color: var(--color-ink-soft);
 }
 
-/* Clean code styling */
 pre, code {
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Source Code Pro', monospace;
   font-feature-settings: 'liga' 0;
 }
 
-/* Substack orange accent for special elements */
-.accent-orange {
-  color: var(--substack-orange);
+.andy-column {
+  border-right: 1px solid var(--color-divider);
+  border-bottom: 1px solid var(--color-divider);
+  background-color: var(--color-page-bg);
 }
 
-.bg-accent-orange {
-  background-color: var(--substack-orange);
+.andy-column:last-child {
+  border-right: 0;
 }
 
-.border-accent-orange {
-  border-color: var(--substack-orange);
+.andy-link {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgb(59 10 255 / 0.35);
+  text-underline-offset: 3px;
+}
+
+.andy-link:hover {
+  text-decoration-color: var(--color-ink);
+}
+
+.andy-home-heading {
+  font-family: var(--font-spartan-mb), "Spartan MB", Avenir, Futura, sans-serif;
+  font-size: var(--type-heading-size);
+  line-height: var(--type-heading-line);
+  font-style: normal;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.andy-description-text {
+  font-size: var(--type-description-size);
+  line-height: var(--type-description-line);
+  font-style: normal;
+  font-weight: 300;
+  color: var(--color-ink);
+}
+
+.andy-about-text {
+  font-size: var(--type-description-size);
+  line-height: var(--type-description-line);
+  font-style: normal;
+  font-weight: 400;
+  color: var(--color-ink);
+}
+
+.andy-post-title {
+  font-size: var(--type-home-post-title-size);
+  line-height: var(--type-home-post-title-line);
+  font-style: normal;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+.andy-blog-title {
+  font-family: var(--font-spartan-mb), "Spartan MB", Avenir, Futura, sans-serif;
+  font-size: var(--type-heading-size);
+  line-height: var(--type-heading-line);
+  font-style: normal;
+  font-weight: 800;
+  color: var(--color-ink);
+}
+
+.andy-blog-body {
+  font-size: var(--type-blog-size);
+  line-height: var(--type-blog-line);
+  font-style: normal;
+  font-weight: 400;
+  color: var(--color-reading-ink);
+}
+
+.andy-prose {
+  font-size: var(--type-blog-size);
+  line-height: var(--type-blog-line);
+  font-weight: 400;
+  color: var(--color-reading-ink);
+}
+
+.andy-prose h1,
+.andy-prose h2,
+.andy-prose h3,
+.andy-prose h4 {
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.andy-prose p,
+.andy-prose li {
+  color: var(--color-reading-ink);
+}
+
+.andy-prose blockquote,
+.andy-prose figcaption,
+.andy-prose small {
+  color: var(--color-reading-ink-soft);
+}
+
+.andy-prose a {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgb(59 10 255 / 0.35);
+  text-underline-offset: 3px;
+}
+
+.andy-prose pre {
+  border: 1px solid var(--color-divider);
+  background: rgb(255 255 255 / 0.5);
+}
+
+.andy-prose code:not(pre code) {
+  border: 1px solid rgb(255 221 153 / 0.55);
+  background: rgb(255 255 255 / 0.6);
+  border-radius: 0.25rem;
+  padding: 0.08rem 0.32rem;
+}
+
+@media (max-width: 1023px) {
+  .andy-home-heading,
+  .andy-blog-title {
+    font-size: 38px;
+    line-height: 44px;
+  }
+
+  .andy-description-text,
+  .andy-about-text,
+  .andy-blog-body,
+  .andy-prose {
+    font-size: 19px;
+    line-height: 28px;
+  }
 }

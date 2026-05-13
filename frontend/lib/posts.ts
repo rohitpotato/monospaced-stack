@@ -9,6 +9,7 @@ import readingTime from 'reading-time'
 export interface Post {
   slug: string
   title: string
+  category: string
   publishedAt: string
   summary: string
   icon?: IconName
@@ -26,6 +27,8 @@ export interface Heading {
 
 const postsDirectory = path.join(process.cwd(), 'content/thoughts')
 
+const DEFAULT_POST_CATEGORY = 'Notes'
+
 export const getPostBySlug = cache(async (slug: string): Promise<Post> => {
   const fullPath = path.join(postsDirectory, `${slug}.mdx`)
   const fileContents = await fs.promises.readFile(fullPath, 'utf8')
@@ -40,6 +43,7 @@ export const getPostBySlug = cache(async (slug: string): Promise<Post> => {
   return {
     slug,
     title: matterResult.data.title,
+    category: getPostCategory(matterResult.data.category),
     publishedAt: matterResult.data.publishedAt,
     summary: matterResult.data.summary,
     icon: matterResult.data.icon,
@@ -92,6 +96,19 @@ function extractHeadings(content: string): Heading[] {
   }
 
   return headings
+}
+
+function getPostCategory(rawCategory: unknown): string {
+  if (typeof rawCategory !== 'string') {
+    return DEFAULT_POST_CATEGORY
+  }
+
+  const normalized = rawCategory.trim()
+  if (!normalized) {
+    return DEFAULT_POST_CATEGORY
+  }
+
+  return normalized
 }
 
 export async function getPostSlugs(): Promise<string[]> {

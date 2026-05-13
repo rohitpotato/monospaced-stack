@@ -1,14 +1,14 @@
 import type React from 'react'
-import { Spectral } from 'next/font/google'
+import { Alegreya_Sans } from 'next/font/google'
 import Script from 'next/script'
 import App from '@/_app'
 import { cn } from '@/lib/utils'
 import './globals.css'
 
-const spectralFont = Spectral({
+const alegreyaSans = Alegreya_Sans({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-spectral',
+  weight: ['400', '500', '700'],
+  variable: '--font-alegreya-sans',
 })
 
 export const metadata = {
@@ -130,7 +130,7 @@ export default function RootLayout({
         <meta name="msapplication-config" content="/browserconfig.xml" />
         <Script defer src="https://analytics.rohitpotato.xyz/script.js" data-website-id="646faaa8-72f8-445e-ae0a-c51b9b8a4c30" />
       </head>
-      <body className={cn(spectralFont.className, spectralFont.variable)}>
+      <body className={cn(alegreyaSans.variable, 'font-body')}>
         <div className="min-h-screen">
           <App>{children}</App>
         </div>
