@@ -6,7 +6,15 @@
     <link>https://rohitpotato.xyz</link>
     <atom:link href="https://rohitpotato.xyz/rss.xml" rel="self" type="application/rss+xml" />
     <language>en-US</language>
-    <lastBuildDate>Sat, 28 Mar 2026 22:54:37 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 13 May 2026 13:12:14 GMT</lastBuildDate>
+    
+    <item>
+      <title><![CDATA[Monitor your nginx web app with confidence: Nginx-Prometheus-Log-Exporter]]></title>
+      <description><![CDATA[Monitor your nginx web apps with ease - using a log exporter pipeline to expose metrics via prometheus]]></description>
+      <link>https://rohitpotato.xyz/thoughts/nginx-logs-to-prometheus-metrics</link>
+      <guid>https://rohitpotato.xyz/thoughts/nginx-logs-to-prometheus-metrics</guid>
+      <pubDate>Fri, 08 May 2026 00:00:00 GMT</pubDate>
+    </item>
     
     <item>
       <title><![CDATA[You should know OpenTelemetry - As a frontend engineer]]></title>

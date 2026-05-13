@@ -3,17 +3,17 @@ import React from 'react'
 
 const MinimalHeader: React.FC = () => {
   return (
-    <header className="py-4 border-b border-gray-200">
-      <div className="max-w-4xl mx-auto px-4">
+    <header className="border-divider border-b py-4">
+      <div className="mx-auto w-full max-w-6xl px-4">
         <div className="flex justify-between items-center">
-          <Link href="/" className="text-xl font-semibold text-gray-900 hover:text-orange-600 transition-colors">
+          <Link href="/" className="font-display text-xl font-bold text-accent transition-colors hover:text-accentSoft">
             rohitpotato.xyz
           </Link>
           <nav className="flex space-x-6">
-            <Link href="/" className="text-gray-600 hover:text-orange-600 transition-colors">
+            <Link href="/" className="text-inkMuted transition-colors hover:text-accent">
               Home
             </Link>
-            <Link href="/about" className="text-gray-600 hover:text-orange-600 transition-colors">
+            <Link href="/about" className="text-inkMuted transition-colors hover:text-accent">
               About
             </Link>
           </nav>

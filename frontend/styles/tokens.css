@@ -1,0 +1,34 @@
+/* Andy-inspired design tokens */
+:root {
+  --color-page-bg: rgb(253 243 251);
+  --color-divider: rgb(255 221 153);
+  --color-ink: rgb(59 10 255);
+  --color-ink-soft: rgb(90 54 255);
+  --color-ink-muted: rgb(59 10 255 / 0.8);
+  --color-ink-subtle: rgb(59 10 255 / 0.6);
+  --color-reading-ink: #3c334d;
+  --color-reading-ink-soft: rgb(60 51 77 / 0.78);
+  --color-reading-ink-subtle: rgb(60 51 77 / 0.6);
+
+  --color-wash-hover: rgb(255 221 153 / 0.2);
+  --color-wash-active: rgb(255 221 153 / 0.34);
+
+  --space-column-x: clamp(1.15rem, 1.32vw, 2rem);
+  --space-column-y: clamp(1.3rem, 1.55vw, 2.25rem);
+  --column-width: clamp(20rem, 30vw, 28.7rem);
+
+  --text-body-size: clamp(1.05rem, 0.95rem + 0.24vw, 1.18rem);
+  --text-body-line: 1.5;
+
+  --type-heading-size: 47px;
+  --type-heading-line: 53px;
+
+  --type-description-size: 22px;
+  --type-description-line: 32px;
+
+  --type-home-post-title-size: 17px;
+  --type-home-post-title-line: 21px;
+
+  --type-blog-size: 22px;
+  --type-blog-line: 32px;
+}

@@ -1,9 +1,8 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { EnhancedBlogPost } from '@/components/enhanced-blog-post'
-import MinimalHeader from '@/components/minimal-header'
+import { ThoughtsArticleLayout } from '@/components/thoughts-article-layout'
 import { generateBlogPostMetadata, generateNotFoundMetadata } from '@/lib/metadata'
-import { getPostBySlug, getPostSlugs } from '@/lib/posts'
+import { getAllPosts, getPostBySlug, getPostSlugs } from '@/lib/posts'
 import { generateBlogPostStructuredData } from '@/lib/structured-data'
 
 interface BlogPostPageProps {
@@ -33,7 +32,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   try {
     const { slug } = await params
-    const post = await getPostBySlug(slug)
+    const [post, allPosts] = await Promise.all([getPostBySlug(slug), getAllPosts()])
 
     const structuredData = generateBlogPostStructuredData(post)
 
@@ -44,17 +43,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
 
-        <div className="min-h-screen">
-          <div className="sticky top-0 z-50 bg-gray-50/80 backdrop-blur-sm border-b border-gray-200">
-            <div className="w-full">
-              <MinimalHeader />
-            </div>
-          </div>
-
-          <div className="max-w-4xl mx-auto px-4 py-8">
-            <EnhancedBlogPost post={post} />
-          </div>
-        </div>
+        <ThoughtsArticleLayout post={post} allPosts={allPosts} />
       </>
     )
   }
