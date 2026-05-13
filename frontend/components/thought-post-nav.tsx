@@ -25,15 +25,24 @@ export function ThoughtPostNav({ posts }: ThoughtPostNavProps) {
                 href={href}
                 prefetch
                 className={cn(
-                  'block px-4 py-3 text-accent no-underline transition-colors lg:px-8 lg:py-3',
+                  'relative block overflow-hidden px-4 py-3 text-accent no-underline transition-colors lg:px-8 lg:py-3',
                   'hover:bg-[var(--color-wash-hover)]',
                   active && 'bg-[var(--color-wash-active)] font-medium',
                 )}
               >
-                <span className="andy-post-title mb-1 block truncate font-body">
+                {post.backgroundIllustration && (
+                  <>
+                    <span
+                      className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-[0.18]"
+                      style={{ backgroundImage: `url(${post.backgroundIllustration})` }}
+                    />
+                    <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(253,243,251,0.52),rgba(253,243,251,0.9))]" />
+                  </>
+                )}
+                <span className="andy-post-title relative z-[1] mb-1 block truncate font-body">
                   {post.title}
                 </span>
-                <span className="block truncate text-[0.98rem] text-inkMuted">
+                <span className="andy-post-summary relative z-[1] block truncate">
                   {post.summary}
                 </span>
               </Link>

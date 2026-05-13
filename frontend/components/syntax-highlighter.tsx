@@ -1,5 +1,6 @@
 import React from 'react'
 import { Prism as ReactSyntaxHighlighter } from 'react-syntax-highlighter'
+import { andyPrismTheme } from '@/lib/andy-prism-theme'
 import { cn } from '@/lib/utils'
 
 interface SyntaxHighlighterProps {
@@ -40,20 +41,21 @@ export function SyntaxHighlighter({ children, language, className }: SyntaxHighl
   const normalizedLanguage = normalizeLanguage(language)
 
   return (
-    <div className={cn('my-6 rounded-lg bg-gray-50 border border-gray-200 overflow-hidden', className)}>
+    <div className={cn('my-8 overflow-hidden rounded-xl border border-divider bg-white/60', className)}>
       {language && (
-        <div className="px-4 py-2 bg-gray-100 border-b border-gray-200 text-xs text-gray-600 font-mono">
+        <div className="border-divider border-b bg-white/70 px-4 py-2 font-mono text-xs text-[var(--color-ink-subtle)]">
           {normalizedLanguage}
         </div>
       )}
       <ReactSyntaxHighlighter
         language={normalizedLanguage}
+        style={andyPrismTheme as any}
         PreTag="div"
         customStyle={{
           margin: 0,
           borderRadius: 0,
           background: 'transparent',
-          padding: '1rem',
+          padding: '1rem 1.1rem',
           overflowX: 'auto',
         }}
         codeTagProps={{

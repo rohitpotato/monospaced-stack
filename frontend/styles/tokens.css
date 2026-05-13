@@ -21,13 +21,15 @@
   --text-body-line: 1.5;
 
   --type-heading-size: 47px;
-  --type-heading-line: 53px;
+  --type-heading-line: 60px;
 
   --type-description-size: 22px;
   --type-description-line: 32px;
 
   --type-home-post-title-size: 17px;
   --type-home-post-title-line: 21px;
+  --type-home-post-summary-size: 15px;
+  --type-home-post-summary-line: 22px;
 
   --type-blog-size: 22px;
   --type-blog-line: 32px;
