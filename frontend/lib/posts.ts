@@ -14,6 +14,7 @@ export interface Post {
   summary: string
   icon?: IconName
   image?: string
+  backgroundIllustration?: string
   readingTime: string
   content: string
   headings: Heading[]
@@ -48,6 +49,7 @@ export const getPostBySlug = cache(async (slug: string): Promise<Post> => {
     summary: matterResult.data.summary,
     icon: matterResult.data.icon,
     image: matterResult.data.image,
+    backgroundIllustration: getPostBackgroundIllustration(matterResult.data.backgroundIllustration, matterResult.data.image),
     readingTime: readingTimeText,
     content: matterResult.content,
     headings,
@@ -109,6 +111,18 @@ function getPostCategory(rawCategory: unknown): string {
   }
 
   return normalized
+}
+
+function getPostBackgroundIllustration(rawIllustration: unknown, rawImage: unknown): string | undefined {
+  if (typeof rawIllustration === 'string' && rawIllustration.trim()) {
+    return rawIllustration.trim()
+  }
+
+  if (typeof rawImage === 'string' && rawImage.trim()) {
+    return rawImage.trim()
+  }
+
+  return undefined
 }
 
 export async function getPostSlugs(): Promise<string[]> {

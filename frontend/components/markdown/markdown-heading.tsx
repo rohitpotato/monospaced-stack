@@ -23,12 +23,12 @@ export function MarkdownHeading({ level, children, id, className, ...props }: Ma
   const headingId = id || generateId(children)
 
   const headingClasses = {
-    1: 'text-4xl font-semibold text-gray-900 mb-6 mt-8 font-serif',
-    2: 'text-3xl font-semibold text-gray-900 mb-4 mt-6 font-serif',
-    3: 'text-2xl font-semibold text-gray-900 mb-3 mt-5 font-serif',
-    4: 'text-xl font-medium text-gray-900 mb-2 mt-4 font-serif',
-    5: 'text-lg font-medium text-gray-900 mb-2 mt-4 font-serif',
-    6: 'text-base font-medium text-gray-900 mb-2 mt-4 font-serif',
+    1: 'font-body text-[40px] leading-[46px] font-bold text-[var(--color-reading-ink)] mb-5 mt-10',
+    2: 'font-body text-[36px] leading-[43px] font-bold text-[var(--color-reading-ink)] mb-4 mt-11',
+    3: 'font-body text-[30px] leading-[36px] font-bold text-[var(--color-reading-ink)] mb-4 mt-10',
+    4: 'font-body text-[26px] leading-[32px] font-bold text-[var(--color-reading-ink)] mb-3 mt-8',
+    5: 'font-body text-[23px] leading-[29px] font-semibold text-[var(--color-reading-ink)] mb-3 mt-8',
+    6: 'font-body text-[20px] leading-[26px] font-semibold text-[var(--color-reading-ink)] mb-3 mt-7',
   }
 
   const Component = `h${level}` as React.ElementType

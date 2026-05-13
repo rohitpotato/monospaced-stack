@@ -1,3 +1,4 @@
+import React from 'react'
 import {
   MarkdownBlockquote,
   MarkdownCode,
@@ -22,17 +23,25 @@ export const mdxComponents = {
   p: (props: any) => <MarkdownParagraph {...props} />,
   a: (props: any) => <MarkdownLink {...props} />,
   code: ({ children, className, ...props }: any) => {
-    const isInline = !className?.includes('language-')
-    if (isInline) {
-      return <MarkdownCode inline {...props}>{children}</MarkdownCode>
+    const isBlockCode = typeof className === 'string' && className.includes('language-')
+    if (isBlockCode) {
+      return <code className={className} {...props}>{children}</code>
     }
-    return <MarkdownCode {...props}>{children}</MarkdownCode>
+    return <MarkdownCode inline {...props}>{children}</MarkdownCode>
   },
-  pre: ({ children, ...props }: any) => (
-    <div {...props}>
-      {children}
-    </div>
-  ),
+  pre: ({ children, ...props }: any) => {
+    const child = React.Children.toArray(children)[0]
+    if (React.isValidElement(child)) {
+      const className = (child.props as any)?.className
+      const codeChildren = (child.props as any)?.children
+      return (
+        <MarkdownCode className={className} {...props}>
+          {codeChildren}
+        </MarkdownCode>
+      )
+    }
+    return <pre {...props}>{children}</pre>
+  },
   blockquote: (props: any) => <MarkdownBlockquote {...props} />,
   strong: (props: any) => <MarkdownStrong {...props} />,
   em: (props: any) => <MarkdownEmphasis {...props} />,
