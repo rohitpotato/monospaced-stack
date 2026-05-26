@@ -1,5 +1,5 @@
 import type React from 'react'
-import { Alegreya_Sans } from 'next/font/google'
+import { Alegreya_Sans, Playfair_Display } from 'next/font/google'
 import Script from 'next/script'
 import App from '@/_app'
 import { cn } from '@/lib/utils'
@@ -9,6 +9,13 @@ const alegreyaSans = Alegreya_Sans({
   subsets: ['latin'],
   weight: ['400', '500', '700'],
   variable: '--font-alegreya-sans',
+})
+
+const playfairDisplay = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-display-serif',
 })
 
 export const metadata = {
@@ -30,10 +37,10 @@ export const metadata = {
     userScalable: false,
   },
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
+    { media: '(prefers-color-scheme: light)', color: '#121212' },
+    { media: '(prefers-color-scheme: dark)', color: '#121212' },
   ],
-  colorScheme: 'dark light',
+  colorScheme: 'dark',
   manifest: '/manifest.json',
   icons: {
     icon: [
@@ -130,7 +137,7 @@ export default function RootLayout({
         <meta name="msapplication-config" content="/browserconfig.xml" />
         <Script defer src="https://analytics.rohitpotato.xyz/script.js" data-website-id="646faaa8-72f8-445e-ae0a-c51b9b8a4c30" />
       </head>
-      <body className={cn(alegreyaSans.variable, 'font-body')}>
+      <body className={cn(alegreyaSans.variable, playfairDisplay.variable, 'font-body')}>
         <div className="min-h-screen">
           <App>{children}</App>
         </div>

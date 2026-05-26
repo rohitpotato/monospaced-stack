@@ -9,7 +9,8 @@ interface MarkdownParagraphProps {
 export function MarkdownParagraph({ children, className, ...props }: MarkdownParagraphProps & Omit<React.HTMLAttributes<HTMLParagraphElement>, 'color'>) {
   return (
     <p
-      className={cn('mb-6 text-[var(--color-reading-ink)]', className)}
+      className={cn('mb-5 leading-relaxed', className)}
+      style={{ color: 'var(--color-reading-ink)' }}
       {...props}
     >
       {children}

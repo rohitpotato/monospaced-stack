@@ -1,36 +1,57 @@
-/* Andy-inspired design tokens */
+/* Stack-inspired editorial design tokens */
 :root {
-  --color-page-bg: rgb(253 243 251);
-  --color-divider: rgb(255 221 153);
-  --color-ink: rgb(59 10 255);
-  --color-ink-soft: rgb(90 54 255);
-  --color-ink-muted: rgb(59 10 255 / 0.8);
-  --color-ink-subtle: rgb(59 10 255 / 0.6);
-  --color-reading-ink: #3c334d;
-  --color-reading-ink-soft: rgb(60 51 77 / 0.78);
-  --color-reading-ink-subtle: rgb(60 51 77 / 0.6);
+  --color-page-bg: #121212;
+  --color-surface: #161616;
+  --color-surface-elevated: #1a1a1a;
+  --color-divider: rgb(255 255 255 / 0.06);
+  --color-divider-strong: rgb(255 255 255 / 0.1);
 
-  --color-wash-hover: rgb(255 221 153 / 0.2);
-  --color-wash-active: rgb(255 221 153 / 0.34);
+  --color-ink: #ffffff;
+  --color-ink-body: #c8c4bc;
+  --color-ink-muted: rgb(200 196 188 / 0.62);
+  --color-ink-subtle: #8e8271;
+  --color-reading-ink: #d8d4cc;
+  --color-reading-ink-soft: rgb(216 212 204 / 0.78);
+  --color-reading-ink-subtle: rgb(216 212 204 / 0.52);
 
-  --space-column-x: clamp(1.15rem, 1.32vw, 2rem);
-  --space-column-y: clamp(1.3rem, 1.55vw, 2.25rem);
-  --column-width: clamp(20rem, 30vw, 28.7rem);
+  /* Purple accent — Stack slide 1 / hybrid dark mode */
+  --color-accent-purple: #5145a0;
+  --color-accent-purple-soft: #9b93e8;
+  --color-accent-purple-muted: rgb(155 147 232 / 0.82);
+  --color-accent-purple-wash: rgb(81 69 160 / 0.1);
+  --color-accent-purple-border: rgb(127 119 224 / 0.22);
 
-  --text-body-size: clamp(1.05rem, 0.95rem + 0.24vw, 1.18rem);
-  --text-body-line: 1.5;
+  --color-accent-cta: #4b61ff;
 
-  --type-heading-size: 47px;
-  --type-heading-line: 60px;
+  --color-wash-hover: rgb(81 69 160 / 0.08);
+  --color-wash-active: rgb(81 69 160 / 0.14);
 
-  --type-description-size: 22px;
-  --type-description-line: 32px;
+  --layout-content-max: 42rem;
+  --layout-page-max: 42rem;
 
-  --type-home-post-title-size: 17px;
-  --type-home-post-title-line: 21px;
-  --type-home-post-summary-size: 15px;
-  --type-home-post-summary-line: 22px;
+  --space-section-y: clamp(1.75rem, 4vw, 2.5rem);
+  --space-section-gap: 1.25rem;
+  --space-stack-xs: 0.5rem;
+  --space-stack-sm: 0.75rem;
+  --space-stack-md: 1.25rem;
+  --space-stack-lg: 1.75rem;
+  --space-page-x: clamp(1.25rem, 4vw, 2.5rem);
 
-  --type-blog-size: 22px;
-  --type-blog-line: 32px;
+  --text-body-size: 1rem;
+  --text-body-line: 1.6;
+
+  --type-display-size: clamp(2rem, 4vw, 2.75rem);
+  --type-display-line: 1.12;
+
+  --type-section-label-size: 0.72rem;
+  --type-section-label-line: 1.2;
+
+  --type-chapter-title-size: clamp(1.35rem, 2.5vw, 1.85rem);
+  --type-chapter-title-line: 1.25;
+
+  --type-post-list-size: 1.05rem;
+  --type-post-list-line: 1.45;
+
+  --type-blog-size: 1.0625rem;
+  --type-blog-line: 1.65;
 }
