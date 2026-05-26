@@ -12,7 +12,7 @@ export function MarkdownCode({ children, className, inline = false, ...props }: 
   if (inline) {
     return (
       <code
-        className={cn('rounded border border-divider bg-white/65 px-1.5 py-0.5 font-mono text-sm text-[var(--color-reading-ink)]', className)}
+        className={cn('rounded border border-divider bg-surface px-1.5 py-0.5 font-mono text-sm text-readingInk', className)}
         {...props}
       >
         {children}
@@ -28,7 +28,7 @@ export function MarkdownCode({ children, className, inline = false, ...props }: 
   return (
     <SyntaxHighlighter
       language={language}
-      className="mb-4"
+      className={className}
       {...props}
     >
       {children}

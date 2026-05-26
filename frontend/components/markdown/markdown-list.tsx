@@ -13,12 +13,11 @@ export function MarkdownList({ children, className, ordered = false, ...props }:
   return (
     <Component
       className={cn(
-        'my-6 space-y-2.5 pl-6 text-[var(--color-reading-ink)]',
-        ordered
-          ? 'list-decimal'
-          : 'list-disc',
+        'my-6 space-y-2 pl-6',
+        ordered ? 'list-decimal' : 'list-disc',
         className,
       )}
+      style={{ color: 'var(--color-reading-ink)' }}
       {...props}
     >
       {children}
@@ -34,7 +33,8 @@ interface MarkdownListItemProps {
 export function MarkdownListItem({ children, className, ...props }: MarkdownListItemProps & React.LiHTMLAttributes<HTMLLIElement>) {
   return (
     <li
-      className={cn('text-[var(--color-reading-ink)]', className)}
+      className={cn('leading-relaxed', className)}
+      style={{ color: 'var(--color-reading-ink)' }}
       {...props}
     >
       {children}

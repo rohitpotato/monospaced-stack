@@ -9,7 +9,6 @@ interface SyntaxHighlighterProps {
   className?: string
 }
 
-/** MDX / markdown often passes code children as arrays or nested nodes — String(children) breaks blocks. */
 function reactNodeToPlainText(node: React.ReactNode): string {
   if (node == null || typeof node === 'boolean')
     return ''
@@ -37,15 +36,21 @@ function normalizeLanguage(language?: string): string {
 }
 
 export function SyntaxHighlighter({ children, language, className }: SyntaxHighlighterProps) {
-  const codeString = reactNodeToPlainText(children)
+  const codeString = reactNodeToPlainText(children).replace(/\n$/, '')
   const normalizedLanguage = normalizeLanguage(language)
+  const lineCount = codeString.split('\n').length
 
   return (
-    <div className={cn('my-8 overflow-hidden rounded-xl border border-divider bg-white/60', className)}>
+    <figure className={cn('editorial-code-block', className)}>
       {language && (
-        <div className="border-divider border-b bg-white/70 px-4 py-2 font-mono text-xs text-[var(--color-ink-subtle)]">
-          {normalizedLanguage}
-        </div>
+        <figcaption className="flex items-center justify-between px-5 py-2.5">
+          <span className="editorial-tag">{normalizedLanguage}</span>
+          <span className="font-mono text-[0.65rem] text-inkMuted">
+            {lineCount}
+            {' '}
+            {lineCount === 1 ? 'line' : 'lines'}
+          </span>
+        </figcaption>
       )}
       <ReactSyntaxHighlighter
         language={normalizedLanguage}
@@ -55,18 +60,19 @@ export function SyntaxHighlighter({ children, language, className }: SyntaxHighl
           margin: 0,
           borderRadius: 0,
           background: 'transparent',
-          padding: '1rem 1.1rem',
+          padding: '1.25rem 1.35rem 1.35rem',
           overflowX: 'auto',
         }}
         codeTagProps={{
           style: {
-            fontSize: '0.875rem',
-            lineHeight: 1.625,
+            fontSize: '0.8125rem',
+            lineHeight: 1.75,
+            fontFamily: '"SF Mono", Monaco, Inconsolata, "Roboto Mono", monospace',
           },
         }}
       >
         {codeString}
       </ReactSyntaxHighlighter>
-    </div>
+    </figure>
   )
 }
