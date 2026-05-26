@@ -1,0 +1,4 @@
+# pnpm 10.26+ / 11.x: allow native build scripts required by Next.js and Tailwind.
+allowBuilds:
+  '@tailwindcss/oxide': true
+  sharp: true
