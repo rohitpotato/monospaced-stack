@@ -1,7 +1,7 @@
 import type React from 'react'
 import { Alegreya_Sans, Playfair_Display } from 'next/font/google'
-import Script from 'next/script'
 import App from '@/_app'
+import GoatCounter from '@/components/goatcounter'
 import { cn } from '@/lib/utils'
 import './globals.css'
 
@@ -135,12 +135,12 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://rohitpotato.xyz" />
         <meta name="msapplication-TileColor" content="#0f172a" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
-        <Script defer src="https://analytics.rohitpotato.xyz/script.js" data-website-id="646faaa8-72f8-445e-ae0a-c51b9b8a4c30" />
       </head>
       <body className={cn(alegreyaSans.variable, playfairDisplay.variable, 'font-body')}>
         <div className="min-h-screen">
           <App>{children}</App>
         </div>
+        <GoatCounter />
       </body>
     </html>
   )
