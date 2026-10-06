@@ -142,6 +142,8 @@ export default function RootLayout({
         </div>
         <GoatCounter />
       </body>
+      <script data-goatcounter="https://analytics.rohitpotato.xyz/count"
+        async src="//analytics.rohitpotato.xyz/count.js"></script>
     </html>
   )
 }
