@@ -9,7 +9,7 @@ interface MarkdownStrongProps {
 export function MarkdownStrong({ children, className, ...props }: MarkdownStrongProps & React.HTMLAttributes<HTMLElement>) {
   return (
     <strong
-      className={cn('font-semibold text-gray-900', className)}
+      className={cn('font-semibold text-accent', className)}
       {...props}
     >
       {children}

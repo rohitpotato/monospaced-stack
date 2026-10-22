@@ -1,0 +1,256 @@
+---
+title: "Cutting Next.js memory by 75%: the react-query timer holding every SSR request"
+publishedAt: "2026-10-22"
+summary: "Heap snapshots, a BFS from the GC roots, and a react-query v3 cache timer that pinned finished SSR requests in memory. The fix took pods from 4.8 GiB to 1.2 GiB."
+category: "Frontend"
+icon: "square-activity"
+image: "/images/thoughts/ssr-requests-still-alive/heap-before-after.jpg"
+backgroundIllustration: "/images/thoughts/ssr-requests-still-alive/heap-before-after.jpg"
+---
+
+> **TL;DR:** During SSR, react-query v3 starts a 2–5 minute `setTimeout` for every query. Node attaches the request's AsyncLocalStorage context to that timer, so each finished request stays in memory until the timer fires. Building server-side queries with `cacheTime: Infinity` means the timer never starts. Pods went from ~4.8 GiB to ~1.2 GiB.
+
+Our Next.js servers at Zepto were sitting at around 5 GB of memory per pod. Not spiking, not crashing, just *sitting* there. Garbage collection ran, and nothing came back. If you forced a GC, the heap barely moved.
+
+The usual first guess is "Next.js is leaky". The second guess is "some module-level cache is growing". Neither turned out to be true. The real answer was more interesting, and it's the kind of thing that can hide in any Node server that renders React.
+
+This is how we found it, and why the fix ended up being a handful of lines.
+
+## Don't profile the dev server
+
+The first rule of chasing server memory in Next.js: **don't do it on `next dev`**. The dev server's heap is dominated by webpack, HMR state and source maps. Whatever you're looking for is buried under all of it.
+
+So I built the app for production and started it with the inspector open:
+
+```bash
+NODE_ENV=production node --inspect=127.0.0.1:9231 \
+  node_modules/next/dist/bin/next start -p 4201
+```
+
+Then three small scripts:
+
+1. **A load generator** that hits a realistic mix of SSR pages (home, search, category, brand, listing and product pages) with both desktop and mobile user agents.
+2. **A snapshot script** that talks to the inspector over the Chrome DevTools Protocol, forces a GC, and streams a heap snapshot to disk.
+3. **An analyzer** that parses the snapshot and answers questions about it.
+
+The snapshot script is short. The important parts are forcing GC *before* the snapshot, so you only see what's actually reachable, and streaming the chunks to disk:
+
+```javascript
+await send('HeapProfiler.enable')
+await send('HeapProfiler.collectGarbage')
+await send('HeapProfiler.collectGarbage')
+
+const fd = fs.openSync(out, 'w')
+ws.on('message', (raw) => {
+  const msg = JSON.parse(raw)
+  if (msg.method === 'HeapProfiler.addHeapSnapshotChunk') {
+    fs.writeSync(fd, msg.params.chunk)
+  }
+})
+await send('HeapProfiler.takeHeapSnapshot', { reportProgress: false })
+fs.closeSync(fd)
+```
+
+Why stream? Because my first version collected the chunks in an array and called `join('')`, and after a few hundred requests the snapshot was too big to fit in a single JavaScript string. That was the first real clue that something was wrong.
+
+## The heap only goes up
+
+The plan was simple: warm up, snapshot, send load, snapshot again, compare.
+
+After a 56-request warm-up the heap was 112 MB. After another 280 requests it was 312 MB. After about 1,400 it was 934 MB. All of these were measured *after* a forced GC. That's roughly **1 MB kept per request**, and nothing was giving it back.
+
+![Local heap after forced GC: 112, 312 and 934 MB before the fix vs 70, 75 and 84 MB after, across warm-up, +280 requests and sustained load](/images/thoughts/ssr-requests-still-alive/heap-before-after.jpg)
+
+Diffing the two snapshots by constructor showed the growth was everywhere: about a million new strings, about 16,000 `ArrayBuffer`s holding response bodies, hundreds of thousands of plain objects. Then one line stood out:
+
+```
+ServerResponse    336
+```
+
+336 was exactly the number of requests I had sent. **Every HTTP response the server had produced was still alive.** So were their sockets, and about a thousand OpenTelemetry spans.
+
+Those requests had finished minutes earlier. Something was still holding on to all of them.
+
+## The dominator tree didn't help
+
+The usual next step is the dominator tree: compute retained sizes and look at the biggest objects. I did that, and the result was boring. The largest single object retained about 2 MB, and it was Next's own fetch-cache LRU, which is bounded and fine.
+
+That's the trap with this kind of problem. Nothing was big. Hundreds of MB were being kept alive by hundreds of small, independent references, one per request. A dominator tree is great at telling you who *exclusively* owns a large chunk of memory, and useless when no single object does.
+
+I needed to ask a different question. Not "what's big?" but **"what path from the GC roots keeps this object alive?"**
+
+## BFS from the GC roots
+
+A heap snapshot is just a graph: nodes are objects, edges are references. The GC roots are where V8 starts marking. Anything reachable from a root survives; everything else is garbage.
+
+So the shortest retainer path to any object is a breadth-first search from the roots, skipping weak edges because they don't keep anything alive:
+
+```javascript
+const parent = new Int32Array(nodeCount).fill(-1)
+const parentEdge = new Int32Array(nodeCount).fill(-1)
+const queue = new Int32Array(nodeCount)
+let head = 0, tail = 0
+parent[0] = 0
+queue[tail++] = 0 // node 0 is the synthetic root
+
+while (head < tail) {
+  const v = queue[head++]
+  for (let e = firstEdge[v]; e < firstEdge[v + 1]; e += EDGE_FIELDS) {
+    if (edgeType(e) === 'weak') continue
+    const w = edgeTarget(e)
+    if (parent[w] === -1) {
+      parent[w] = v
+      parentEdge[w] = e
+      queue[tail++] = w
+    }
+  }
+}
+// walk parent[] back from any object to print its retainer path
+```
+
+I ran it for every `ServerResponse` and grouped the paths. They all pointed to the same place:
+
+```
+timerListMap[300000]       // Node's pending timers: a GC root
+  → Timeout
+    ._onTimeout
+      → Query → QueryCache → QueryClient
+    [kResourceStore]
+      → AsyncLocalStorage store
+      → request store → … → ServerResponse
+```
+
+Every response was being kept alive by a **pending timer**.
+
+![Retainer path from timerListMap through a react-query Timeout to the Query, QueryCache and the AsyncLocalStorage store holding the ServerResponse](/images/thoughts/ssr-requests-still-alive/retainer-path.jpg)
+
+## Which timers?
+
+Node keeps active timers in lists grouped by duration. That's what `timerListMap[300000]` is: the list of every pending 300,000 ms timer. So I walked every list in the snapshot and grouped the timers by the function that created them, using the source location V8 records for each closure.
+
+Before the fix (after 336 requests) and after it (after about a thousand), trimmed to the long-lived lists:
+
+![Timer lists before the fix: 192, 336 and 372 timers on the 2, 3 and 5 minute lists, all from chunks/2595.js:17:51362 and capturing the ALS store. After the fix: one native_bind timer](/images/thoughts/ssr-requests-still-alive/timer-lists.jpg)
+
+About 900 timers of 2, 3 and 5 minutes. **Every one of them came from the same function**, and every one had captured an AsyncLocalStorage store. Opening the chunk at that location:
+
+```javascript
+scheduleGc = function () {
+  this.clearGcTimeout()
+  if (isValidTimeout(this.cacheTime)) {
+    this.gcTimeout = setTimeout(
+      () => this.optionalRemove(),
+      this.cacheTime
+    )
+  }
+}
+```
+
+That's react-query v3's `Query.scheduleGc`.
+
+## Why react-query was holding our requests
+
+We don't fetch with react-query on the server. But it still *runs* there: client components are server-rendered, and when one calls `useQuery`, react-query builds a `Query` in that request's `QueryClient`.
+
+Three things combine:
+
+**1. Every new Query starts a cache-expiry timer immediately.** Here is the v3 constructor:
+
+```javascript
+function Query(config) {
+  // ...
+  this.observers = []
+  this.scheduleGc() // setTimeout(cacheTime): 5 minutes by default
+}
+```
+
+In the browser this makes sense. A query nobody is watching should be evicted after `cacheTime`. When a component subscribes, the timer is cancelled; when the last one unsubscribes, it restarts.
+
+But in v3 the subscription happens inside `useEffect`, and **effects never run during SSR**. On the server the query is created, nobody ever subscribes, and the timer runs for its full 2 to 5 minutes. It does nothing useful: the QueryClient it would clean up is thrown away as soon as the render finishes.
+
+**2. Node attaches the current AsyncLocalStorage context to every timer.** This is how AsyncLocalStorage works. JavaScript has no thread-locals, so when you create a `setTimeout`, a promise or a socket operation, Node copies the active store onto it (`kResourceStore`) so that `getStore()` still works when the callback runs later:
+
+```javascript
+als.run(store, () => {
+  setTimeout(cb, 300_000) // this Timeout now references `store`
+})
+```
+
+Node can't know whether `cb` will ever call `getStore()`, so it has to keep the store either way.
+
+Next.js renders every request inside AsyncLocalStorage. That store is what makes `cookies()`, `headers()` and `after()` work, and it references the request, the response and everything tied to them. OpenTelemetry puts its span context in the same place.
+
+**3. Pending timers are GC roots.** Anything a pending timer can reach stays alive.
+
+Put together: every `useQuery` rendered on the server started a 2 to 5 minute timer, and that timer pinned the entire request (response, buffers, fetched data, spans) until it fired.
+
+Strictly speaking it isn't a leak; everything *was* freed eventually. But at production traffic, "five minutes later" means each pod holds several minutes' worth of finished requests. The GC keeps scanning all of it on every major collection and can't free any of it.
+
+## The fix
+
+The fix is to never start the timer on the server. react-query only starts it when `cacheTime` is a finite number:
+
+```javascript
+function isValidTimeout(value) {
+  return typeof value === 'number' && value >= 0 && value !== Infinity
+}
+```
+
+So we give the server-side QueryClient a cache that builds every query with `cacheTime: Infinity`:
+
+```typescript
+class ServerQueryCache extends QueryCache {
+  build(client, options, state) {
+    return super.build(client, { ...options, cacheTime: Infinity }, state)
+  }
+}
+
+function makeQueryClient() {
+  return new QueryClient({
+    queryCache: isServer ? new ServerQueryCache() : undefined,
+    // ...
+  })
+}
+```
+
+A few things make this safe:
+
+- **The server QueryClient is already per request.** It's created for one render and dropped afterwards, so "never evict" just means "live as long as the request does".
+- **Per-hook values can't undo it.** Our hooks pass their own `cacheTime` (1, 2, 3 or 5 minutes). react-query keeps the *larger* of the current and new value (`Math.max(this.cacheTime, options.cacheTime)`), so once a query starts at `Infinity` it stays there.
+- **The browser is untouched.** The client gets react-query's default cache, so caching, refetching and eviction behave exactly as before.
+
+![The fix: a ServerQueryCache that builds every query with cacheTime Infinity, used only on the server](/images/thoughts/ssr-requests-still-alive/the-fix.jpg)
+
+I added a test that spies on `setTimeout` while building server-side queries. It fails against the old code and passes with the fix, so this can't quietly regress.
+
+### Won't upgrading react-query fix this?
+
+Partly. v4 and v5 default `cacheTime`/`gcTime` to `Infinity` on the server. But the default is all they change: a query that passes an explicit finite value still starts a real timer during SSR, with the same result. This is a known, open issue in TanStack Query ([TanStack/query#11320](https://github.com/TanStack/query/issues/11320)). If your hooks set their own `gcTime`, you need a guard like this one even on v5.
+
+## The results
+
+Locally, after the fix, the heap stayed flat: 70 MB after warm-up, 84 MB after about a thousand requests, with the only growth being JIT-compiled code. The timer lists went from about 900 app timers to none. The response buffers retained after GC dropped from 373 MB to 7 MB.
+
+In production, average memory per pod went from **~4.8 GiB to ~1.2 GiB** the moment the fix deployed, and it stayed flat in the days that followed.
+
+![Grafana, Oct 5–12: average and max memory per pod sit around 4.5–5.5 GiB until the fix deploys on Oct 8, then drop to about 1.2 GiB and stay flat](/images/thoughts/ssr-requests-still-alive/production-memory.jpg)
+
+## A twist: the leak was propping up our autoscaler
+
+Here's something I didn't expect. Our pods autoscale on CPU *and* memory. With the leak, memory crossed its threshold first, so memory was quietly deciding how many pods we ran.
+
+Once memory dropped, only CPU could trigger scaling, and a Node server rarely pushes enough CPU to hit that threshold. The fleet shrank, each pod took more traffic, and latency went up.
+
+The code fix was right. The autoscaling config had been tuned around a bug. Memory turned out to be a poor scaling signal for this service anyway, since it barely tracked load once the leak was gone, so the fix was to make CPU the real scaling signal and keep a higher memory threshold only as a safety net.
+
+If you fix a memory problem in a service that autoscales on memory, watch your replica count and latency for the next few days.
+
+## What I'm taking away from this
+
+- **Any `setTimeout` created during a request keeps that request alive until it fires.** So does a long-pending promise. It doesn't matter whether the callback uses the request context; Node captures it anyway. Libraries written for the browser create timers like this all the time, for cache eviction, polling, debouncing and retries.
+- **"GC doesn't free it" means "something still references it".** Heap snapshots answer that question precisely. Diff two snapshots to find *what* is growing, then follow retainer paths from the GC roots to find *why*.
+- **When nothing is big, stop looking at the dominator tree.** Hundreds of small, independent leaks don't show up as large retained sizes. Shortest paths from the roots do find them.
+- **Always measure after a forced GC.** Without it you're looking at garbage that hasn't been collected yet, not memory you can't get back.
+- **Read your autoscaler config before you ship a memory fix.**
+
+The fix was a few lines. Finding it took a production build, three small scripts and one BFS.

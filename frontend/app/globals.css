@@ -58,8 +58,9 @@ pre, code {
   font-family: var(--font-display-serif), "Playfair Display", Georgia, serif;
   font-size: var(--type-display-size);
   line-height: var(--type-display-line);
-  font-style: italic;
-  font-weight: 700;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: -0.015em;
   color: var(--color-ink);
   text-wrap: balance;
 }
@@ -88,8 +89,9 @@ pre, code {
   font-family: var(--font-display-serif), "Playfair Display", Georgia, serif;
   font-size: var(--type-chapter-title-size);
   line-height: var(--type-chapter-title-line);
-  font-style: italic;
-  font-weight: 700;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: -0.015em;
   color: var(--color-ink);
 }
 
@@ -146,8 +148,9 @@ pre, code {
   font-family: var(--font-display-serif), "Playfair Display", Georgia, serif;
   font-size: 1.85rem;
   line-height: 1.2;
-  font-style: italic;
-  font-weight: 700;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: -0.015em;
   color: var(--color-ink);
 }
 
@@ -157,8 +160,9 @@ pre, code {
   font-family: var(--font-display-serif), "Playfair Display", Georgia, serif;
   font-size: 1.55rem;
   line-height: 1.25;
-  font-style: italic;
-  font-weight: 700;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: -0.015em;
   color: var(--color-ink);
 }
 
@@ -212,7 +216,7 @@ pre, code {
   border-bottom: 1px solid var(--color-divider);
 }
 
-.editorial-prose code:not(pre code) {
+.editorial-prose code:not(pre code):not(.editorial-code-block code) {
   border: 1px solid var(--color-divider);
   background: var(--color-surface);
   border-radius: 0.25rem;

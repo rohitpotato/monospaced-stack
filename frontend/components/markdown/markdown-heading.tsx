@@ -23,8 +23,8 @@ export function MarkdownHeading({ level, children, id, className, ...props }: Ma
   const headingId = id || generateId(children)
 
   const headingClasses = {
-    1: 'font-display text-[1.85rem] leading-[1.2] font-bold italic text-accent mb-5 mt-10',
-    2: 'font-display text-[1.55rem] leading-[1.25] font-bold italic text-accent mb-4 mt-11',
+    1: 'font-display text-[1.85rem] leading-[1.2] font-semibold tracking-[-0.015em] text-accent mb-5 mt-10',
+    2: 'font-display text-[1.55rem] leading-[1.25] font-semibold tracking-[-0.015em] text-accent mb-4 mt-11',
     3: 'font-body text-[1.25rem] leading-[1.3] font-bold text-accent mb-4 mt-10',
     4: 'font-body text-[1.1rem] leading-[1.35] font-semibold text-accent mb-3 mt-8',
     5: 'font-body text-[1rem] leading-[1.4] font-semibold text-accent mb-3 mt-8',

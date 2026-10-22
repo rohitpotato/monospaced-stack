@@ -9,7 +9,7 @@ interface MarkdownEmphasisProps {
 export function MarkdownEmphasis({ children, className, ...props }: MarkdownEmphasisProps & React.HTMLAttributes<HTMLElement>) {
   return (
     <em
-      className={cn('italic text-gray-700', className)}
+      className={cn('italic', className)}
       {...props}
     >
       {children}
