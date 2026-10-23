@@ -6,10 +6,10 @@
     <link>https://rohitpotato.xyz</link>
     <atom:link href="https://rohitpotato.xyz/rss.xml" rel="self" type="application/rss+xml" />
     <language>en-US</language>
-    <lastBuildDate>Thu, 22 Oct 2026 23:36:50 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 23 Oct 2026 00:08:28 GMT</lastBuildDate>
     
     <item>
-      <title><![CDATA[Cutting Next.js memory by 75%: the react-query timer holding every SSR request]]></title>
+      <title><![CDATA[How we cut Next.js memory from ~5GB to ~1GB: the react-query timer holding every SSR request]]></title>
       <description><![CDATA[Heap snapshots, a BFS from the GC roots, and a react-query v3 cache timer that pinned finished SSR requests in memory. The fix took pods from 4.8 GiB to 1.2 GiB.]]></description>
       <link>https://rohitpotato.xyz/thoughts/ssr-requests-still-alive</link>
       <guid>https://rohitpotato.xyz/thoughts/ssr-requests-still-alive</guid>
