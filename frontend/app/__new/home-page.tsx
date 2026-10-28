@@ -3,6 +3,7 @@ import { DeliveryReceipt } from '@/components/home/delivery-receipt'
 import { WritingList } from '@/components/home/writing-list'
 import { NeighbourhoodMap } from '@/components/neighbourhood/neighbourhood-map'
 import { SiteNav } from '@/components/site/site-nav'
+import { SiteFooter, SocialLinks } from '@/components/site/social-links'
 
 interface HomePageProps {
   posts: PostSummary[]
@@ -19,6 +20,7 @@ export default function HomePage({ posts }: HomePageProps) {
           <a href="https://zeptonow.com" target="_blank" rel="noopener noreferrer" className="editorial-link">Zepto</a>
           , managing web infra, productivity and performance.
         </p>
+        <SocialLinks className="mt-4" />
 
         <div className="mx-auto mt-2 max-w-[60rem] sm:-mt-6">
           <NeighbourhoodMap posts={posts} />
@@ -30,6 +32,7 @@ export default function HomePage({ posts }: HomePageProps) {
             <DeliveryReceipt />
           </div>
         </div>
+        <SiteFooter />
       </div>
     </div>
   )

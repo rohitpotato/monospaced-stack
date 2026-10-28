@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { BUILT_HERE_SLUGS } from '@/components/homelab/homelab-content'
 import { HomelabRoom } from '@/components/homelab/homelab-room'
 import { SiteNav } from '@/components/site/site-nav'
+import { SiteFooter } from '@/components/site/social-links'
 import { toPostSummary } from '@/lib/post-summary'
 import { getAllPosts } from '@/lib/posts'
 
@@ -22,6 +23,7 @@ export default async function HomelabPage() {
       <div className="mx-auto w-full max-w-[var(--layout-wide-max)] px-[var(--space-page-x)] pb-16">
         <SiteNav />
         <HomelabRoom builtHere={builtHere} />
+        <SiteFooter />
       </div>
     </div>
   )

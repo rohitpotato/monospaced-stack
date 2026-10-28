@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { DeliveryScene } from '@/components/not-found/delivery-scene'
 import { SiteNav } from '@/components/site/site-nav'
+import { SiteFooter } from '@/components/site/social-links'
 
 export const metadata: Metadata = {
   title: 'Out for delivery',
@@ -27,6 +28,7 @@ export default function NotFound() {
             </Link>
           </div>
         </main>
+        <SiteFooter />
       </div>
     </div>
   )

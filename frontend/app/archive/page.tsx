@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { TraceArchive } from '@/components/archive/trace-archive'
 import { SiteNav } from '@/components/site/site-nav'
+import { SiteFooter } from '@/components/site/social-links'
 import { toPostSummary } from '@/lib/post-summary'
 import { getAllPosts } from '@/lib/posts'
 
@@ -21,6 +22,7 @@ export default async function ArchivePage() {
         <div className="mt-3">
           <TraceArchive posts={posts} />
         </div>
+        <SiteFooter />
       </div>
     </div>
   )
