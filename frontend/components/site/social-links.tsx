@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 const LINKS: { href: string, label: string, icon: LucideIcon, external?: boolean }[] = [
   { href: '/about', label: 'About', icon: User },
   { href: 'https://github.com/rohitpotato', label: 'GitHub', icon: Github, external: true },
-  { href: 'https://linkedin.com/in/rohitpotato', label: 'LinkedIn', icon: Linkedin, external: true },
+  { href: 'https://www.linkedin.com/in/rohit-kashyap-a33a4716a/', label: 'LinkedIn', icon: Linkedin, external: true },
   { href: 'https://twitter.com/rohitpotato', label: 'Twitter', icon: Twitter, external: true },
   { href: '/rss.xml', label: 'RSS', icon: Rss },
 ]

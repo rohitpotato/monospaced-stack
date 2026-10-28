@@ -51,7 +51,7 @@ const Header: React.FC = () => {
               GitHub
             </a>
             <a
-              href="https://linkedin.com/in/rohitpotato"
+              href="https://www.linkedin.com/in/rohit-kashyap-a33a4716a/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-500 hover:text-orange-600 transition-colors text-sm"
