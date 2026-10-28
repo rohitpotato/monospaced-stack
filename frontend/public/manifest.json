@@ -1,27 +1,35 @@
 {
-  "name": "Digital Backyard",
-  "short_name": "Digital Backyard",
-  "description": "Notes about web development, infrastructure, and technology insights",
+  "name": "rohitpotato",
+  "short_name": "rohitpotato",
+  "description": "Web infra, productivity and performance, plus the small k3s cluster this site runs on.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
-  "orientation": "portrait-primary",
+  "background_color": "#17161b",
+  "theme_color": "#17161b",
   "icons": [
     {
-      "src": "/icon-192x192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
     },
     {
-      "src": "/icon-512x512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-  "categories": ["technology", "education", "productivity"],
+  "categories": [
+    "technology",
+    "education"
+  ],
   "lang": "en",
   "dir": "ltr"
 }
