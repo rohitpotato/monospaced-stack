@@ -87,7 +87,17 @@ function Sill() {
   )
 }
 
-export function BengaluruWindow({ newest, topic }: { newest?: PostSummary, topic: Topic | null }) {
+interface BengaluruWindowProps {
+  newest?: PostSummary
+  topic: Topic | null
+  /** Size from the parent's height (a sticky sidebar) instead of its width. */
+  fillHeight?: boolean
+}
+
+// Window plus the 12px sill under it.
+const FRAME_RATIO = `${VIEW_W} / ${VIEW_H + 14}`
+
+export function BengaluruWindow({ newest, topic, fillHeight = false }: BengaluruWindowProps) {
   const { phase, label } = useBengaluruTime()
   const { ready, total } = useClusterStatus()
   const reduceMotion = useReducedMotion()
@@ -95,9 +105,16 @@ export function BengaluruWindow({ newest, topic }: { newest?: PostSummary, topic
 
   return (
     <Tooltip.Provider delayDuration={120}>
-      <figure className="mx-auto w-full max-w-[24rem]">
-        <div className="relative">
-          <div className="relative overflow-hidden rounded-xl border-[6px] border-[#2b2636] bg-[#2b2636]" style={{ aspectRatio: `${VIEW_W} / ${VIEW_H}` }}>
+      <figure className={fillHeight ? 'flex h-full flex-col items-end' : 'mx-auto w-full max-w-[24rem]'}>
+        <div
+          className="relative w-full"
+          style={{
+            aspectRatio: FRAME_RATIO,
+            // In the sidebar: as wide as the column allows, but never taller than the sidebar minus the caption.
+            ...(fillHeight && { width: `min(100%, calc((min(100dvh - 104px, 760px) - 2.5rem) * ${VIEW_W} / ${VIEW_H + 14}))` }),
+          }}
+        >
+          <div className="relative h-[calc(100%-12px)] overflow-hidden rounded-xl border-[6px] border-[#2b2636] bg-[#2b2636]">
             <Link href="/homelab" aria-label="A window onto Bengaluru. Go to the homelab" className="absolute inset-0 block">
               <Sky phase={phase} topic={topic} />
               <img src="/bengaluru/city.svg" alt="" className="absolute inset-0 size-full" draggable={false} />
@@ -150,7 +167,7 @@ export function BengaluruWindow({ newest, topic }: { newest?: PostSummary, topic
           <div className="h-3 rounded-b bg-divider-strong" />
           <Sill />
         </div>
-        <figcaption className="mt-5 font-mono text-xs text-inkSubtle">
+        <figcaption className="mt-4 shrink-0 font-mono text-xs text-inkSubtle">
           Bengaluru
           {label && `, ${label}`}
           {' · '}
