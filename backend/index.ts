@@ -11,6 +11,7 @@ loadConfig()
 import './src/queue/metrics-queue'
 import './src/workers/track-metric-worker'
 import metricsRouter from './src/routes/metrics'
+import clusterRouter from './src/routes/cluster'
 console.log('Starting server')
 
 const port = Number(process.env.PORT) || 5001
@@ -30,6 +31,10 @@ const startServer = async () => {
   })
 
   server.register(metricsRouter, {
+    prefix: '/api'
+  })
+
+  server.register(clusterRouter, {
     prefix: '/api'
   })
 

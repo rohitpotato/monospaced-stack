@@ -12,7 +12,8 @@ const schema = z.object({
   PORT: z.string(),
   DATABASE_URL: z.string(),
   EMAIL: z.string(),
-  REDIS_HOST: z.string()
+  REDIS_HOST: z.string(),
+  PROMETHEUS_URL: z.string().url().optional()
 })
 
 export default schema
