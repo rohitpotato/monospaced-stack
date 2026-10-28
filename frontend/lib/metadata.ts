@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type { Post } from './posts'
+import { SITE } from './site'
 
 export interface MetadataConfig {
   title: string
@@ -16,10 +17,7 @@ export interface MetadataConfig {
  *
  * Priority order:
  * 1. Custom image from frontmatter (if provided)
- * 2. Default static OG image (no dynamic OG in static export)
- *
- * @param post - The blog post object
- * @returns The resolved image URL
+ * 2. The site's default social card (public/og.png)
  *
  * @example
  * // In your MDX frontmatter:
@@ -30,11 +28,9 @@ export interface MetadataConfig {
  * image: "https://example.com/image.jpg" // Full URL
  * ---
  */
-const DEFAULT_OG_IMAGE = 'https://rohitpotato.xyz/apple-touch-icon.png'
-
 export function resolveImageUrl(post: Post): string {
   if (!post.image) {
-    return DEFAULT_OG_IMAGE
+    return SITE.ogImage
   }
 
   // If it's already a full URL, use it as is
@@ -43,7 +39,7 @@ export function resolveImageUrl(post: Post): string {
   }
 
   // If it's a relative path, prepend the domain
-  return `https://rohitpotato.xyz${post.image}`
+  return `${SITE.url}${post.image}`
 }
 
 /**
@@ -64,138 +60,89 @@ export function getImageMimeType(imageUrl: string): string {
   return 'image/png'
 }
 
-export function generateBaseMetadata(config: MetadataConfig): Metadata {
+/**
+ * `title` is the page's own title; the root layout's template adds " · rohitpotato".
+ * Pass `absoluteTitle` when the page should not get the suffix (the home page).
+ */
+export function generateBaseMetadata(config: MetadataConfig & { absoluteTitle?: boolean }): Metadata {
   const {
     title,
     description,
     url,
-    imageUrl,
+    imageUrl = SITE.ogImage,
     publishedAt,
-    author = 'Rohit',
+    author = SITE.author,
     keywords = [],
+    absoluteTitle = false,
   } = config
 
-  const defaultKeywords = [
-    'web development',
-    'infrastructure',
-    'technology',
-    'programming',
-    'software engineering',
-    'blog',
-    'tech insights',
-    'full stack development',
-    'devops',
-    'cloud computing',
-    ...keywords,
+  const images = [
+    {
+      url: imageUrl,
+      width: 1200,
+      height: 630,
+      alt: title,
+      type: getImageMimeType(imageUrl),
+    },
   ]
 
   return {
-    title: title.length < 30 ? title : description,
+    title: absoluteTitle ? { absolute: title } : title,
     description,
-    keywords: defaultKeywords.join(', '),
-    authors: [{ name: author }],
-    creator: author,
-    publisher: 'Digital Backyard',
-    formatDetection: {
-      email: false,
-      address: false,
-      telephone: false,
-    },
-    metadataBase: new URL('https://rohitpotato.xyz'),
+    keywords: keywords.length ? keywords.join(', ') : undefined,
+    authors: [{ name: author, url: SITE.url }],
     alternates: {
       canonical: url,
     },
     openGraph: {
-      title: title.replace(' | Digital Backyard', ''),
+      title,
       description,
       url,
-      siteName: 'Digital Backyard',
-      images: imageUrl
-        ? [
-            {
-              url: imageUrl,
-              width: 1200,
-              height: 630,
-              alt: title,
-              type: getImageMimeType(imageUrl),
-            },
-          ]
-        : undefined,
+      siteName: SITE.name,
+      images,
       locale: 'en_US',
       type: publishedAt ? 'article' : 'website',
       ...(publishedAt && {
         publishedTime: publishedAt,
         modifiedTime: publishedAt,
         authors: [author],
-        tags: ['web development', 'infrastructure', 'technology'],
       }),
     },
     twitter: {
       card: 'summary_large_image',
-      title: title.replace(' | Digital Backyard', ''),
+      title,
       description,
-      images: imageUrl ? [imageUrl] : undefined,
-      creator: '@rohitpotato',
-      site: '@rohitpotato',
-    },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        'index': true,
-        'follow': true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
-    },
-    verification: {
-      google: 'your-google-verification-code',
-      yandex: 'your-yandex-verification-code',
-      yahoo: 'your-yahoo-verification-code',
-    },
-    other: {
-      ...(publishedAt && {
-        'article:published_time': publishedAt,
-        'article:modified_time': publishedAt,
-        'article:author': author,
-        'article:section': 'Technology',
-        'article:tag': 'web development, infrastructure, technology',
-      }),
+      images: [imageUrl],
+      creator: SITE.handle,
+      site: SITE.handle,
     },
   }
 }
 
 export function generateBlogPostMetadata(post: Post): Metadata {
-  const url = `https://rohitpotato.xyz/thoughts/${post.slug}`
-  const imageUrl = resolveImageUrl(post)
-  const keywords = post.title.toLowerCase().split(' ').slice(0, 5)
-
   return generateBaseMetadata({
-    title: `${post.title} | Digital Backyard`,
+    title: post.title,
     description: post.summary,
-    url,
-    imageUrl,
+    url: `${SITE.url}/thoughts/${post.slug}`,
+    imageUrl: resolveImageUrl(post),
     publishedAt: post.publishedAt,
-    keywords,
+    keywords: [post.category.toLowerCase()],
   })
 }
 
 export function generateHomePageMetadata(): Metadata {
-  const url = 'https://rohitpotato.xyz'
-  const imageUrl = DEFAULT_OG_IMAGE
-
   return generateBaseMetadata({
-    title: 'Digital Backyard | Web Development & Infrastructure Blog',
-    description: 'Notes about web development, infrastructure, and technology insights. Explore articles on programming, software engineering, and modern web technologies.',
-    url,
-    imageUrl,
+    title: 'rohitpotato: web infra, productivity and performance',
+    description: SITE.description,
+    url: SITE.url,
+    absoluteTitle: true,
   })
 }
 
 export function generateNotFoundMetadata(): Metadata {
   return {
-    title: 'Post Not Found | Digital Backyard',
-    description: 'The requested blog post could not be found.',
+    title: 'Post not found',
+    description: 'The requested post could not be found.',
+    robots: { index: false },
   }
 }

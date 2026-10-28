@@ -1,8 +1,15 @@
+import type { Metadata } from 'next'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import Link from 'next/link'
 import { ReaderHeader } from '@/components/layout/reader-header'
 import { mdxComponents } from '@/components/markdown/mapping'
 import { getAbout, getAllPosts } from '@/lib/posts'
+
+export const metadata: Metadata = {
+  title: 'About',
+  description: 'Who writes rohitpotato.xyz, and why.',
+  alternates: { canonical: '/about' },
+}
 
 export default async function About() {
   const [content, allPosts] = await Promise.all([getAbout(), getAllPosts()])

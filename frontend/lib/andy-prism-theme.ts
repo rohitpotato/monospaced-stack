@@ -2,7 +2,7 @@ export const andyPrismTheme = {
   'code[class*="language-"]': {
     color: '#d4d0c8',
     background: 'none',
-    fontFamily: '"SF Mono", Monaco, Inconsolata, "Roboto Mono", monospace',
+    fontFamily: 'var(--font-code-mono), ui-monospace, monospace',
     textAlign: 'left',
     whiteSpace: 'pre',
     wordSpacing: 'normal',
@@ -14,7 +14,7 @@ export const andyPrismTheme = {
   'pre[class*="language-"]': {
     color: '#d4d0c8',
     background: 'none',
-    fontFamily: '"SF Mono", Monaco, Inconsolata, "Roboto Mono", monospace',
+    fontFamily: 'var(--font-code-mono), ui-monospace, monospace',
     textAlign: 'left',
     whiteSpace: 'pre',
     wordSpacing: 'normal',

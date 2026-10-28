@@ -11,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages = [
     {
       url: baseUrl,
-      lastModified: new Date('2026-01-01'),
+      lastModified: new Date(posts[0]?.publishedAt ?? Date.now()),
       changeFrequency: 'daily' as const,
       priority: 1,
     },
@@ -20,6 +20,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date('2026-01-01'),
       changeFrequency: 'monthly' as const,
       priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/archive`,
+      lastModified: new Date(posts[0]?.publishedAt ?? Date.now()),
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/homelab`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
     },
     {
       url: `${baseUrl}/rss.xml`,

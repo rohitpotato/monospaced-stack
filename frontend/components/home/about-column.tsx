@@ -37,7 +37,7 @@ export function AboutColumn() {
         <p className="andy-post-title mb-2 opacity-85">Socials</p>
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-1">
           <a href="https://github.com/rohitpotato" target="_blank" rel="noopener noreferrer" className="andy-link andy-post-title">GitHub</a>
-          <a href="https://linkedin.com/in/rohitpotato" target="_blank" rel="noopener noreferrer" className="andy-link andy-post-title">LinkedIn</a>
+          <a href="https://www.linkedin.com/in/rohit-kashyap-a33a4716a/" target="_blank" rel="noopener noreferrer" className="andy-link andy-post-title">LinkedIn</a>
           <a href="https://twitter.com/rohitpotato" target="_blank" rel="noopener noreferrer" className="andy-link andy-post-title">Twitter</a>
           <a href="mailto:rohitpotato@gmail.com" className="andy-link andy-post-title">Email</a>
           <a href="/rss.xml" className="andy-link andy-post-title">RSS</a>

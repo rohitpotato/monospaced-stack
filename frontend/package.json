@@ -17,8 +17,14 @@
     "preview": "npx serve out"
   },
   "dependencies": {
+    "@radix-ui/react-tooltip": "^1.4.1",
     "@tailwindcss/typography": "^0.5.16",
     "@types/mdx": "^2.0.13",
+    "@visx/axis": "^4.0.0",
+    "@visx/curve": "^4.0.0",
+    "@visx/responsive": "^4.0.0",
+    "@visx/scale": "^4.0.0",
+    "@visx/shape": "^4.0.0",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -31,14 +37,18 @@
     "lucide-react": "^0.539.0",
     "next": "^15.4.6",
     "next-mdx-remote": "^5.0.0",
+    "next-view-transitions": "^0.3.5",
     "path": "latest",
     "react": "^19",
     "react-dom": "^19",
     "react-syntax-highlighter": "^15.6.1",
     "reading-time": "^1.5.0",
     "sonner": "^1.7.4",
+    "swr": "^2.5.1",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
+    "usehooks-ts": "^3.1.1",
+    "vaul": "^1.1.2",
     "web-vitals": "^5.1.0"
   },
   "devDependencies": {

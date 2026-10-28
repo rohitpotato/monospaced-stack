@@ -1,33 +1,49 @@
 /* Stack-inspired editorial design tokens */
+/* Dusk room: the homelab concept's plum-ink walls, a peach window accent,
+   and the three cable colours as topic hues */
 :root {
-  --color-page-bg: #121212;
-  --color-surface: #161616;
-  --color-surface-elevated: #1a1a1a;
-  --color-divider: rgb(255 255 255 / 0.06);
-  --color-divider-strong: rgb(255 255 255 / 0.1);
+  --color-page-bg: #17161b;
+  --color-surface: #1e1c24;
+  --color-surface-elevated: #2b2636;
+  --color-divider: #2a2733;
+  --color-divider-strong: #3a3346;
+  --color-tooltip-bg: #0f0e12;
 
-  --color-ink: #ffffff;
-  --color-ink-body: #c8c4bc;
-  --color-ink-muted: rgb(200 196 188 / 0.62);
-  --color-ink-subtle: #8e8271;
-  --color-reading-ink: #d8d4cc;
-  --color-reading-ink-soft: rgb(216 212 204 / 0.78);
-  --color-reading-ink-subtle: rgb(216 212 204 / 0.52);
+  --color-ink: #efecf3;
+  --color-ink-body: #d6d3dd;
+  --color-ink-muted: #a8a4b3;
+  --color-ink-subtle: #8a8794;
+  --color-reading-ink: #dcd9e2;
+  --color-reading-ink-soft: #b9b5c3;
+  --color-reading-ink-subtle: #8a8794;
 
-  /* Purple accent — Stack slide 1 / hybrid dark mode */
-  --color-accent-purple: #5145a0;
-  --color-accent-purple-soft: #9b93e8;
-  --color-accent-purple-muted: rgb(155 147 232 / 0.82);
-  --color-accent-purple-wash: rgb(81 69 160 / 0.1);
-  --color-accent-purple-border: rgb(127 119 224 / 0.22);
+  --color-accent: #f0a77a;
+  --color-accent-strong: #f6c09c;
+  --color-on-accent: #2a160c;
+  --color-topic-frontend: #e3a15b;
+  --color-topic-infra: #7fb8a4;
+  --color-topic-journey: #c49bd6;
+  --color-status-ok: #7ee2b8;
+  --color-status-warn: #f2c14e;
+  --color-status-bad: #ef7b6a;
 
-  --color-accent-cta: #4b61ff;
+  /* Legacy names, kept so existing components pick up the new accent */
+  --color-accent-purple: #c4724a;
+  --color-accent-purple-soft: #f0a77a;
+  --color-accent-purple-muted: #c9a3b0;
+  --color-accent-purple-wash: rgb(240 167 122 / 0.07);
+  --color-accent-purple-border: rgb(240 167 122 / 0.24);
 
-  --color-wash-hover: rgb(81 69 160 / 0.08);
-  --color-wash-active: rgb(81 69 160 / 0.14);
+  --color-accent-cta: #f0a77a;
+
+  --color-wash-hover: rgb(240 167 122 / 0.07);
+  --color-wash-active: rgb(240 167 122 / 0.12);
+
+  --ease-out-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   --layout-content-max: 42rem;
   --layout-page-max: 42rem;
+  --layout-wide-max: 72rem;
 
   --space-section-y: clamp(1.75rem, 4vw, 2.5rem);
   --space-section-gap: 1.25rem;

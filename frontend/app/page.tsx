@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { generateHomePageMetadata } from '@/lib/metadata'
+import { toPostSummary } from '@/lib/post-summary'
 import { getAllPosts } from '@/lib/posts'
 import { generateBlogStructuredData, generateWebsiteStructuredData } from '@/lib/structured-data'
 import HomePage from './__new/home-page'
@@ -27,7 +28,7 @@ export default async function Home() {
 
       <div className="min-h-screen">
         <main>
-          <HomePage posts={allPosts} />
+          <HomePage posts={allPosts.map(toPostSummary)} />
         </main>
       </div>
 

@@ -36,7 +36,7 @@ export function SiteHero() {
         <Link href="/about" className="editorial-link text-sm">About</Link>
         <a href="/rss.xml" className="editorial-link text-sm">RSS</a>
         <a href="https://github.com/rohitpotato" target="_blank" rel="noopener noreferrer" className="editorial-link text-sm">GitHub</a>
-        <a href="https://linkedin.com/in/rohitpotato" target="_blank" rel="noopener noreferrer" className="editorial-link text-sm">LinkedIn</a>
+        <a href="https://www.linkedin.com/in/rohit-kashyap-a33a4716a/" target="_blank" rel="noopener noreferrer" className="editorial-link text-sm">LinkedIn</a>
         <a href="https://twitter.com/rohitpotato" target="_blank" rel="noopener noreferrer" className="editorial-link text-sm">Twitter</a>
       </nav>
     </section>

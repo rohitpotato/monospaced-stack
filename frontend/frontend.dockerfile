@@ -11,6 +11,9 @@ FROM nginx:alpine AS runner
 WORKDIR /usr/share/nginx/html
 RUN rm -rf /usr/share/nginx/html/*
 COPY --from=build /app/out/ .
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# nginx:alpine renders /etc/nginx/templates/*.template with envsubst at startup.
+# Only defined env vars are replaced, so nginx's own $variables are left alone.
+ENV NODE_NAME=unknown
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 EXPOSE 3000
 CMD ["nginx", "-g", "daemon off;"]

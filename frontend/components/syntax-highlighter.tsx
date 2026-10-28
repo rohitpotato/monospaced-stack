@@ -1,5 +1,6 @@
 import React from 'react'
 import { Prism as ReactSyntaxHighlighter } from 'react-syntax-highlighter'
+import { CopyCodeButton } from '@/components/markdown/copy-code-button'
 import { andyPrismTheme } from '@/lib/andy-prism-theme'
 import { cn } from '@/lib/utils'
 
@@ -42,16 +43,17 @@ export function SyntaxHighlighter({ children, language, className }: SyntaxHighl
 
   return (
     <figure className={cn('editorial-code-block', className)}>
-      {language && (
-        <figcaption className="flex items-center justify-between px-5 py-2.5">
-          <span className="editorial-tag">{normalizedLanguage}</span>
+      <figcaption className="flex items-center justify-between gap-3 px-5 py-2.5">
+        {language ? <span className="editorial-tag">{normalizedLanguage}</span> : <span />}
+        <span className="flex items-center gap-3">
           <span className="font-mono text-[0.65rem] text-inkMuted">
             {lineCount}
             {' '}
             {lineCount === 1 ? 'line' : 'lines'}
           </span>
-        </figcaption>
-      )}
+          <CopyCodeButton code={codeString} />
+        </span>
+      </figcaption>
       <ReactSyntaxHighlighter
         language={normalizedLanguage}
         style={andyPrismTheme as any}
@@ -67,7 +69,7 @@ export function SyntaxHighlighter({ children, language, className }: SyntaxHighl
           style: {
             fontSize: '0.8125rem',
             lineHeight: 1.75,
-            fontFamily: '"SF Mono", Monaco, Inconsolata, "Roboto Mono", monospace',
+            fontFamily: 'var(--font-code-mono), ui-monospace, monospace',
           },
         }}
       >

@@ -1,6 +1,6 @@
-# Digital Backyard
+# rohitpotato
 
-> Notes about web dev, infrastructure, and some other stuff.
+> Web infra, productivity and performance, plus the small k3s cluster this site runs on.
 
 Site: https://rohitpotato.xyz
 Sitemap: https://rohitpotato.xyz/sitemap.xml

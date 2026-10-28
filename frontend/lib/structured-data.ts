@@ -1,5 +1,13 @@
 import type { Post } from './posts'
 import { resolveImageUrl } from './metadata'
+import { SITE } from './site'
+
+const PERSON = {
+  '@type': 'Person',
+  'name': SITE.author,
+  'url': SITE.url,
+  'sameAs': SITE.sameAs,
+}
 
 export function generateBlogPostStructuredData(post: Post): object {
   return {
@@ -8,18 +16,8 @@ export function generateBlogPostStructuredData(post: Post): object {
     'headline': post.title,
     'description': post.summary,
     'image': resolveImageUrl(post),
-    'author': {
-      '@type': 'Person',
-      'name': 'Rohit',
-    },
-    'publisher': {
-      '@type': 'Organization',
-      'name': 'Digital Backyard',
-      'logo': {
-        '@type': 'ImageObject',
-        'url': 'https://rohitpotato.xyz/placeholder-logo.png',
-      },
-    },
+    'author': PERSON,
+    'publisher': PERSON,
     'datePublished': post.publishedAt,
     'dateModified': post.publishedAt,
     'mainEntityOfPage': {
@@ -28,8 +26,8 @@ export function generateBlogPostStructuredData(post: Post): object {
     },
     'wordCount': post.content.split(' ').length,
     'timeRequired': `PT${Math.ceil(Number.parseInt(post.readingTime.split(' ')[0]))}M`,
-    'articleSection': 'Technology',
-    'keywords': 'web development, infrastructure, technology, programming',
+    'articleSection': post.category,
+    'keywords': post.category,
   }
 }
 
@@ -37,30 +35,11 @@ export function generateWebsiteStructuredData(): object {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    'name': 'Digital Backyard',
-    'description': 'Notes about web development, infrastructure, and technology insights',
+    'name': SITE.name,
+    'description': SITE.description,
     'url': 'https://rohitpotato.xyz',
-    'author': {
-      '@type': 'Person',
-      'name': 'Rohit',
-    },
-    'publisher': {
-      '@type': 'Organization',
-      'name': 'Digital Backyard',
-      'logo': {
-        '@type': 'ImageObject',
-        'url': 'https://rohitpotato.xyz/placeholder-logo.png',
-      },
-    },
-    'potentialAction': {
-      '@type': 'SearchAction',
-      'target': 'https://rohitpotato.xyz/search?q={search_term_string}',
-      'query-input': 'required name=search_term_string',
-    },
-    'sameAs': [
-      'https://twitter.com/rohitpotato',
-      'https://github.com/rohitpotato',
-    ],
+    'author': PERSON,
+    'publisher': PERSON,
   }
 }
 
@@ -68,21 +47,11 @@ export function generateBlogStructuredData(recentPosts: Post[]): object {
   return {
     '@context': 'https://schema.org',
     '@type': 'Blog',
-    'name': 'Digital Backyard',
-    'description': 'Notes about web development, infrastructure, and technology insights',
+    'name': SITE.name,
+    'description': SITE.description,
     'url': 'https://rohitpotato.xyz',
-    'author': {
-      '@type': 'Person',
-      'name': 'Rohit',
-    },
-    'publisher': {
-      '@type': 'Organization',
-      'name': 'Digital Backyard',
-      'logo': {
-        '@type': 'ImageObject',
-        'url': 'https://rohitpotato.xyz/placeholder-logo.png',
-      },
-    },
+    'author': PERSON,
+    'publisher': PERSON,
     'blogPost': recentPosts.map(post => ({
       '@type': 'BlogPosting',
       'headline': post.title,
@@ -90,10 +59,7 @@ export function generateBlogStructuredData(recentPosts: Post[]): object {
       'url': `https://rohitpotato.xyz/thoughts/${post.slug}`,
       'datePublished': post.publishedAt,
       'dateModified': post.publishedAt,
-      'author': {
-        '@type': 'Person',
-        'name': 'Rohit',
-      },
+      'author': PERSON,
     })),
   }
 }
