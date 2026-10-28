@@ -75,6 +75,7 @@ update_image_tag() {
       /^[[:space:]]*containers:[[:space:]]*$/ {
         in_containers = 1
         containers_indent = indent_level($0)
+        item_indent = -1
         next
       }
 
@@ -82,7 +83,13 @@ update_image_tag() {
         in_containers = 0
       }
 
-      in_containers && match($0, /^[[:space:]]*-[[:space:]]*name:[[:space:]]*["'\'']?([^"'\''[:space:]]+)["'\'']?[[:space:]]*$/, m) {
+      # The first list item under containers sets the item indent; nested lists
+      # (env, ports, volumeMounts) are indented further and are not containers.
+      in_containers && item_indent < 0 && $0 ~ /^[[:space:]]*-/ {
+        item_indent = indent_level($0)
+      }
+
+      in_containers && indent_level($0) == item_indent && match($0, /^[[:space:]]*-[[:space:]]*name:[[:space:]]*["'\'']?([^"'\''[:space:]]+)["'\'']?[[:space:]]*$/, m) {
         print m[1]
       }
     ' "$target_file")
@@ -124,6 +131,7 @@ update_image_tag() {
       BEGIN {
         in_containers = 0
         containers_indent = -1
+        item_indent = -1
         current_container = ""
         updated = 0
       }
@@ -134,6 +142,7 @@ update_image_tag() {
         if ($0 ~ /^[[:space:]]*containers:[[:space:]]*$/) {
           in_containers = 1
           containers_indent = indent_level($0)
+          item_indent = -1
           current_container = ""
           print line
           next
@@ -144,7 +153,11 @@ update_image_tag() {
           current_container = ""
         }
 
-        if (in_containers && match($0, /^[[:space:]]*-[[:space:]]*name:[[:space:]]*["'\'']?([^"'\''[:space:]]+)["'\'']?[[:space:]]*$/, m)) {
+        if (in_containers && item_indent < 0 && $0 ~ /^[[:space:]]*-/) {
+          item_indent = indent_level($0)
+        }
+
+        if (in_containers && indent_level($0) == item_indent && match($0, /^[[:space:]]*-[[:space:]]*name:[[:space:]]*["'\'']?([^"'\''[:space:]]+)["'\'']?[[:space:]]*$/, m)) {
           current_container = m[1]
         }
 
