@@ -1,6 +1,6 @@
 'use client'
 
-import type { PostSummary } from '@/lib/post-summary'
+import type { PostSummary, Topic } from '@/lib/post-summary'
 import { format } from 'date-fns'
 import { motion } from 'framer-motion'
 import { Link } from 'next-view-transitions'
@@ -16,7 +16,13 @@ const item = {
   show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.45, ease: [0.2, 0.8, 0.2, 1] } },
 } as const
 
-export function WritingList({ posts }: { posts: PostSummary[] }) {
+interface WritingListProps {
+  posts: PostSummary[]
+  /** Called with the hovered or focused post's topic, and null when it leaves. */
+  onActiveTopic?: (topic: Topic | null) => void
+}
+
+export function WritingList({ posts, onActiveTopic }: WritingListProps) {
   return (
     <section id="writing" aria-labelledby="writing-heading" className="scroll-mt-8">
       <h2 id="writing-heading" className="font-serif text-xl font-medium text-ink">Writing</h2>
@@ -32,6 +38,10 @@ export function WritingList({ posts }: { posts: PostSummary[] }) {
             <Link
               href={`/thoughts/${post.slug}`}
               prefetch={false}
+              onMouseEnter={() => onActiveTopic?.(post.topic)}
+              onMouseLeave={() => onActiveTopic?.(null)}
+              onFocus={() => onActiveTopic?.(post.topic)}
+              onBlur={() => onActiveTopic?.(null)}
               className="group/row flex items-baseline gap-3 py-3 transition-opacity duration-200 group-hover/list:opacity-45 hover:!opacity-100 focus-visible:!opacity-100"
             >
               <span

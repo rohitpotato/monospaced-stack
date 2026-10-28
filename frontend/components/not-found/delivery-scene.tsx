@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, useReducedMotion } from 'framer-motion'
-import { Potato } from '@/components/neighbourhood/map-parts'
+import { Potato } from '@/components/art/potato'
 
 const STEPS = ['Packed', 'Picked up', 'On the way', 'Lost']
 
