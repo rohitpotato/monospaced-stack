@@ -1,47 +1,24 @@
 'use client'
 
-import type { PostSummary, Topic } from '@/lib/post-summary'
+import type { PostSummary } from '@/lib/post-summary'
 import { format } from 'date-fns'
-import { motion } from 'framer-motion'
 import { Link } from 'next-view-transitions'
 import { TOPIC_COLOR } from '@/lib/post-summary'
 
-const list = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.045 } },
-}
+// Staggered entrance in CSS (tw-animate-css), so the list is never hidden waiting for JavaScript.
+const ENTER = 'animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-500 ease-soft motion-reduce:animate-none'
+const STAGGER_MS = 45
 
-const item = {
-  hidden: { opacity: 0, y: 8, filter: 'blur(3px)' },
-  show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.45, ease: [0.2, 0.8, 0.2, 1] } },
-} as const
-
-interface WritingListProps {
-  posts: PostSummary[]
-  /** Called with the hovered or focused post's topic, and null when it leaves. */
-  onActiveTopic?: (topic: Topic | null) => void
-}
-
-export function WritingList({ posts, onActiveTopic }: WritingListProps) {
+export function WritingList({ posts }: { posts: PostSummary[] }) {
   return (
     <section id="writing" aria-labelledby="writing-heading" className="scroll-mt-8">
       <h2 id="writing-heading" className="font-serif text-xl font-medium text-ink">Writing</h2>
-      <motion.ul
-        variants={list}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, margin: '-40px' }}
-        className="group/list mt-3 list-none p-0"
-      >
-        {posts.map(post => (
-          <motion.li key={post.slug} variants={item} className="border-t border-divider last:border-b">
+      <ul className="group/list mt-3 list-none p-0">
+        {posts.map((post, i) => (
+          <li key={post.slug} className={`border-t border-divider last:border-b ${ENTER}`} style={{ animationDelay: `${i * STAGGER_MS}ms` }}>
             <Link
               href={`/thoughts/${post.slug}`}
               prefetch={false}
-              onMouseEnter={() => onActiveTopic?.(post.topic)}
-              onMouseLeave={() => onActiveTopic?.(null)}
-              onFocus={() => onActiveTopic?.(post.topic)}
-              onBlur={() => onActiveTopic?.(null)}
               className="group/row flex items-baseline gap-3 py-3 transition-opacity duration-200 group-hover/list:opacity-45 hover:!opacity-100 focus-visible:!opacity-100"
             >
               <span
@@ -58,9 +35,9 @@ export function WritingList({ posts, onActiveTopic }: WritingListProps) {
                 {format(new Date(post.publishedAt), 'MMM yyyy')}
               </time>
             </Link>
-          </motion.li>
+          </li>
         ))}
-      </motion.ul>
+      </ul>
     </section>
   )
 }

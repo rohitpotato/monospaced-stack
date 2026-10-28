@@ -1,7 +1,7 @@
 import type { PostSummary } from '@/lib/post-summary'
 import { HomeFeed } from '@/components/home/home-feed'
 import { SiteNav } from '@/components/site/site-nav'
-import { SiteFooter, SocialLinks } from '@/components/site/social-links'
+import { SocialLinks } from '@/components/site/social-links'
 
 interface HomePageProps {
   posts: PostSummary[]
@@ -26,7 +26,6 @@ export default function HomePage({ posts }: HomePageProps) {
             </>
           )}
         />
-        <SiteFooter />
       </div>
     </div>
   )
