@@ -51,18 +51,52 @@ Most tasks end the same way: a branch, a pull request, and me reviewing it.
 
 ## Keeping it safe, whatever the task
 
-A companion that can take *any* task needs a real shell, real files and network access. That's also what makes it risky. It reads a lot of text from READMEs, issues, logs and web pages, and some of that text could try to talk it into something. So the rule I built around is simple: let it do anything inside its sandbox, and make sure the sandbox can't hurt anything outside it.
+A companion that can take *any* task needs a real shell, real files and network access. That's what makes it useful, and also what makes it risky.
+
+Agents read a lot of text: READMEs, issue comments, logs, web pages. If any of that text contains instructions, the agent may follow them. One poisoned README or issue comment, and a harmless-looking tool call becomes a remote shell on your machine. So I built the setup around one assumption: **every tool call is untrusted code**. Not "probably fine", not "it's my own repo". Untrusted, the way I'd treat code from a stranger's pull request.
+
+The rule that follows is simple: let the agent do anything inside its sandbox, and make sure the sandbox can't hurt anything outside it.
 
 ### Its own machine
 
-Each agent runs in a [Kata Container](https://katacontainers.io/): a pod that runs inside a lightweight virtual machine with its own kernel. A normal container shares the host's kernel, so a kernel bug could let it out onto the node. With Kata there's a hypervisor in the way. In Kubernetes it's one line in the pod spec: `runtimeClassName: kata`.
+A normal container is just a process with some namespaces and cgroups around it. It shares the host's kernel, so one kernel exploit is a full breakout onto the node, next to everything else running there.
+
+Each agent runs in a [Kata Container](https://katacontainers.io/) instead: a pod that runs inside a lightweight virtual machine with its own guest kernel. To get out, an attacker now needs a hypervisor escape, which is a much rarer and more expensive bug than a kernel one. The cost is a little memory per pod and a slightly slower start.
+
+In Kubernetes it's one line in the pod spec, `runtimeClassName: kata`.
+
+<details>
+<summary>Show the config</summary>
+
+```yaml
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: kata
+handler: kata   # matches the runtime name Kata registered with containerd
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: agent
+spec:
+  runtimeClassName: kata   # this pod gets its own microVM and guest kernel
+  containers:
+    - name: claude-code
+      image: ghcr.io/example/agent:latest
+```
+
+</details>
 
 ### Access it can use, but not abuse
 
-Every credential the agent holds is scoped so the worst case is boring:
+A perfect sandbox doesn't help if the agent inside it holds an admin token. So every credential is scoped so the worst case is boring:
 
 - **Git: propose, don't merge.** Its token can push branches and open pull requests on the repositories I've chosen, and nothing else. `main` is protected, so I'm always the one who merges. For my cluster, Argo CD only deploys what's on `main`, so nothing it writes reaches production until I've read it.
-- **Cluster: look, don't touch.** For debugging it uses a read-only ServiceAccount, synced from my GitOps repo:
+- **Cluster: look, don't touch.** For debugging it uses a read-only ServiceAccount, synced from my GitOps repo by Argo CD.
+- **Nothing personal.** No access to my email, password manager or cloud accounts. If a task needs something more, I grant it for that task, not forever.
+
+The read-only identity is a ServiceAccount bound to Kubernetes' built-in `view` role:
 
 ```yaml
 # Identity for AI/automation agents that need to inspect the cluster but
@@ -90,7 +124,36 @@ subjects:
     namespace: default
 ```
 
-- **Nothing personal.** No access to my email, password manager or cloud accounts. If a task needs something more, I grant it for that task, not forever.
+`view` only covers namespaced objects, and debugging often needs nodes, storage classes, webhooks, RBAC itself and CRDs. A second ClusterRole fills those gaps, with read verbs only.
+
+<details>
+<summary>Show the extra ClusterRole</summary>
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: agent-cluster-read
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "persistentvolumes", "namespaces"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["admissionregistration.k8s.io"]
+    resources: ["validatingwebhookconfigurations", "mutatingwebhookconfigurations"]
+    verbs: ["get", "list", "watch"]
+  # Who-can-do-what, for debugging permission errors.
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["roles", "rolebindings", "clusterroles", "clusterrolebindings"]
+    verbs: ["get", "list", "watch"]
+  # CRDs in this cluster: Argo, Gateway API, Traefik, Prometheus, cert-manager...
+  - apiGroups: ["argoproj.io", "gateway.networking.k8s.io", "monitoring.coreos.com"]
+    resources: ["*"]
+    verbs: ["get", "list", "watch"]
+```
+
+</details>
+
+Two rules I hold to here. Every rule names its API group, because `resources: ["*"]` on the core group would quietly include Secrets. And tokens are short-lived, minted with `kubectl create token --duration=24h`, so a leaked one expires on its own.
 
 ### A human on the important steps
 
@@ -98,10 +161,43 @@ Permission prompts come to my phone before anything sensitive runs, and pull req
 
 ### Limited reach, short memory
 
-The pod can reach only the hosts it needs: the model API, GitHub, package registries and the Kubernetes API. Pods are also disposable. Anything worth keeping lives in a volume or in Git, so if a sandbox ever looks off, I delete it and start fresh.
+**Egress allowlisting.** The pod can reach only the hosts it needs: the model API, GitHub, package registries and the Kubernetes API. Everything else is blocked, which closes the easiest exfiltration path: an agent tricked into `curl`ing your secrets to someone else's server.
+
+Kubernetes NetworkPolicies work on IPs and ports, not hostnames, so the baseline is a default-deny egress policy. Allowing specific hostnames is a job for an egress proxy or an FQDN-aware CNI.
+
+<details>
+<summary>Show the config</summary>
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: agent-egress
+spec:
+  podSelector:
+    matchLabels:
+      app: agent
+  policyTypes: ["Egress"]
+  egress:
+    # DNS
+    - ports:
+        - { protocol: UDP, port: 53 }
+        - { protocol: TCP, port: 53 }
+    # HTTPS only; narrow `to:` further, or route it through an egress proxy
+    - ports:
+        - { protocol: TCP, port: 443 }
+```
+
+</details>
+
+**Ephemeral sandboxes.** Pods are disposable. Anything worth keeping lives in a volume or in Git, so if a sandbox ever looks off, I delete it and start fresh. Anything planted outside that volume is gone with the pod, and changes to Git go through review.
 
 ## The takeaway
 
 The way I think about it: treat the agent like a new teammate. Give it its own machine, give it access to exactly what the job needs, and review its work before it ships.
 
-With that in place, handing over a task from my phone is a quick decision rather than a risky one, and that's what turns an AI agent from a demo into something I actually use every day.
+- **Isolation limits where damage can happen.** A microVM keeps a misbehaving agent inside its own kernel.
+- **Scoped credentials limit how much.** Read-only cluster access and propose-only Git access mean even a fully compromised agent can look around and open a PR, and that's it.
+- **A human approves the parts that matter.** Prompts on my phone, merges on GitHub.
+
+With that in place, handing over a task from my phone is a quick decision rather than a risky one. That's what turns an AI agent from a demo into something I actually use every day, and why I think running agents well is less a prompt engineering problem than a platform engineering one.

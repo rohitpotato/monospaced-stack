@@ -270,6 +270,48 @@ pre, code {
   color: var(--color-reading-ink-soft);
 }
 
+/* Collapsible "Show the config" blocks */
+.editorial-prose details {
+  margin: 1.25em 0;
+  border: 1px solid var(--color-divider);
+  border-radius: 0.75rem;
+  padding: 0 1rem;
+}
+
+.editorial-prose details[open] {
+  padding-bottom: 0.25rem;
+}
+
+.editorial-prose summary {
+  cursor: pointer;
+  padding: 0.75rem 0;
+  font-family: var(--font-code-mono), ui-monospace, monospace;
+  font-size: 0.8125rem;
+  color: var(--color-accent);
+  list-style: none;
+}
+
+.editorial-prose summary::-webkit-details-marker {
+  display: none;
+}
+
+.editorial-prose summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 0.5rem;
+  transition: transform 0.2s var(--ease-out-soft);
+}
+
+.editorial-prose details[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editorial-prose summary::before {
+    transition: none;
+  }
+}
+
 .editorial-tag {
   display: inline-block;
   padding: 0.3rem 0.65rem;
