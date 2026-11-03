@@ -1,43 +1,68 @@
 ---
 title: "Running AI agents in Kubernetes, from my phone"
 publishedAt: "2026-11-03"
-summary: "I drive AI coding agents in my homelab cluster from my phone. How they debug Kubernetes, open pull requests, and stay contained in their own microVMs."
+summary: "I keep an AI agent in my homelab and hand it tasks from my phone, from publishing posts to fixing bugs and debugging my cluster. How it works and stays safe."
 category: "Infrastructure"
 icon: "smartphone"
 image: "/images/thoughts/running-ai-agents-in-kubernetes/og.png"
-tags: ["AI agents", "Kubernetes", "Claude Code", "Remote Control", "homelab", "GitOps", "Kata Containers", "platform engineering"]
+tags: ["AI agents", "Claude Code", "Remote Control", "Kubernetes", "homelab", "developer productivity", "blogging", "Kata Containers"]
 ---
 
-> **TL;DR:** I run AI coding agents inside my homelab Kubernetes cluster and drive them from my phone with Claude Code's Remote Control. They debug failing pods, turn the fix into a pull request, and work on several things at once. Each one lives in its own microVM with read-only cluster access, so I can say "yes, go ahead" from the couch without worrying about it.
+> **TL;DR:** I keep an AI coding agent running inside my homelab Kubernetes cluster and treat it like a companion I can hand tasks to from my phone: publish a blog post, fix a bug, bump a dependency, chase a failing CI run, figure out why a pod is crashing. I drive it with Claude Code's Remote Control. It works in its own microVM with narrowly scoped access, so I can say "go ahead" from anywhere without worrying about what it might break.
 
-Most of my cluster problems don't happen while I'm at my desk. A deployment starts crash-looping, an alert fires, and the usual routine is: find a laptop, open a terminal, start digging through logs.
+Most of the small jobs I think of don't arrive while I'm at my desk. I notice a layout bug on my site while scrolling on my phone. A deploy fails while I'm out. I remember a dependency that needs upgrading right before falling asleep. The usual answer is a note to myself and a laptop later.
 
-These days I open the Claude app on my phone instead. An agent that already lives inside the cluster does the digging, explains what it found, and suggests a fix. When it wants to run something that needs my OK, I get a prompt on my phone. When the fix is ready, it opens a pull request, and I merge it whenever I'm back.
+What I wanted instead was a companion: something I could hand a task to, the way I'd message a teammate, and come back to finished work. So I run one. It lives in my cluster, it has a real shell and real tools, and I talk to it from my phone. I give it a task, approve anything sensitive as it goes, and review a pull request at the end.
 
-This post is how that setup works: where the agents run, what they're allowed to do, and why I'm comfortable letting them run real commands on my cluster.
+This post is how that works: how I hand it tasks, what kinds of tasks it gets, and how it can do real work without being able to do real damage.
 
 ![Architecture: my phone talks to the Anthropic API relay; Claude Code runs inside a Kata microVM on a homelab Kubernetes node, connects out over HTTPS with zero inbound ports, reads the Kubernetes API through read-only RBAC, and opens pull requests on GitHub with a scoped token so a human merges](/images/thoughts/running-ai-agents-in-kubernetes/architecture.png)
 
-## Driving agents from my phone
+## Handing it tasks from my phone
 
-The agents are Claude Code sessions running in pods on my cluster. I connect to them with Claude Code's **Remote Control**, which lets me pick up a session from the Claude app on my phone, or from a browser, as if I were sitting at the terminal.
+The agent is a Claude Code session running in a pod on my cluster. I connect to it with Claude Code's **Remote Control**, which lets me pick up that session from the Claude app on my phone, or from a browser, as if I were sitting at the terminal.
 
-Here's what that looks like in practice. Say a pod is stuck in `CrashLoopBackOff` while I'm out:
+Take publishing a blog post. I often write drafts in my phone's notes app, on the metro or in a queue somewhere. Getting one live used to mean waiting until I was back at a laptop. Now it goes like this:
 
-1. I open the session on my phone and type something like *"the frontend pods are crash-looping, find out why"*.
-2. The agent reads the pod's events and logs, checks the deployment and its recent changes in Git, and narrows it down: a bad config value, a missing secret reference, an image that won't start.
-3. Anything that needs permission, like running a command I haven't pre-approved, shows up on my phone as a prompt. I read it and tap approve or reject.
-4. Once it knows the cause, it writes the fix and opens a pull request. I review the diff on my phone, or later on a bigger screen, and merge it.
+1. I paste the draft into the session: *"turn this into a post, add the frontmatter and SEO tags, make a social card, and open a PR"*.
+2. The agent checks out my blog's repository, creates the post file, writes a title and summary that fit in search results, renders a social card image, and runs the build to make sure nothing breaks.
+3. Whenever it wants to do something that needs my OK, like running a command I haven't pre-approved, I get a prompt on my phone and tap approve or reject.
+4. It opens a pull request. I read the post in the diff, ask for a tweak or two ("make the title plainer"), and merge.
+5. Merging kicks off the usual pipeline: CI builds the image, updates the tag in my GitOps repo, and Argo CD rolls it out as a canary. No laptop involved at any step.
 
-The best part of this is what *isn't* there. The pod never accepts incoming connections. It only makes **outbound** HTTPS connections to Anthropic's API, and my phone talks to the same relay. There are no open ports on my homelab, no VPN to set up, and no SSH to expose. If my phone can reach the internet, I can reach my agents.
+The same loop works for almost anything: describe the task, approve as it goes, review the result.
 
-## What the agents do
+Nothing about this needs a hole in my network. The pod never accepts incoming connections. It only makes **outbound** HTTPS connections to Anthropic's API, and my phone talks to the same relay. There are no open ports on my homelab, no VPN and no SSH to expose. If my phone can reach the internet, I can reach my agent.
 
-### Debug the cluster
+## What I hand it
 
-This is most of what I use them for: crash loops, rollouts stuck at 10%, pods that won't schedule, a service returning errors after a deploy. The agent reads logs and events, describes resources, compares what's running with what's in Git, and traces the failure back to a cause.
+Roughly the kind of work I'd give a capable new teammate on their first week:
 
-It does all of this through a **read-only** ServiceAccount. It can look at almost everything and change nothing. This is the actual config from my GitOps repo:
+- **Publishing.** Turning a draft into a finished post, fixing a typo someone pointed out, swapping the image on an old article.
+- **Code changes.** *"The date labels on the archive page overlap on mobile, fix it."* *"Add a dark-mode toggle."* Bug fixes, small features and refactors across my repositories.
+- **Upkeep.** *"Bump Next.js and fix whatever breaks."* *"The backend deploy failed, find out why."* Dependency upgrades, broken CI, flaky deploy scripts.
+- **Infrastructure changes.** *"Add an alert for when a node's disk is 85% full."* *"Bump the Helm chart for Grafana."* Changes to my GitOps repo, which only reach the cluster once I merge them.
+- **Cluster debugging.** *"The frontend pods are crash-looping."* It reads logs and events, compares what's running with what's in Git, and traces the failure to a cause.
+- **Reading and research.** *"Summarise this 80-comment GitHub issue and tell me if it affects me."* *"Which of my services still use the old Redis client?"* Answers, plans and READMEs, before anyone touches code.
+
+Most tasks end the same way: a branch, a pull request, and me reviewing it.
+
+**It can work on several things at once.** Each task gets its own **git worktree**, a separate checkout of the same repository on its own branch. One session can be fixing a CSS bug while another bumps dependencies, and they never step on each other's files.
+
+## Keeping it safe, whatever the task
+
+A companion that can take *any* task needs a real shell, real files and network access. That's also what makes it risky. It reads a lot of text from READMEs, issues, logs and web pages, and some of that text could try to talk it into something. So the rule I built around is simple: let it do anything inside its sandbox, and make sure the sandbox can't hurt anything outside it.
+
+### Its own machine
+
+Each agent runs in a [Kata Container](https://katacontainers.io/): a pod that runs inside a lightweight virtual machine with its own kernel. A normal container shares the host's kernel, so a kernel bug could let it out onto the node. With Kata there's a hypervisor in the way. In Kubernetes it's one line in the pod spec: `runtimeClassName: kata`.
+
+### Access it can use, but not abuse
+
+Every credential the agent holds is scoped so the worst case is boring:
+
+- **Git: propose, don't merge.** Its token can push branches and open pull requests on the repositories I've chosen, and nothing else. `main` is protected, so I'm always the one who merges. For my cluster, Argo CD only deploys what's on `main`, so nothing it writes reaches production until I've read it.
+- **Cluster: look, don't touch.** For debugging it uses a read-only ServiceAccount, synced from my GitOps repo:
 
 ```yaml
 # Identity for AI/automation agents that need to inspect the cluster but
@@ -65,29 +90,18 @@ subjects:
     namespace: default
 ```
 
-The built-in `view` role covers namespaced objects. A second, small ClusterRole adds read access to the cluster-wide things debugging needs: nodes, storage classes, webhooks, RBAC and the CRDs I use (Argo CD, Gateway API, Prometheus). Read verbs only, and never Secrets.
+- **Nothing personal.** No access to my email, password manager or cloud accounts. If a task needs something more, I grant it for that task, not forever.
 
-### Open pull requests
+### A human on the important steps
 
-A diagnosis is only half the job. For my cluster, the fix almost always lives in Git: a manifest change, a Helm value, a config tweak. So the agent turns what it found into a pull request on my GitOps repo.
+Permission prompts come to my phone before anything sensitive runs, and pull requests wait for my review. The agent does the work; I make the decisions that matter.
 
-It pushes with a token that can only open branches and pull requests on that one repository. `main` is protected, so I'm always the one who merges, and Argo CD only deploys what's on `main`. Nothing an agent writes reaches the cluster until I've read it.
+### Limited reach, short memory
 
-### Work on several things at once
-
-Each session gets its own **git worktree**, a separate checkout of the same repository on its own branch. I can have one agent chasing a crash loop and another updating a Helm chart, and they never step on each other's files. Each ends up as its own branch and its own pull request.
-
-## Keeping them contained
-
-Letting an agent run commands on your cluster from your phone only feels relaxed if you know what it *can't* do. Agents read a lot of text, like READMEs, issue comments and logs, and some of that text could try to talk them into something. So I set things up so that even a confused agent can't do much damage:
-
-- **Its own microVM.** Each agent runs in a [Kata Container](https://katacontainers.io/): a pod that runs inside a lightweight virtual machine with its own kernel. A normal container shares the host's kernel, so a kernel bug could let it out onto the node. With Kata, there's a hypervisor in the way. In Kubernetes it's one line in the pod spec, `runtimeClassName: kata`.
-- **Credentials that can look, or propose, but not act.** The cluster token is read-only. The Git token can open pull requests but not merge them. To change anything, you need both the agent's work and my review.
-- **Limited network access.** The pod can reach only what it needs: the model API, GitHub, the Kubernetes API and package registries.
-- **Throwaway sandboxes.** Pods are disposable. Anything worth keeping lives in a volume or in Git, so if a sandbox ever looks off, I delete it and start a fresh one.
+The pod can reach only the hosts it needs: the model API, GitHub, package registries and the Kubernetes API. Pods are also disposable. Anything worth keeping lives in a volume or in Git, so if a sandbox ever looks off, I delete it and start fresh.
 
 ## The takeaway
 
-The reason I can run agents from my phone is that the platform does the worrying for me. The microVM decides *where* an agent can cause trouble, and its credentials decide *how much*. With those in place, approving a step on my phone is a quick decision, not a risky one.
+The way I think about it: treat the agent like a new teammate. Give it its own machine, give it access to exactly what the job needs, and review its work before it ships.
 
-That's what made this useful rather than nerve-wracking: give agents a safe place to work, and you can hand them real tasks.
+With that in place, handing over a task from my phone is a quick decision rather than a risky one, and that's what turns an AI agent from a demo into something I actually use every day.
