@@ -17,7 +17,7 @@ export interface MetadataConfig {
  *
  * Priority order:
  * 1. Custom image from frontmatter (if provided)
- * 2. The site's default social card (public/og.png)
+ * 2. The site's default social card (public/og-home.jpg)
  *
  * @example
  * // In your MDX frontmatter:
