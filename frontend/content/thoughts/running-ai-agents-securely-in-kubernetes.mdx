@@ -4,7 +4,7 @@ publishedAt: "2026-11-03"
 summary: "Coding agents run shell commands and make network calls. How I sandbox them in Kata microVMs, drive them from my phone, and limit what they can touch."
 category: "Infrastructure"
 icon: "shield-check"
-image: "/images/thoughts/agents-in-microvms/og.png"
+image: "/images/thoughts/running-ai-agents-securely-in-kubernetes/og.png"
 tags: ["AI agents", "Kubernetes", "Kata Containers", "Claude Code", "platform engineering", "DevSecOps", "zero trust", "homelab"]
 ---
 
@@ -16,7 +16,7 @@ An agent reads whatever you point it at: a README, an issue comment, a log line,
 
 So I built my setup around one assumption: **every tool call is untrusted code.** Not "probably fine", not "it's my own repo". Untrusted, the same way I'd treat code from a stranger's pull request.
 
-![Architecture: my phone talks to the Anthropic API relay; Claude Code runs inside a Kata microVM on a homelab Kubernetes node, connects out over HTTPS with zero inbound ports, reads the Kubernetes API through read-only RBAC, and opens pull requests on GitHub with a scoped token so a human merges](/images/thoughts/agents-in-microvms/architecture.png)
+![Architecture: my phone talks to the Anthropic API relay; Claude Code runs inside a Kata microVM on a homelab Kubernetes node, connects out over HTTPS with zero inbound ports, reads the Kubernetes API through read-only RBAC, and opens pull requests on GitHub with a scoped token so a human merges](/images/thoughts/running-ai-agents-securely-in-kubernetes/architecture.png)
 
 ## Isolation: a kernel of its own
 
