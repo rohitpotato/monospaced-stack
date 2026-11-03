@@ -1,66 +1,43 @@
 ---
-title: "Running AI agents in Kubernetes"
+title: "Running AI agents in Kubernetes, from my phone"
 publishedAt: "2026-11-03"
-summary: "AI coding agents run commands and make network calls. How I sandbox each in its own lightweight VM, approve risky steps from my phone, and limit their access."
+summary: "I drive AI coding agents in my homelab cluster from my phone. How they debug Kubernetes, open pull requests, and stay contained in their own microVMs."
 category: "Infrastructure"
-icon: "shield-check"
+icon: "smartphone"
 image: "/images/thoughts/running-ai-agents-in-kubernetes/og.png"
-tags: ["AI agents", "Kubernetes", "Kata Containers", "Claude Code", "platform engineering", "DevSecOps", "zero trust", "homelab"]
+tags: ["AI agents", "Kubernetes", "Claude Code", "Remote Control", "homelab", "GitOps", "Kata Containers", "platform engineering"]
 ---
 
-> **TL;DR:** I run coding agents in my homelab, and I treat every tool call they make as untrusted code. Each agent lives in a Kata Container (a microVM with its own kernel), I drive it from my phone over Claude Code's Remote Control with no inbound ports, and it holds only read-only cluster access and repo-scoped Git tokens. Isolation limits *where* damage can happen. Scoped credentials limit *how much*.
+> **TL;DR:** I run AI coding agents inside my homelab Kubernetes cluster and drive them from my phone with Claude Code's Remote Control. They debug failing pods, turn the fix into a pull request, and work on several things at once. Each one lives in its own microVM with read-only cluster access, so I can say "yes, go ahead" from the couch without worrying about it.
 
-Coding agents don't just generate text. They run shell commands, edit files and make network calls. That's what makes them useful, and it's also the whole problem.
+Most of my cluster problems don't happen while I'm at my desk. A deployment starts crash-looping, an alert fires, and the usual routine is: find a laptop, open a terminal, start digging through logs.
 
-An agent reads whatever you point it at: a README, an issue comment, a log line, a web page. If any of that text contains instructions, the agent may follow them. One poisoned comment, and a tool call becomes a remote shell on your machine.
+These days I open the Claude app on my phone instead. An agent that already lives inside the cluster does the digging, explains what it found, and suggests a fix. When it wants to run something that needs my OK, I get a prompt on my phone. When the fix is ready, it opens a pull request, and I merge it whenever I'm back.
 
-So I built my setup around one assumption: **every tool call is untrusted code.** Not "probably fine", not "it's my own repo". Untrusted, the same way I'd treat code from a stranger's pull request.
+This post is how that setup works: where the agents run, what they're allowed to do, and why I'm comfortable letting them run real commands on my cluster.
 
 ![Architecture: my phone talks to the Anthropic API relay; Claude Code runs inside a Kata microVM on a homelab Kubernetes node, connects out over HTTPS with zero inbound ports, reads the Kubernetes API through read-only RBAC, and opens pull requests on GitHub with a scoped token so a human merges](/images/thoughts/running-ai-agents-in-kubernetes/architecture.png)
 
-## Isolation: a kernel of its own
+## Driving agents from my phone
 
-A normal container is a process with some namespaces and cgroups around it. It shares the host's kernel. That's fine for my own services, but for an agent running arbitrary commands it means one kernel exploit is a full breakout: the attacker lands on the node, next to everything else on it.
+The agents are Claude Code sessions running in pods on my cluster. I connect to them with Claude Code's **Remote Control**, which lets me pick up a session from the Claude app on my phone, or from a browser, as if I were sitting at the terminal.
 
-[Kata Containers](https://katacontainers.io/) change that boundary. Each pod runs inside a lightweight virtual machine with its own guest kernel. From Kubernetes' point of view it's still a pod; underneath, there's a hypervisor between the agent and the host. To get out, an attacker now needs a hypervisor escape, which is a much rarer and much more expensive bug than a kernel one.
+Here's what that looks like in practice. Say a pod is stuck in `CrashLoopBackOff` while I'm out:
 
-In Kubernetes you opt a pod into Kata with a `RuntimeClass`. The shape of it:
+1. I open the session on my phone and type something like *"the frontend pods are crash-looping, find out why"*.
+2. The agent reads the pod's events and logs, checks the deployment and its recent changes in Git, and narrows it down: a bad config value, a missing secret reference, an image that won't start.
+3. Anything that needs permission, like running a command I haven't pre-approved, shows up on my phone as a prompt. I read it and tap approve or reject.
+4. Once it knows the cause, it writes the fix and opens a pull request. I review the diff on my phone, or later on a bigger screen, and merge it.
 
-```yaml
-apiVersion: node.k8s.io/v1
-kind: RuntimeClass
-metadata:
-  name: kata
-handler: kata   # matches the runtime name Kata registered with containerd
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: agent
-spec:
-  runtimeClassName: kata   # this pod gets its own microVM and guest kernel
-  containers:
-    - name: claude-code
-      image: ghcr.io/example/agent:latest
-```
+The best part of this is what *isn't* there. The pod never accepts incoming connections. It only makes **outbound** HTTPS connections to Anthropic's API, and my phone talks to the same relay. There are no open ports on my homelab, no VPN to set up, and no SSH to expose. If my phone can reach the internet, I can reach my agents.
 
-The cost is a little memory per pod and a slightly slower start. For a handful of agent sandboxes, that's an easy trade.
+## What the agents do
 
-## Control: approvals on my phone, no open ports
+### Debug the cluster
 
-I don't SSH into these pods, and they don't listen on anything. I drive the agents from my phone using Claude Code's Remote Control.
+This is most of what I use them for: crash loops, rollouts stuck at 10%, pods that won't schedule, a service returning errors after a deploy. The agent reads logs and events, describes resources, compares what's running with what's in Git, and traces the failure back to a cause.
 
-The agent inside the pod makes **outbound** HTTPS connections to Anthropic's API, and my phone talks to the same relay. Nothing on the homelab is exposed to the internet, there are no inbound ports, and there's no tunnel for someone else to find.
-
-The part that matters most is permissions. When the agent wants to do something that needs approval, like running a command or editing a file outside what I've allowed, the request shows up on my phone. I read it and approve or reject it *before* it runs. The sandbox limits the blast radius; the approval step keeps a human in the loop for anything sensitive.
-
-## What the agents actually do
-
-### Cluster debugging
-
-This is most of what I use them for: a `CrashLoopBackOff`, a rollout stuck at 10%, a pod that won't schedule. The agent reads pod logs and events, describes resources, compares what's running with what's in Git, and traces the failure back to a root cause.
-
-It does all of that through a **read-only** ServiceAccount. It can inspect almost everything and change nothing. This is the actual config from my GitOps repo, synced by Argo CD:
+It does all of this through a **read-only** ServiceAccount. It can look at almost everything and change nothing. This is the actual config from my GitOps repo:
 
 ```yaml
 # Identity for AI/automation agents that need to inspect the cluster but
@@ -88,80 +65,29 @@ subjects:
     namespace: default
 ```
 
-The built-in `view` role is a good start, but it only covers namespaced objects. Debugging often needs nodes, storage classes, webhooks, RBAC itself and CRDs, so a second ClusterRole fills those gaps, with read verbs only:
+The built-in `view` role covers namespaced objects. A second, small ClusterRole adds read access to the cluster-wide things debugging needs: nodes, storage classes, webhooks, RBAC and the CRDs I use (Argo CD, Gateway API, Prometheus). Read verbs only, and never Secrets.
 
-```yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: agent-cluster-read
-rules:
-  - apiGroups: [""]
-    resources: ["nodes", "persistentvolumes", "namespaces"]
-    verbs: ["get", "list", "watch"]
-  - apiGroups: ["admissionregistration.k8s.io"]
-    resources: ["validatingwebhookconfigurations", "mutatingwebhookconfigurations"]
-    verbs: ["get", "list", "watch"]
-  # Who-can-do-what, for debugging permission errors.
-  - apiGroups: ["rbac.authorization.k8s.io"]
-    resources: ["roles", "rolebindings", "clusterroles", "clusterrolebindings"]
-    verbs: ["get", "list", "watch"]
-  # CRDs in this cluster: Argo, Gateway API, Traefik, Prometheus, cert-manager...
-  - apiGroups: ["argoproj.io", "gateway.networking.k8s.io", "monitoring.coreos.com"]
-    resources: ["*"]
-    verbs: ["get", "list", "watch"]
-```
+### Open pull requests
 
-Two rules I hold to here. Every rule names its API group: `resources: ["*"]` on the core group would quietly include Secrets. And tokens are short-lived, minted with `kubectl create token --duration=24h`, so a leaked token expires on its own.
+A diagnosis is only half the job. For my cluster, the fix almost always lives in Git: a manifest change, a Helm value, a config tweak. So the agent turns what it found into a pull request on my GitOps repo.
 
-### Opening PRs
+It pushes with a token that can only open branches and pull requests on that one repository. `main` is protected, so I'm always the one who merges, and Argo CD only deploys what's on `main`. Nothing an agent writes reaches the cluster until I've read it.
 
-A diagnosis is only half the job. The other half is the fix, and for my cluster the fix almost always lives in Git: a manifest change, a Helm value, a config tweak.
+### Work on several things at once
 
-So the agent turns its diagnosis into a pull request on my GitOps repo. It pushes with a **fine-grained, repo-scoped token** that can open branches and PRs on that one repository and nothing else. Branch protection on `main` means a human always merges. Argo CD only syncs what's on `main`, so nothing an agent writes reaches the cluster until I've read it.
+Each session gets its own **git worktree**, a separate checkout of the same repository on its own branch. I can have one agent chasing a crash loop and another updating a Helm chart, and they never step on each other's files. Each ends up as its own branch and its own pull request.
 
-That split is deliberate. The agent's cluster credentials can read but not write, and its Git credentials can propose but not merge. To change anything, you need both an agent's work and my review.
+## Keeping them contained
 
-### Parallel work
+Letting an agent run commands on your cluster from your phone only feels relaxed if you know what it *can't* do. Agents read a lot of text, like READMEs, issue comments and logs, and some of that text could try to talk them into something. So I set things up so that even a confused agent can't do much damage:
 
-Each agent session gets its own **git worktree**: a separate checkout of the same repository on its own branch. Two sessions can work on two different problems at once without fighting over files, and each one ends up as its own branch and its own PR.
-
-## Guardrails
-
-Isolation alone isn't enough. An agent in a perfect sandbox, holding an admin token, can still do a lot of damage through the API. These are the other layers:
-
-- **Least privilege everywhere.** Read-only RBAC for the cluster, fine-grained tokens for GitHub, nothing shared between sessions.
-- **Egress allowlisting.** The sandbox can only reach the hosts it needs: the model API, GitHub, the Kubernetes API, a package registry. Everything else is blocked, which closes the easiest exfiltration path, an agent tricked into `curl`ing your secrets to someone else's server. Kubernetes NetworkPolicies work on IPs and ports, so the baseline is a default-deny egress policy, with allowing specific hostnames left to an egress proxy or an FQDN-aware CNI.
-- **Ephemeral sandboxes.** Pods are disposable. Anything worth keeping lives in a PVC or in Git, so if a sandbox looks wrong, I delete it and start a clean one. Anything planted outside that PVC is gone with the pod, and changes to Git go through review.
-
-A default-deny egress policy is a few lines:
-
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: agent-egress
-spec:
-  podSelector:
-    matchLabels:
-      app: agent
-  policyTypes: ["Egress"]
-  egress:
-    # DNS
-    - ports:
-        - { protocol: UDP, port: 53 }
-        - { protocol: TCP, port: 53 }
-    # HTTPS only; narrow `to:` further, or route it through an egress proxy
-    - ports:
-        - { protocol: TCP, port: 443 }
-```
+- **Its own microVM.** Each agent runs in a [Kata Container](https://katacontainers.io/): a pod that runs inside a lightweight virtual machine with its own kernel. A normal container shares the host's kernel, so a kernel bug could let it out onto the node. With Kata, there's a hypervisor in the way. In Kubernetes it's one line in the pod spec, `runtimeClassName: kata`.
+- **Credentials that can look, or propose, but not act.** The cluster token is read-only. The Git token can open pull requests but not merge them. To change anything, you need both the agent's work and my review.
+- **Limited network access.** The pod can reach only what it needs: the model API, GitHub, the Kubernetes API and package registries.
+- **Throwaway sandboxes.** Pods are disposable. Anything worth keeping lives in a volume or in Git, so if a sandbox ever looks off, I delete it and start a fresh one.
 
 ## The takeaway
 
-None of this is specific to AI. It's the same thinking you'd apply to any workload that runs code you didn't write:
+The reason I can run agents from my phone is that the platform does the worrying for me. The microVM decides *where* an agent can cause trouble, and its credentials decide *how much*. With those in place, approving a step on my phone is a quick decision, not a risky one.
 
-- **Isolation limits where damage can happen.** A microVM keeps a compromised agent inside its own kernel.
-- **Scoped credentials limit how much.** Read-only cluster access and propose-only Git access mean even a fully compromised agent can look around and open a PR, and that's it.
-- **A human approves the sensitive parts.** Permission prompts on my phone, and merges on GitHub.
-
-Running agents safely isn't a prompt engineering problem. It's a platform engineering problem.
+That's what made this useful rather than nerve-wracking: give agents a safe place to work, and you can hand them real tasks.
