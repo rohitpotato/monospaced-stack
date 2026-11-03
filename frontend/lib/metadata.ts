@@ -106,6 +106,7 @@ export function generateBaseMetadata(config: MetadataConfig & { absoluteTitle?: 
         publishedTime: publishedAt,
         modifiedTime: publishedAt,
         authors: [author],
+        tags: keywords,
       }),
     },
     twitter: {
@@ -126,7 +127,7 @@ export function generateBlogPostMetadata(post: Post): Metadata {
     url: `${SITE.url}/thoughts/${post.slug}`,
     imageUrl: resolveImageUrl(post),
     publishedAt: post.publishedAt,
-    keywords: [post.category.toLowerCase()],
+    keywords: [post.category, ...post.tags],
   })
 }
 
