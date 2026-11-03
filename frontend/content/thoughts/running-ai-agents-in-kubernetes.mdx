@@ -1,0 +1,203 @@
+---
+title: "Running AI agents in Kubernetes, from my phone"
+publishedAt: "2026-11-03"
+summary: "I keep an AI agent in my homelab and hand it tasks from my phone, from publishing posts to fixing bugs and debugging my cluster. How it works and stays safe."
+category: "Infrastructure"
+icon: "smartphone"
+image: "/images/thoughts/running-ai-agents-in-kubernetes/og.png"
+tags: ["AI agents", "Claude Code", "Remote Control", "Kubernetes", "homelab", "developer productivity", "blogging", "Kata Containers"]
+---
+
+> **TL;DR:** I keep an AI coding agent running inside my homelab Kubernetes cluster and treat it like a companion I can hand tasks to from my phone: publish a blog post, fix a bug, bump a dependency, chase a failing CI run, figure out why a pod is crashing. I drive it with Claude Code's Remote Control. It works in its own microVM with narrowly scoped access, so I can say "go ahead" from anywhere without worrying about what it might break.
+
+Most of the small jobs I think of don't arrive while I'm at my desk. I notice a layout bug on my site while scrolling on my phone. A deploy fails while I'm out. I remember a dependency that needs upgrading right before falling asleep. The usual answer is a note to myself and a laptop later.
+
+What I wanted instead was a companion: something I could hand a task to, the way I'd message a teammate, and come back to finished work. So I run one. It lives in my cluster, it has a real shell and real tools, and I talk to it from my phone. I give it a task, approve anything sensitive as it goes, and review a pull request at the end.
+
+This post is how that works: how I hand it tasks, what kinds of tasks it gets, and how it can do real work without being able to do real damage.
+
+![Architecture: my phone talks to the Anthropic API relay; Claude Code runs inside a Kata microVM on a homelab Kubernetes node, connects out over HTTPS with zero inbound ports, reads the Kubernetes API through read-only RBAC, and opens pull requests on GitHub with a scoped token so a human merges](/images/thoughts/running-ai-agents-in-kubernetes/architecture.png)
+
+## Handing it tasks from my phone
+
+The agent is a Claude Code session running in a pod on my cluster. I connect to it with Claude Code's **Remote Control**, which lets me pick up that session from the Claude app on my phone, or from a browser, as if I were sitting at the terminal.
+
+Take publishing a blog post. I often write drafts in my phone's notes app, on the metro or in a queue somewhere. Getting one live used to mean waiting until I was back at a laptop. Now it goes like this:
+
+1. I paste the draft into the session: *"turn this into a post, add the frontmatter and SEO tags, make a social card, and open a PR"*.
+2. The agent checks out my blog's repository, creates the post file, writes a title and summary that fit in search results, renders a social card image, and runs the build to make sure nothing breaks.
+3. Whenever it wants to do something that needs my OK, like running a command I haven't pre-approved, I get a prompt on my phone and tap approve or reject.
+4. It opens a pull request. I read the post in the diff, ask for a tweak or two ("make the title plainer"), and merge.
+5. Merging kicks off the usual pipeline: CI builds the image, updates the tag in my GitOps repo, and Argo CD rolls it out as a canary. No laptop involved at any step.
+
+The same loop works for almost anything: describe the task, approve as it goes, review the result.
+
+Nothing about this needs a hole in my network. The pod never accepts incoming connections. It only makes **outbound** HTTPS connections to Anthropic's API, and my phone talks to the same relay. There are no open ports on my homelab, no VPN and no SSH to expose. If my phone can reach the internet, I can reach my agent.
+
+## What I hand it
+
+Roughly the kind of work I'd give a capable new teammate on their first week:
+
+- **Publishing.** Turning a draft into a finished post, fixing a typo someone pointed out, swapping the image on an old article.
+- **Code changes.** *"The date labels on the archive page overlap on mobile, fix it."* *"Add a dark-mode toggle."* Bug fixes, small features and refactors across my repositories.
+- **Upkeep.** *"Bump Next.js and fix whatever breaks."* *"The backend deploy failed, find out why."* Dependency upgrades, broken CI, flaky deploy scripts.
+- **Infrastructure changes.** *"Add an alert for when a node's disk is 85% full."* *"Bump the Helm chart for Grafana."* Changes to my GitOps repo, which only reach the cluster once I merge them.
+- **Cluster debugging.** *"The frontend pods are crash-looping."* It reads logs and events, compares what's running with what's in Git, and traces the failure to a cause.
+- **Reading and research.** *"Summarise this 80-comment GitHub issue and tell me if it affects me."* *"Which of my services still use the old Redis client?"* Answers, plans and READMEs, before anyone touches code.
+
+Most tasks end the same way: a branch, a pull request, and me reviewing it.
+
+**It can work on several things at once.** Each task gets its own **git worktree**, a separate checkout of the same repository on its own branch. One session can be fixing a CSS bug while another bumps dependencies, and they never step on each other's files.
+
+## Keeping it safe, whatever the task
+
+A companion that can take *any* task needs a real shell, real files and network access. That's what makes it useful, and also what makes it risky.
+
+Agents read a lot of text: READMEs, issue comments, logs, web pages. If any of that text contains instructions, the agent may follow them. One poisoned README or issue comment, and a harmless-looking tool call becomes a remote shell on your machine. So I built the setup around one assumption: **every tool call is untrusted code**. Not "probably fine", not "it's my own repo". Untrusted, the way I'd treat code from a stranger's pull request.
+
+The rule that follows is simple: let the agent do anything inside its sandbox, and make sure the sandbox can't hurt anything outside it.
+
+### Its own machine
+
+A normal container is just a process with some namespaces and cgroups around it. It shares the host's kernel, so one kernel exploit is a full breakout onto the node, next to everything else running there.
+
+Each agent runs in a [Kata Container](https://katacontainers.io/) instead: a pod that runs inside a lightweight virtual machine with its own guest kernel. To get out, an attacker now needs a hypervisor escape, which is a much rarer and more expensive bug than a kernel one. The cost is a little memory per pod and a slightly slower start.
+
+In Kubernetes it's one line in the pod spec, `runtimeClassName: kata`.
+
+<details>
+<summary>Show the config</summary>
+
+```yaml
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: kata
+handler: kata   # matches the runtime name Kata registered with containerd
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: agent
+spec:
+  runtimeClassName: kata   # this pod gets its own microVM and guest kernel
+  containers:
+    - name: claude-code
+      image: ghcr.io/example/agent:latest
+```
+
+</details>
+
+### Access it can use, but not abuse
+
+A perfect sandbox doesn't help if the agent inside it holds an admin token. So every credential is scoped so the worst case is boring:
+
+- **Git: propose, don't merge.** Its token can push branches and open pull requests on the repositories I've chosen, and nothing else. `main` is protected, so I'm always the one who merges. For my cluster, Argo CD only deploys what's on `main`, so nothing it writes reaches production until I've read it.
+- **Cluster: look, don't touch.** For debugging it uses a read-only ServiceAccount, synced from my GitOps repo by Argo CD.
+- **Nothing personal.** No access to my email, password manager or cloud accounts. If a task needs something more, I grant it for that task, not forever.
+
+The read-only identity is a ServiceAccount bound to Kubernetes' built-in `view` role:
+
+```yaml
+# Identity for AI/automation agents that need to inspect the cluster but
+# never change it. Issue short-lived tokens rather than a long-lived Secret:
+#   kubectl -n default create token agent-read-only --duration=24h
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: agent-read-only
+  namespace: default
+---
+# Built-in `view`: read most namespaced objects in every namespace.
+# Excludes Secrets, pods/exec and port-forward.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: agent-read-only-view
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+  - kind: ServiceAccount
+    name: agent-read-only
+    namespace: default
+```
+
+`view` only covers namespaced objects, and debugging often needs nodes, storage classes, webhooks, RBAC itself and CRDs. A second ClusterRole fills those gaps, with read verbs only.
+
+<details>
+<summary>Show the extra ClusterRole</summary>
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: agent-cluster-read
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "persistentvolumes", "namespaces"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["admissionregistration.k8s.io"]
+    resources: ["validatingwebhookconfigurations", "mutatingwebhookconfigurations"]
+    verbs: ["get", "list", "watch"]
+  # Who-can-do-what, for debugging permission errors.
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["roles", "rolebindings", "clusterroles", "clusterrolebindings"]
+    verbs: ["get", "list", "watch"]
+  # CRDs in this cluster: Argo, Gateway API, Traefik, Prometheus, cert-manager...
+  - apiGroups: ["argoproj.io", "gateway.networking.k8s.io", "monitoring.coreos.com"]
+    resources: ["*"]
+    verbs: ["get", "list", "watch"]
+```
+
+</details>
+
+Two rules I hold to here. Every rule names its API group, because `resources: ["*"]` on the core group would quietly include Secrets. And tokens are short-lived, minted with `kubectl create token --duration=24h`, so a leaked one expires on its own.
+
+### A human on the important steps
+
+Permission prompts come to my phone before anything sensitive runs, and pull requests wait for my review. The agent does the work; I make the decisions that matter.
+
+### Limited reach, short memory
+
+**Egress allowlisting.** The pod can reach only the hosts it needs: the model API, GitHub, package registries and the Kubernetes API. Everything else is blocked, which closes the easiest exfiltration path: an agent tricked into `curl`ing your secrets to someone else's server.
+
+Kubernetes NetworkPolicies work on IPs and ports, not hostnames, so the baseline is a default-deny egress policy. Allowing specific hostnames is a job for an egress proxy or an FQDN-aware CNI.
+
+<details>
+<summary>Show the config</summary>
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: agent-egress
+spec:
+  podSelector:
+    matchLabels:
+      app: agent
+  policyTypes: ["Egress"]
+  egress:
+    # DNS
+    - ports:
+        - { protocol: UDP, port: 53 }
+        - { protocol: TCP, port: 53 }
+    # HTTPS only; narrow `to:` further, or route it through an egress proxy
+    - ports:
+        - { protocol: TCP, port: 443 }
+```
+
+</details>
+
+**Ephemeral sandboxes.** Pods are disposable. Anything worth keeping lives in a volume or in Git, so if a sandbox ever looks off, I delete it and start fresh. Anything planted outside that volume is gone with the pod, and changes to Git go through review.
+
+## The takeaway
+
+The way I think about it: treat the agent like a new teammate. Give it its own machine, give it access to exactly what the job needs, and review its work before it ships.
+
+- **Isolation limits where damage can happen.** A microVM keeps a misbehaving agent inside its own kernel.
+- **Scoped credentials limit how much.** Read-only cluster access and propose-only Git access mean even a fully compromised agent can look around and open a PR, and that's it.
+- **A human approves the parts that matter.** Prompts on my phone, merges on GitHub.
+
+With that in place, handing over a task from my phone is a quick decision rather than a risky one. That's what turns an AI agent from a demo into something I actually use every day, and why I think running agents well is less a prompt engineering problem than a platform engineering one.
