@@ -23,6 +23,7 @@ async function generateRss() {
         title: data.title ?? slug,
         summary: data.summary ?? '',
         publishedAt: data.publishedAt ?? new Date().toISOString(),
+        categories: [data.category, ...(Array.isArray(data.tags) ? data.tags : [])].filter(Boolean),
       }
     }),
   )
@@ -45,6 +46,7 @@ async function generateRss() {
       <link>${baseUrl}/thoughts/${post.slug}</link>
       <guid>${baseUrl}/thoughts/${post.slug}</guid>
       <pubDate>${new Date(post.publishedAt).toUTCString()}</pubDate>
+      ${post.categories.map(c => `<category><![CDATA[${c}]]></category>`).join('')}
     </item>
     `).join('')}
   </channel>

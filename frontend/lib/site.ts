@@ -4,7 +4,7 @@ export const SITE = {
   author: 'Rohit',
   handle: '@rohitpotato',
   description: 'Rohit manages web infra, productivity and performance at Zepto, and writes about frontend, observability, and the small k3s cluster this site runs on.',
-  ogImage: 'https://rohitpotato.xyz/og.png',
+  ogImage: 'https://rohitpotato.xyz/og-home.jpg',
   sameAs: [
     'https://github.com/rohitpotato',
     'https://www.linkedin.com/in/rohit-kashyap-a33a4716a/',

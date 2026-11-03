@@ -27,7 +27,7 @@ export function generateBlogPostStructuredData(post: Post): object {
     'wordCount': post.content.split(' ').length,
     'timeRequired': `PT${Math.ceil(Number.parseInt(post.readingTime.split(' ')[0]))}M`,
     'articleSection': post.category,
-    'keywords': post.category,
+    'keywords': [post.category, ...post.tags].join(', '),
   }
 }
 

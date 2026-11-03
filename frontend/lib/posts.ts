@@ -14,6 +14,8 @@ export interface Post {
   summary: string
   icon?: IconName
   image?: string
+  /** Topics for SEO: meta keywords, article:tag, JSON-LD keywords, RSS categories. */
+  tags: string[]
   backgroundIllustration?: string
   readingTime: string
   content: string
@@ -49,6 +51,7 @@ export const getPostBySlug = cache(async (slug: string): Promise<Post> => {
     summary: matterResult.data.summary,
     icon: matterResult.data.icon,
     image: matterResult.data.image,
+    tags: getPostTags(matterResult.data.tags),
     backgroundIllustration: getPostBackgroundIllustration(matterResult.data.backgroundIllustration, matterResult.data.image),
     readingTime: readingTimeText,
     content: matterResult.content,
@@ -98,6 +101,12 @@ function extractHeadings(content: string): Heading[] {
   }
 
   return headings
+}
+
+function getPostTags(rawTags: unknown): string[] {
+  if (!Array.isArray(rawTags))
+    return []
+  return rawTags.filter((t): t is string => typeof t === 'string' && t.trim() !== '').map(t => t.trim())
 }
 
 function getPostCategory(rawCategory: unknown): string {
