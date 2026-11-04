@@ -11,6 +11,8 @@ export interface Post {
   title: string
   category: string
   publishedAt: string
+  /** Set when a post is meaningfully revised; feeds dateModified and the sitemap. */
+  updatedAt?: string
   summary: string
   icon?: IconName
   image?: string
@@ -48,6 +50,7 @@ export const getPostBySlug = cache(async (slug: string): Promise<Post> => {
     title: matterResult.data.title,
     category: getPostCategory(matterResult.data.category),
     publishedAt: matterResult.data.publishedAt,
+    updatedAt: matterResult.data.updatedAt,
     summary: matterResult.data.summary,
     icon: matterResult.data.icon,
     image: matterResult.data.image,

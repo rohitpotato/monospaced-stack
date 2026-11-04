@@ -19,7 +19,7 @@ export function generateBlogPostStructuredData(post: Post): object {
     'author': PERSON,
     'publisher': PERSON,
     'datePublished': post.publishedAt,
-    'dateModified': post.publishedAt,
+    'dateModified': post.updatedAt ?? post.publishedAt,
     'mainEntityOfPage': {
       '@type': 'WebPage',
       '@id': `https://rohitpotato.xyz/thoughts/${post.slug}`,
@@ -58,7 +58,7 @@ export function generateBlogStructuredData(recentPosts: Post[]): object {
       'description': post.summary,
       'url': `https://rohitpotato.xyz/thoughts/${post.slug}`,
       'datePublished': post.publishedAt,
-      'dateModified': post.publishedAt,
+      'dateModified': post.updatedAt ?? post.publishedAt,
       'author': PERSON,
     })),
   }
