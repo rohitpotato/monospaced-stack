@@ -1,11 +1,15 @@
 import type { Post } from '@/lib/posts'
+import type { Topic } from '@/lib/topics'
 import { format } from 'date-fns'
+import Link from 'next/link'
 
 interface ArticleHeroProps {
   post: Post
+  /** Topic pages this post belongs to; linked under the date. */
+  topics?: Topic[]
 }
 
-export function ArticleHero({ post }: ArticleHeroProps) {
+export function ArticleHero({ post, topics = [] }: ArticleHeroProps) {
   const date = format(new Date(post.publishedAt), 'MMMM d, yyyy')
 
   return (
@@ -25,6 +29,16 @@ export function ArticleHero({ post }: ArticleHeroProps) {
         {' '}
         {post.readingTime}
       </p>
+      {topics.length > 0 && (
+        <p className="mt-3 flex flex-wrap gap-x-3 gap-y-1 font-mono text-xs">
+          {topics.map(topic => (
+            <Link key={topic.slug} href={`/topics/${topic.slug}`} className="text-inkSubtle transition-colors hover:text-accent">
+              #
+              {topic.name}
+            </Link>
+          ))}
+        </p>
+      )}
     </header>
   )
 }

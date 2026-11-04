@@ -6,6 +6,7 @@ category: "Frontend"
 icon: "square-activity"
 image: "/images/thoughts/ssr-requests-still-alive/heap-before-after.jpg"
 backgroundIllustration: "/images/thoughts/ssr-requests-still-alive/heap-before-after.jpg"
+tags: ["Next.js", "Performance", "React", "Node.js", "memory leaks"]
 ---
 
 > **TL;DR:** During SSR, react-query v3 starts a 2–5 minute `setTimeout` for every query. Node attaches the request's AsyncLocalStorage context to that timer, so each finished request stays in memory until the timer fires. Building server-side queries with `cacheTime: Infinity` means the timer never starts. Pods went from ~4.8 GiB to ~1.2 GiB.
