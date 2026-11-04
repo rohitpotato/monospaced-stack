@@ -8,9 +8,10 @@ export interface ClusterNode {
   role: 'control-plane' | 'worker'
   ready: boolean
   pods: number
-  cpu: number
-  memory: number
-  uptimeSeconds: number
+  /** null when Prometheus has no node-exporter data for the node */
+  cpu: number | null
+  memory: number | null
+  uptimeSeconds: number | null
   memoryHistory: [number, number][]
 }
 

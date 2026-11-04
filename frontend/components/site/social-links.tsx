@@ -32,7 +32,13 @@ export function SocialLinks({ className }: { className?: string }) {
 export function SiteFooter() {
   return (
     <footer className="mt-16 flex flex-col gap-3 border-t border-divider pt-6 sm:flex-row sm:items-center sm:justify-between">
-      <p className="font-mono text-xs text-inkSubtle">rohitpotato.xyz · served from a small k3s cluster</p>
+      <div className="font-mono text-xs text-inkSubtle">
+        <p>rohitpotato.xyz · served from a small k3s cluster</p>
+        <p className="mt-1.5 flex gap-4">
+          <a href="/projects" className="transition-colors hover:text-accent">Projects</a>
+          <a href="/uses" className="transition-colors hover:text-accent">Uses</a>
+        </p>
+      </div>
       <SocialLinks />
     </footer>
   )

@@ -33,9 +33,11 @@ export interface ClusterNode {
   role: 'control-plane' | 'worker'
   ready: boolean
   pods: number
-  cpu: number
-  memory: number
-  uptimeSeconds: number
+  // null when Prometheus has no node-exporter data for the node, so the
+  // page can say "unknown" instead of showing a misleading 0.
+  cpu: number | null
+  memory: number | null
+  uptimeSeconds: number | null
   memoryHistory: [number, number][]
 }
 
@@ -104,9 +106,9 @@ async function collect(): Promise<ClusterStatus> {
     role: controlPlaneSet.has(name) ? 'control-plane' : 'worker',
     ready: readyMap.get(name) === 1,
     pods: podsMap.get(name) ?? 0,
-    cpu: cpuMap.get(name) ?? 0,
-    memory: memoryMap.get(name) ?? 0,
-    uptimeSeconds: Math.round(uptimeMap.get(name) ?? 0),
+    cpu: cpuMap.get(name) ?? null,
+    memory: memoryMap.get(name) ?? null,
+    uptimeSeconds: uptimeMap.has(name) ? Math.round(uptimeMap.get(name)!) : null,
     memoryHistory: historyMap.get(name) ?? []
   }))
 

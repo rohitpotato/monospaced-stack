@@ -37,8 +37,8 @@ function Row({ label, value, tone }: { label: string, value?: string, tone?: 'ok
     return null
   return (
     <div className="flex items-baseline justify-between gap-4 py-1">
-      <dt className="text-inkSubtle">{label}</dt>
-      <dd className={tone === 'ok' ? 'text-ok' : 'text-ink'}>{value}</dd>
+      <dt className="shrink-0 whitespace-nowrap text-inkSubtle">{label}</dt>
+      <dd className={`min-w-0 text-right break-all ${tone === 'ok' ? 'text-ok' : 'text-ink'}`}>{value}</dd>
     </div>
   )
 }

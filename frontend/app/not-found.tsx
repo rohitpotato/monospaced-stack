@@ -20,7 +20,7 @@ export default function NotFound() {
           <p className="mt-3 font-mono text-xs text-inkSubtle sm:text-sm">ETA: ∞ · rider last seen near /thoughts</p>
           <DeliveryScene />
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link href="/" className="rounded-full bg-accent px-5 py-2.5 font-sans text-sm font-medium text-[var(--color-on-accent)] transition-colors hover:bg-[var(--color-accent-strong)]">
+            <Link href="/" className="rounded-full bg-accent px-5 py-2.5 font-sans text-sm font-medium text-[color:var(--color-on-accent)] transition-colors hover:bg-[var(--color-accent-strong)]">
               Back to the backyard
             </Link>
             <Link href="/archive" className="rounded-full border border-divider-strong px-5 py-2.5 font-sans text-sm text-ink transition-colors hover:bg-[var(--color-wash-hover)]">
