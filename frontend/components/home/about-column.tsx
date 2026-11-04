@@ -14,7 +14,7 @@ export function AboutColumn() {
 
         <div className="mt-8 space-y-2">
           <p className="andy-about-text">
-            <span className="font-light text-[var(--color-ink-subtle)]">Current:</span>
+            <span className="font-light text-[color:var(--color-ink-subtle)]">Current:</span>
             {' '}
             <a
               href="https://zeptonow.com"
@@ -26,7 +26,7 @@ export function AboutColumn() {
             </a>
           </p>
           <p className="andy-about-text">
-            <span className="font-light text-[var(--color-ink-subtle)]">Focus:</span>
+            <span className="font-light text-[color:var(--color-ink-subtle)]">Focus:</span>
             {' '}
             Frontend, observability, and platform systems.
           </p>

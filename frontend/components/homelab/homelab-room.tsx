@@ -6,18 +6,20 @@ import * as Tooltip from '@radix-ui/react-tooltip'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { motion, useReducedMotion } from 'framer-motion'
 import { Link } from 'next-view-transitions'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { useMediaQuery } from 'usehooks-ts'
 import { Drawer } from 'vaul'
 import { useClusterStatus } from '@/hooks/use-cluster-status'
-import { LAB_NOTEBOOK, REPO_URL, STACK } from './homelab-content'
+import { useLabNotebook } from '@/hooks/use-lab-notebook'
+import { POTATO_QUIPS, REPO_URL, STACK } from './homelab-content'
 import { Sparkline } from './sparkline'
 
 type HotspotId = 'node-0' | 'node-1' | 'node-2' | 'cables' | 'router' | 'window' | 'plant' | 'notepad' | 'potato'
 
-const pct = (n: number) => `${Math.round(n * 100)}%`
-const days = (s: number) => `${Math.floor(s / 86400)}d`
+// Missing metrics come back as null; show a dash rather than a misleading 0.
+const pct = (n: number | null) => (n == null ? '—' : `${Math.round(n * 100)}%`)
+const days = (s: number | null) => (s == null ? '—' : `${Math.floor(s / 86400)}d`)
 
 // Hotspots over the poster, in percent of the 800x1000 artwork.
 const HOTSPOTS: { id: HotspotId, label: string, box: [number, number, number, number] }[] = [
@@ -128,6 +130,9 @@ function NodePanel({ node }: { node?: ClusterNode }) {
           ? 'The k3s server: the API, the scheduler and Argo CD live here. If it goes down, running apps keep serving from the workers.'
           : 'A worker. Traefik, CoreDNS and the site itself are scheduled on the workers.'}
       </p>
+      {node.cpu == null && (
+        <p className="font-mono text-xs text-warn">No CPU, memory or uptime data for this node right now: Prometheus isn't receiving node-exporter metrics from it.</p>
+      )}
       <dl className="grid grid-cols-2 gap-2">
         <Stat label="status" value={node.ready ? 'Ready' : 'NotReady'} tone={node.ready ? 'ok' : 'bad'} />
         <Stat label="running pods" value={String(node.pods)} />
@@ -141,6 +146,28 @@ function NodePanel({ node }: { node?: ClusterNode }) {
         <Sparkline points={node.memoryHistory} color="var(--color-accent)" label={`Memory use on ${node.name} over the last 24 hours`} />
       </div>
     </div>
+  )
+}
+
+function NotebookPanel() {
+  const { entries, live } = useLabNotebook()
+  return (
+    <>
+      <p className="font-serif text-inkBody">
+        {live ? 'The latest changes to my GitOps repo, straight from GitHub.' : 'Recent changes to the cluster.'}
+      </p>
+      <ol className="mt-4 list-none space-y-4 p-0">
+        {entries.map(entry => (
+          <li key={entry.date + entry.note}>
+            <time className="font-mono text-xs text-accent">{entry.date}</time>
+            {entry.url
+              ? <a href={entry.url} target="_blank" rel="noopener noreferrer" className="mt-1 block font-serif text-inkBody transition-colors hover:text-ink">{entry.note}</a>
+              : <p className="mt-1 font-serif text-inkBody">{entry.note}</p>}
+          </li>
+        ))}
+      </ol>
+      <a href={`${REPO_URL}/commits/main`} target="_blank" rel="noopener noreferrer" className="editorial-link mt-5 inline-block font-serif">All commits →</a>
+    </>
   )
 }
 
@@ -191,7 +218,8 @@ function Panel({ id, status, posts }: { id: HotspotId, status?: ClusterStatus, p
         </>
       )
     case 'plant': {
-      const minUptime = status?.nodes.length ? Math.min(...status.nodes.map(n => n.uptimeSeconds)) : undefined
+      const reported = (status?.nodes ?? []).map(n => n.uptimeSeconds).filter((u): u is number => u != null)
+      const minUptime = reported.length ? Math.min(...reported) : undefined
       return minUptime == null
         ? <Unavailable />
         : (
@@ -207,16 +235,7 @@ function Panel({ id, status, posts }: { id: HotspotId, status?: ClusterStatus, p
     case 'potato':
       return null
     case 'notepad':
-      return (
-        <ol className="list-none space-y-4 p-0">
-          {LAB_NOTEBOOK.map(entry => (
-            <li key={entry.date + entry.note}>
-              <time className="font-mono text-xs text-accent">{entry.date}</time>
-              <p className="mt-1 font-serif text-inkBody">{entry.note}</p>
-            </li>
-          ))}
-        </ol>
-      )
+      return <NotebookPanel />
   }
 }
 
@@ -241,14 +260,14 @@ export function HomelabRoom({ builtHere }: { builtHere: PostSummary[] }) {
     ? status?.nodes[Number(active.at(-1))]?.name ?? TITLES[active]
     : active ? TITLES[active] : ''
 
+  // Random quip, never the same one twice in a row; live ones skip themselves when data is missing.
+  const lastQuip = useRef(-1)
   function wakePotato() {
-    const nodes = status?.nodes ?? []
-    const node = nodes[Math.floor(Math.random() * nodes.length)]
-    toast('The potato wakes up', {
-      description: node
-        ? `${node.name} has been up for ${days(node.uptimeSeconds)} and is running ${node.pods} pods.`
-        : 'It mumbles something about Prometheus and goes back to sleep.',
-    })
+    const ctx = { nodes: status?.nodes ?? [], argo: status?.argo ?? null }
+    const options = POTATO_QUIPS.map((quip, i) => [i, quip(ctx)] as const).filter(([i, text]) => text && i !== lastQuip.current)
+    const [index, text] = options[Math.floor(Math.random() * options.length)]
+    lastQuip.current = index
+    toast('The potato wakes up', { description: text })
   }
 
   const room = <PosterRoom onSelect={setActive} onPotato={wakePotato} />

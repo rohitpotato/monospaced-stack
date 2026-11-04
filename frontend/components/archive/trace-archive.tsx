@@ -108,6 +108,10 @@ export function TraceArchive({ posts }: { posts: PostSummary[] }) {
         {last.publishedAt}
         {' · status OK'}
       </p>
+      <p className="mt-3 flex max-w-[62ch] flex-wrap items-center gap-x-2 gap-y-1 font-sans text-sm text-inkBody">
+        <span aria-hidden="true" className="inline-block h-2.5 w-8 rounded-sm bg-accent" />
+        Each bar is one post. It starts on the day the post was published, and its length is how long it takes to read, not how long it took to write.
+      </p>
 
       <div className="mt-5 rounded-xl border border-divider bg-surface p-3 sm:p-4">
         <div className="grid grid-cols-1 sm:grid-cols-[14rem_minmax(0,1fr)] sm:gap-x-4">
@@ -159,12 +163,12 @@ export function TraceArchive({ posts }: { posts: PostSummary[] }) {
                     <span
                       className={cn(
                         'absolute top-1/2 -translate-y-1/2 font-mono text-[10px] text-inkSubtle',
-                        left + width > 90 ? '-translate-x-full pr-1.5' : 'pl-1.5',
+                        left + width > 80 ? '-translate-x-full pr-1.5' : 'pl-1.5',
                       )}
-                      style={{ left: `${left + width > 90 ? Math.min(left, 100 - width) : Math.min(left, 100 - width) + width}%` }}
+                      style={{ left: `${left + width > 80 ? Math.min(left, 100 - width) : Math.min(left, 100 - width) + width}%` }}
                     >
                       {span.readingMinutes}
-                      m
+                      {' min read'}
                     </span>
                   </span>
                 </button>
@@ -196,17 +200,17 @@ export function TraceArchive({ posts }: { posts: PostSummary[] }) {
             <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 font-mono text-xs">
               <dt className="text-inkSubtle">post.topic</dt>
               <dd className="text-ink">{post.category}</dd>
-              <dt className="text-inkSubtle">read.duration</dt>
+              <dt className="text-inkSubtle">reading time</dt>
               <dd className="text-ink">
                 {post.readingMinutes}
-                m
+                {' min'}
               </dd>
               <dt className="text-inkSubtle">published</dt>
               <dd className="text-ink">{post.publishedAt}</dd>
             </dl>
             <Link
               href={`/thoughts/${post.slug}`}
-              className="inline-flex items-center justify-center rounded-lg bg-accent px-5 py-2.5 font-sans text-sm font-medium text-[var(--color-on-accent)] transition-colors hover:bg-[var(--color-accent-strong)]"
+              className="inline-flex items-center justify-center rounded-lg bg-accent px-5 py-2.5 font-sans text-sm font-medium text-[color:var(--color-on-accent)] transition-colors hover:bg-[var(--color-accent-strong)]"
             >
               Read post →
             </Link>
