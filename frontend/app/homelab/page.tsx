@@ -20,10 +20,14 @@ export default async function HomelabPage() {
 
   return (
     <div className="min-h-[100dvh] bg-page text-inkBody">
-      <div className="mx-auto w-full max-w-[var(--layout-wide-max)] px-[var(--space-page-x)] pb-16">
-        <SiteNav />
+      <div className="w-full px-[var(--space-page-x)] pb-16 min-[1100px]:px-[72px]">
+        <div className="min-[1100px]:max-w-[38rem] min-[1400px]:max-w-[44rem]">
+          <SiteNav />
+        </div>
         <HomelabRoom builtHere={builtHere} />
-        <SiteFooter />
+        <div className="min-[1100px]:max-w-[38rem] min-[1400px]:max-w-[44rem]">
+          <SiteFooter />
+        </div>
       </div>
     </div>
   )
