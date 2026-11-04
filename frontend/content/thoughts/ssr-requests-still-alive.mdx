@@ -226,7 +226,7 @@ I added a test that spies on `setTimeout` while building server-side queries. It
 
 ### Won't upgrading react-query fix this?
 
-Partly. v4 and v5 default `cacheTime`/`gcTime` to `Infinity` on the server. But the default is all they change: a query that passes an explicit finite value still starts a real timer during SSR, with the same result. This is a known, open issue in TanStack Query ([TanStack/query#11320](https://github.com/TanStack/query/issues/11320)). If your hooks set their own `gcTime`, you need a guard like this one even on v5.
+Partly. v4 and v5 default `cacheTime`/`gcTime` to `Infinity` on the server. But the default is all they change: a query that passes an explicit finite value still starts a real timer during SSR, with the same result. This was reported in TanStack Query ([TanStack/query#11320](https://github.com/TanStack/query/issues/11320)). The issue is closed, but as of November 2026 the proposed fix wasn't merged, and `scheduleGc()` on `main` still starts the timer for any finite `gcTime`. If your hooks set their own `gcTime`, you need a guard like this one even on v5.
 
 ## The results
 

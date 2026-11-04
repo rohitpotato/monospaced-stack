@@ -8,6 +8,7 @@ export interface MetadataConfig {
   url: string
   imageUrl?: string
   publishedAt?: string
+  updatedAt?: string
   author?: string
   keywords?: string[]
 }
@@ -71,6 +72,7 @@ export function generateBaseMetadata(config: MetadataConfig & { absoluteTitle?: 
     url,
     imageUrl = SITE.ogImage,
     publishedAt,
+    updatedAt,
     author = SITE.author,
     keywords = [],
     absoluteTitle = false,
@@ -104,7 +106,7 @@ export function generateBaseMetadata(config: MetadataConfig & { absoluteTitle?: 
       type: publishedAt ? 'article' : 'website',
       ...(publishedAt && {
         publishedTime: publishedAt,
-        modifiedTime: publishedAt,
+        modifiedTime: updatedAt ?? publishedAt,
         authors: [author],
         tags: keywords,
       }),
@@ -127,6 +129,7 @@ export function generateBlogPostMetadata(post: Post): Metadata {
     url: `${SITE.url}/thoughts/${post.slug}`,
     imageUrl: resolveImageUrl(post),
     publishedAt: post.publishedAt,
+    updatedAt: post.updatedAt,
     keywords: [post.category, ...post.tags],
   })
 }
