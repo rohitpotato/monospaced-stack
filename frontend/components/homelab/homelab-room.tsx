@@ -1,10 +1,10 @@
 'use client'
 
+import type { FigureName } from './hairline-figure'
 import type { ClusterNode, ClusterStatus } from '@/hooks/use-cluster-status'
 import type { PostSummary } from '@/lib/post-summary'
-import * as Tooltip from '@radix-ui/react-tooltip'
-import { formatDistanceToNowStrict } from 'date-fns'
-import { motion, useReducedMotion } from 'framer-motion'
+import { format, formatDistanceToNowStrict, parseISO } from 'date-fns'
+import { useReducedMotion } from 'framer-motion'
 import { Link } from 'next-view-transitions'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -12,6 +12,7 @@ import { useMediaQuery } from 'usehooks-ts'
 import { Drawer } from 'vaul'
 import { useClusterStatus } from '@/hooks/use-cluster-status'
 import { useLabNotebook } from '@/hooks/use-lab-notebook'
+import { HairlineFigure } from './hairline-figure'
 import { POTATO_QUIPS, REPO_URL, STACK } from './homelab-content'
 import { Sparkline } from './sparkline'
 
@@ -21,7 +22,7 @@ type SectionId = 'nodes' | 'deploys' | 'path' | 'stack' | 'potato'
 const pct = (n: number | null) => (n == null ? '—' : `${Math.round(n * 100)}%`)
 const days = (s: number | null) => (s == null ? '—' : `${Math.floor(s / 86400)}d`)
 
-// The five things you can open, numbered as in the sketch's red-pen notes.
+// The five things you can open.
 const SECTIONS: { id: SectionId, n: number, title: string }[] = [
   { id: 'nodes', n: 1, title: 'The nodes' },
   { id: 'deploys', n: 2, title: 'What changed lately' },
@@ -31,114 +32,76 @@ const SECTIONS: { id: SectionId, n: number, title: string }[] = [
 ]
 const TITLE = Object.fromEntries(SECTIONS.map(s => [s.id, s.title])) as Record<SectionId, string>
 
-// Click targets over the sketch, in percent of the 800x900 artwork: the object and its red-pen note.
-const HOTSPOTS: { id: SectionId, label: string, box: [number, number, number, number] }[] = [
-  { id: 'nodes', label: 'The nodes: live CPU, memory and uptime', box: [11, 43.4, 27, 19] },
-  { id: 'nodes', label: 'The nodes: live CPU, memory and uptime', box: [9.5, 87.5, 31, 6.5] },
-  { id: 'deploys', label: 'What changed lately', box: [56, 45.8, 21.8, 10.2] },
-  { id: 'deploys', label: 'What changed lately', box: [78.2, 45.8, 21, 6.6] },
-  { id: 'path', label: 'How this page got to you', box: [53.5, 12, 39, 32.8] },
-  { id: 'path', label: 'How this page got to you', box: [45.8, 55, 9.6, 7.4] },
-  { id: 'path', label: 'How this page got to you', box: [56.5, 5, 28.5, 4.4] },
-  { id: 'stack', label: 'What runs here', box: [5.5, 14.8, 37.8, 27.4] },
-  { id: 'stack', label: 'What runs here', box: [43.4, 24, 9.4, 7.4] },
-  { id: 'potato', label: 'The potato: poke it', box: [77, 51.6, 17.8, 10.8] },
-  { id: 'potato', label: 'The potato: poke it', box: [74.2, 87.5, 15, 6.5] },
-]
+// Each section is drawn as one Hairline figure.
+const FIGURE: Record<SectionId, FigureName> = { nodes: 'rack', deploys: 'spindle', path: 'route', stack: 'trays', potato: 'potato' }
 
-// The first status light on each server is left blank in the sketch and drawn live here.
-const LEDS: [number, number][] = [[31.25, 48.11], [31.25, 53.33], [31.25, 58.56]]
-
-function SketchRoom({ onSelect }: { onSelect: (id: SectionId) => void }) {
-  const { status } = useClusterStatus()
-  const reduceMotion = useReducedMotion()
-  const nodes = status?.nodes ?? []
-
+function FigureTile({ id, n, title, summary, data, play, onSelect }: {
+  id: SectionId
+  n: number
+  title: string
+  summary: string
+  data?: Record<string, string>
+  play: boolean
+  onSelect: (id: SectionId) => void
+}) {
+  const [readout, setReadout] = useState('rest')
+  const wide = id === 'potato'
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl bg-[#f6f0e1]" style={{ aspectRatio: '800 / 900' }}>
-      <picture>
-        {/* Phones get the version without handwritten notes: they'd be unreadable that small. */}
-        <source media="(max-width: 639px)" srcSet="/homelab/sketch-compact-800.webp 800w, /homelab/sketch-compact-1600.webp 1600w" sizes="100vw" />
-        <img
-          src="/homelab/sketch-800.webp"
-          srcSet="/homelab/sketch-800.webp 800w, /homelab/sketch-1600.webp 1600w"
-          sizes="(min-width: 1100px) 36rem, 28rem"
-          width={800}
-          height={900}
-          alt="An ink and watercolour sketch of a desk: three servers in a rack, a corkboard of recent changes, a window looking out on a city with a cable running up to a cloud, a shelf of labelled boxes, and a potato asleep on a cushion. Red-pen notes number each one."
-          className="absolute inset-0 size-full select-none"
-          draggable={false}
-        />
-      </picture>
-      {LEDS.map(([x, y], i) => {
-        const node = nodes[i]
-        const color = !node ? '#8a8390' : node.ready ? '#2fa36b' : '#d0452e'
-        return (
-          <motion.span
-            key={i}
-            aria-hidden="true"
-            className="pointer-events-none absolute size-[1.4%] -translate-x-1/2 -translate-y-1/2 rounded-full"
-            style={{ left: `${x}%`, top: `${y}%`, background: color, boxShadow: `0 0 8px 1px ${color}` }}
-            animate={reduceMotion || !node ? undefined : { opacity: [1, 0.35, 1] }}
-            transition={{ duration: 1.4, delay: i * 0.4, repeat: Infinity, ease: 'linear' }}
-          />
-        )
-      })}
-      {HOTSPOTS.map(({ id, label, box: [left, top, width, height] }, i) => (
-        <Tooltip.Root key={i}>
-          <Tooltip.Trigger asChild>
-            <button
-              type="button"
-              aria-label={label}
-              tabIndex={HOTSPOTS.findIndex(h => h.id === id) === i ? 0 : -1}
-              onClick={() => onSelect(id)}
-              className="absolute rounded-lg transition-[background-color,box-shadow] duration-200 hover:bg-[#c8432b]/8 hover:shadow-[inset_0_0_0_1.5px_rgb(200_67_43_/_0.55)] focus-visible:bg-[#c8432b]/8 focus-visible:shadow-[inset_0_0_0_2px_rgb(200_67_43)] focus-visible:outline-none"
-              style={{ left: `${left}%`, top: `${top}%`, width: `${width}%`, height: `${height}%` }}
-            />
-          </Tooltip.Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Content side="top" sideOffset={6} className="z-50 rounded-md border border-divider-strong bg-[var(--color-tooltip-bg)] px-2.5 py-1.5 font-mono text-xs text-ink">
-              {label}
-              <Tooltip.Arrow className="fill-[var(--color-tooltip-bg)]" />
-            </Tooltip.Content>
-          </Tooltip.Portal>
-        </Tooltip.Root>
-      ))}
-    </div>
+    <button
+      type="button"
+      onClick={() => onSelect(id)}
+      aria-label={`${title}: ${summary}. ${id === 'potato' ? 'Wake it' : 'Open the details'}`}
+      className={`group flex w-full flex-col overflow-hidden rounded-2xl border border-divider bg-surface text-left transition-colors hover:border-divider-strong focus-visible:border-accent ${wide ? 'sm:col-span-2' : ''}`}
+    >
+      <span className="flex items-baseline gap-2 px-4 pt-3">
+        <span className="font-mono text-[11px] text-accent">{String(n).padStart(2, '0')}</span>
+        <span className="truncate font-serif text-[1.0625rem] text-ink">{title}</span>
+      </span>
+      <HairlineFigure name={FIGURE[id]} data={data} play={play} onRead={setReadout} className={`homelab-figure w-full ${wide ? 'sm:mx-auto sm:w-1/2' : ''}`} />
+      {/* While the pointer is on the figure, its read-out stands in for the summary. */}
+      <span className="flex items-end justify-between gap-3 px-4 pb-3">
+        <span className={`min-w-0 truncate font-mono text-xs ${readout === 'rest' ? 'text-inkSubtle' : 'text-ink'}`}>{readout === 'rest' ? summary : readout}</span>
+        <span aria-hidden="true" className="flex-none font-sans text-xs text-inkMuted transition-colors group-hover:text-accent">
+          {id === 'potato' ? 'wake it' : 'open'}
+          {' '}
+          →
+        </span>
+      </span>
+    </button>
   )
 }
 
-/** The same five sections as a list, so nobody has to hunt for click targets on a small screen. */
-function SectionCards({ onSelect }: { onSelect: (id: SectionId) => void }) {
+function shortDate(iso: string) {
+  const d = parseISO(iso)
+  return Number.isNaN(d.getTime()) ? iso : format(d, 'MMM d').toLowerCase()
+}
+
+/** The five sections as figure tiles, each with a live one-line summary. */
+function FigureGrid({ onSelect, className }: { onSelect: (id: SectionId) => void, className?: string }) {
   const { status, ready, total } = useClusterStatus()
   const { entries } = useLabNotebook()
-  const busiest = Math.max(...(status?.nodes ?? []).map(n => n.cpu ?? 0))
+  const reduceMotion = useReducedMotion()
+  // Screens that can't hover get the figures playing their own tour.
+  const canHover = useMediaQuery('(hover: hover)')
+  const nodes = status?.nodes ?? []
+  const busiest = Math.max(...nodes.map(n => n.cpu ?? 0))
   const summary: Record<SectionId, string> = {
     nodes: total ? `${ready}/${total} ready${busiest > 0 ? ` · busiest at ${pct(busiest)} CPU` : ''}` : 'status unavailable',
     deploys: entries[0]?.note ?? 'recent changes',
     path: 'Cloudflare → Traefik → nginx',
     stack: 'k3s · Argo CD · Vault · Traefik',
-    potato: 'tap to wake it',
+    potato: 'it powers everything, allegedly',
+  }
+  const data: Partial<Record<SectionId, Record<string, string>>> = {
+    nodes: nodes.length ? { nodes: nodes.map(n => (n.role === 'control-plane' ? 'c' : 'w') + (n.ready ? '1' : '0')).join(',') } : undefined,
+    deploys: entries.length ? { dates: entries.slice(0, 8).map(e => shortDate(e.date)).join(',') } : undefined,
   }
   return (
-    <ul className="mt-3 list-none p-0" aria-label="Things in the room">
+    <div className={`grid grid-cols-1 gap-3 sm:grid-cols-2 ${className ?? ''}`}>
       {SECTIONS.map(({ id, n, title }) => (
-        <li key={id}>
-          <button
-            type="button"
-            onClick={() => onSelect(id)}
-            className="flex w-full items-center gap-3 border-t border-divider py-3 text-left transition-colors hover:bg-[var(--color-wash-hover)]"
-          >
-            <span className="grid size-7 flex-none place-items-center rounded-full border-2 border-[#c8432b] font-mono text-xs font-semibold text-[#ff8d76]">{n}</span>
-            <span className="min-w-0 flex-1">
-              <span className="block font-serif text-[1.0625rem] text-ink">{title}</span>
-              <span className="block truncate font-mono text-xs text-inkSubtle">{summary[id]}</span>
-            </span>
-            <span aria-hidden="true" className="text-inkSubtle">›</span>
-          </button>
-        </li>
+        <FigureTile key={id} id={id} n={n} title={title} summary={summary[id]} data={data[id]} play={!canHover && !reduceMotion} onSelect={onSelect} />
       ))}
-    </ul>
+    </div>
   )
 }
 
@@ -306,14 +269,12 @@ export function HomelabRoom({ builtHere }: { builtHere: PostSummary[] }) {
   }
 
   const select = (id: SectionId) => (id === 'potato' ? wakePotato() : setActive(id))
-  const room = <SketchRoom onSelect={select} />
-
   return (
-    <Tooltip.Provider delayDuration={100}>
+    <>
       <div className="min-w-0 min-[1100px]:max-w-[38rem] min-[1400px]:max-w-[44rem]">
         <h1 className="font-serif text-4xl font-medium text-ink sm:text-5xl">My homelab</h1>
         <p className="mt-4 font-serif text-lg leading-relaxed text-inkBody">
-          Three small rented servers run everything on this site. I've sketched the desk they'd sit on if they lived with me. Click anything circled in red.
+          Three small rented servers run everything on this site. Each part of the cluster is drawn as a little machine below. Hover over one to play with it (on a phone they play by themselves), and tap or click it for the live details.
         </p>
         <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1">
           <span className="inline-flex items-center gap-2 rounded-full bg-surface px-3 py-1.5 font-mono text-xs">
@@ -334,11 +295,8 @@ export function HomelabRoom({ builtHere }: { builtHere: PostSummary[] }) {
           )}
         </div>
 
-        {/* Below 1100px the room sits in the page flow; above it, it's fixed beside the text. */}
-        <div className="mt-8 max-w-[28rem] min-[1100px]:hidden">
-          {room}
-          <SectionCards onSelect={select} />
-        </div>
+        {/* Below 1100px the figures sit in the page flow; above it, they're fixed beside the text. */}
+        <FigureGrid onSelect={select} className="mt-8 max-w-[40rem] min-[1100px]:hidden" />
 
         <h2 className="mt-10 font-serif text-xl font-medium text-ink">The stack</h2>
         <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-5 gap-y-2 font-mono text-[13px]">
@@ -360,7 +318,10 @@ export function HomelabRoom({ builtHere }: { builtHere: PostSummary[] }) {
       </div>
 
       <aside className="hidden min-[1100px]:fixed min-[1100px]:top-[52px] min-[1100px]:right-[72px] min-[1100px]:bottom-[52px] min-[1100px]:left-[calc(72px+42rem)] min-[1100px]:flex min-[1100px]:items-start min-[1100px]:justify-end min-[1400px]:left-[calc(72px+48rem)]">
-        <div style={{ width: 'min(100%, calc((100dvh - 104px) * 800 / 900))' }}>{room}</div>
+        {/* Three rows of 5:4 tiles, sized to fit the viewport's height. */}
+        <div className="max-h-full overflow-y-auto" style={{ width: 'min(100%, calc((100dvh - 128px - 3 * 84px) / 3 * 2.5 + 12px))' }}>
+          <FigureGrid onSelect={select} />
+        </div>
       </aside>
 
       <Drawer.Root open={active !== null} onOpenChange={open => !open && setActive(null)} direction={isDesktop ? 'right' : 'bottom'}>
@@ -383,6 +344,6 @@ export function HomelabRoom({ builtHere }: { builtHere: PostSummary[] }) {
           </Drawer.Content>
         </Drawer.Portal>
       </Drawer.Root>
-    </Tooltip.Provider>
+    </>
   )
 }
