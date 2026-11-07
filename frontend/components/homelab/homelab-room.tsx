@@ -1,10 +1,9 @@
 'use client'
 
-import type { FigureName } from './hairline-figure'
+import type { Target } from './journey/stops'
 import type { ClusterNode, ClusterStatus } from '@/hooks/use-cluster-status'
 import type { PostSummary } from '@/lib/post-summary'
-import { format, formatDistanceToNowStrict, parseISO } from 'date-fns'
-import { useReducedMotion } from 'framer-motion'
+import { formatDistanceToNowStrict } from 'date-fns'
 import { Link } from 'next-view-transitions'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -12,97 +11,21 @@ import { useMediaQuery } from 'usehooks-ts'
 import { Drawer } from 'vaul'
 import { useClusterStatus } from '@/hooks/use-cluster-status'
 import { useLabNotebook } from '@/hooks/use-lab-notebook'
-import { HairlineFigure } from './hairline-figure'
 import { POTATO_QUIPS, REPO_URL, STACK } from './homelab-content'
+import { Journey } from './journey/journey'
 import { Sparkline } from './sparkline'
 
-type SectionId = 'nodes' | 'deploys' | 'path' | 'stack' | 'potato'
+type SectionId = 'nodes' | 'deploys' | 'path' | 'stack'
 
 // Missing metrics come back as null; show a dash rather than a misleading 0.
 const pct = (n: number | null) => (n == null ? '—' : `${Math.round(n * 100)}%`)
 const days = (s: number | null) => (s == null ? '—' : `${Math.floor(s / 86400)}d`)
 
-// The five things you can open.
-const SECTIONS: { id: SectionId, n: number, title: string }[] = [
-  { id: 'nodes', n: 1, title: 'The nodes' },
-  { id: 'deploys', n: 2, title: 'What changed lately' },
-  { id: 'path', n: 3, title: 'How this page got to you' },
-  { id: 'stack', n: 4, title: 'What runs here' },
-  { id: 'potato', n: 5, title: 'The potato' },
-]
-const TITLE = Object.fromEntries(SECTIONS.map(s => [s.id, s.title])) as Record<SectionId, string>
-
-// Each section is drawn as one Hairline figure.
-const FIGURE: Record<SectionId, FigureName> = { nodes: 'rack', deploys: 'spindle', path: 'route', stack: 'trays', potato: 'potato' }
-
-function FigureTile({ id, n, title, summary, data, play, onSelect }: {
-  id: SectionId
-  n: number
-  title: string
-  summary: string
-  data?: Record<string, string>
-  play: boolean
-  onSelect: (id: SectionId) => void
-}) {
-  const [readout, setReadout] = useState('rest')
-  const wide = id === 'potato'
-  return (
-    <button
-      type="button"
-      onClick={() => onSelect(id)}
-      aria-label={`${title}: ${summary}. ${id === 'potato' ? 'Wake it' : 'Open the details'}`}
-      className={`group flex w-full flex-col overflow-hidden rounded-2xl border border-divider bg-surface text-left transition-colors hover:border-divider-strong focus-visible:border-accent ${wide ? 'sm:col-span-2' : ''}`}
-    >
-      <span className="flex items-baseline gap-2 px-4 pt-3">
-        <span className="font-mono text-[11px] text-accent">{String(n).padStart(2, '0')}</span>
-        <span className="truncate font-serif text-[1.0625rem] text-ink">{title}</span>
-      </span>
-      <HairlineFigure name={FIGURE[id]} data={data} play={play} onRead={setReadout} className={`homelab-figure w-full ${wide ? 'sm:mx-auto sm:w-1/2' : ''}`} />
-      {/* While the pointer is on the figure, its read-out stands in for the summary. */}
-      <span className="flex items-end justify-between gap-3 px-4 pb-3">
-        <span className={`min-w-0 truncate font-mono text-xs ${readout === 'rest' ? 'text-inkSubtle' : 'text-ink'}`}>{readout === 'rest' ? summary : readout}</span>
-        <span aria-hidden="true" className="flex-none font-sans text-xs text-inkMuted transition-colors group-hover:text-accent">
-          {id === 'potato' ? 'wake it' : 'open'}
-          {' '}
-          →
-        </span>
-      </span>
-    </button>
-  )
-}
-
-function shortDate(iso: string) {
-  const d = parseISO(iso)
-  return Number.isNaN(d.getTime()) ? iso : format(d, 'MMM d').toLowerCase()
-}
-
-/** The five sections as figure tiles, each with a live one-line summary. */
-function FigureGrid({ onSelect, className }: { onSelect: (id: SectionId) => void, className?: string }) {
-  const { status, ready, total } = useClusterStatus()
-  const { entries } = useLabNotebook()
-  const reduceMotion = useReducedMotion()
-  // Screens that can't hover get the figures playing their own tour.
-  const canHover = useMediaQuery('(hover: hover)')
-  const nodes = status?.nodes ?? []
-  const busiest = Math.max(...nodes.map(n => n.cpu ?? 0))
-  const summary: Record<SectionId, string> = {
-    nodes: total ? `${ready}/${total} ready${busiest > 0 ? ` · busiest at ${pct(busiest)} CPU` : ''}` : 'status unavailable',
-    deploys: entries[0]?.note ?? 'recent changes',
-    path: 'Cloudflare → Traefik → nginx',
-    stack: 'k3s · Argo CD · Vault · Traefik',
-    potato: 'it powers everything, allegedly',
-  }
-  const data: Partial<Record<SectionId, Record<string, string>>> = {
-    nodes: nodes.length ? { nodes: nodes.map(n => (n.role === 'control-plane' ? 'c' : 'w') + (n.ready ? '1' : '0')).join(',') } : undefined,
-    deploys: entries.length ? { dates: entries.slice(0, 8).map(e => shortDate(e.date)).join(',') } : undefined,
-  }
-  return (
-    <div className={`grid grid-cols-1 gap-3 sm:grid-cols-2 ${className ?? ''}`}>
-      {SECTIONS.map(({ id, n, title }) => (
-        <FigureTile key={id} id={id} n={n} title={title} summary={summary[id]} data={data[id]} play={!canHover && !reduceMotion} onSelect={onSelect} />
-      ))}
-    </div>
-  )
+const TITLE: Record<SectionId, string> = {
+  nodes: 'The servers',
+  deploys: 'What changed lately',
+  path: 'How this page got to you',
+  stack: 'What runs here',
 }
 
 function Stat({ label, value, tone }: { label: string, value: string, tone?: 'ok' | 'bad' }) {
@@ -246,8 +169,6 @@ function Panel({ id, status, posts }: { id: SectionId, status?: ClusterStatus, p
           <PostLink post={bySlug('you-dont-need-vercel')} />
         </>
       )
-    case 'potato':
-      return null
   }
 }
 
@@ -268,13 +189,13 @@ export function HomelabRoom({ builtHere }: { builtHere: PostSummary[] }) {
     toast('The potato wakes up', { description: text })
   }
 
-  const select = (id: SectionId) => (id === 'potato' ? wakePotato() : setActive(id))
+  const select = (target: Target) => (target === 'potato' ? wakePotato() : setActive(target))
   return (
     <>
       <div className="min-w-0 min-[1100px]:max-w-[38rem] min-[1400px]:max-w-[44rem]">
         <h1 className="font-serif text-4xl font-medium text-ink sm:text-5xl">My homelab</h1>
         <p className="mt-4 font-serif text-lg leading-relaxed text-inkBody">
-          Three small rented servers run everything on this site. Each part of the cluster is drawn as a little machine below. Hover over one to play with it (on a phone they play by themselves), and tap or click it for the live details.
+          Three small rented servers run everything on this site. Scroll to follow this page from my rack to your screen. Anything in the room you can click opens its live details.
         </p>
         <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1">
           <span className="inline-flex items-center gap-2 rounded-full bg-surface px-3 py-1.5 font-mono text-xs">
@@ -295,8 +216,7 @@ export function HomelabRoom({ builtHere }: { builtHere: PostSummary[] }) {
           )}
         </div>
 
-        {/* Below 1100px the figures sit in the page flow; above it, they're fixed beside the text. */}
-        <FigureGrid onSelect={select} className="mt-8 max-w-[40rem] min-[1100px]:hidden" />
+        <Journey onTarget={select} />
 
         <h2 className="mt-10 font-serif text-xl font-medium text-ink">The stack</h2>
         <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-5 gap-y-2 font-mono text-[13px]">
@@ -316,13 +236,6 @@ export function HomelabRoom({ builtHere }: { builtHere: PostSummary[] }) {
           ))}
         </ul>
       </div>
-
-      <aside className="hidden min-[1100px]:fixed min-[1100px]:top-[52px] min-[1100px]:right-[72px] min-[1100px]:bottom-[52px] min-[1100px]:left-[calc(72px+42rem)] min-[1100px]:flex min-[1100px]:items-start min-[1100px]:justify-end min-[1400px]:left-[calc(72px+48rem)]">
-        {/* Three rows of 5:4 tiles, sized to fit the viewport's height. */}
-        <div className="max-h-full overflow-y-auto" style={{ width: 'min(100%, calc((100dvh - 128px - 3 * 84px) / 3 * 2.5 + 12px))' }}>
-          <FigureGrid onSelect={select} />
-        </div>
-      </aside>
 
       <Drawer.Root open={active !== null} onOpenChange={open => !open && setActive(null)} direction={isDesktop ? 'right' : 'bottom'}>
         <Drawer.Portal>

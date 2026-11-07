@@ -333,13 +333,3 @@ pre, code {
   margin-inline: auto;
   padding-inline: var(--space-page-x);
 }
-
-/* Hairline figures on the homelab page: drawn on the tile's surface, lit in the accent. */
-.homelab-figure {
-  --hairline-plate: var(--color-surface);
-  --hairline-hi: var(--color-accent);
-  --hairline-edge: #8e889c;
-  --hairline-mid: #5d576b;
-  --hairline-lo: #3b3547;
-  --hairline-stroke: 1;
-}
