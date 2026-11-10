@@ -5,11 +5,11 @@
     <link>https://rohitpotato.xyz</link>
     <atom:link href="https://rohitpotato.xyz/rss.xml" rel="self" type="application/rss+xml" />
     <language>en-US</language>
-    <lastBuildDate>Tue, 10 Nov 2026 13:11:50 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 10 Nov 2026 22:47:04 GMT</lastBuildDate>
     
     <item>
       <title><![CDATA[Running AI agents in Kubernetes, from my phone]]></title>
-      <description><![CDATA[I keep an AI agent in my homelab and hand it tasks from my phone, from publishing posts to fixing bugs and debugging my cluster. How it works and stays safe.]]></description>
+      <description><![CDATA[I keep an AI agent in my homelab and hand it tasks from my phone, from publishing posts to checking on my cluster. How it works, and how I stop it doing damage.]]></description>
       <link>https://rohitpotato.xyz/thoughts/running-ai-agents-in-kubernetes</link>
       <guid>https://rohitpotato.xyz/thoughts/running-ai-agents-in-kubernetes</guid>
       <pubDate>Tue, 03 Nov 2026 00:00:00 GMT</pubDate>
