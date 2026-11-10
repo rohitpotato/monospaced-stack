@@ -1,19 +1,25 @@
-Hey, I'm Rohit Kashyap, @rohitpotato on most of the internet.
+Hey, rohit here.
 
-I'm a senior frontend engineer at [Zepto](https://www.zeptonow.com) (yes, the 10-minute app) in Bengaluru, where I look after web infra, developer productivity and performance for [zeptonow.com](https://www.zeptonow.com). Lately that has meant things like [cutting our Next.js servers' memory from ~5GB to ~1GB](/thoughts/ssr-requests-still-alive) and [rethinking how we measure performance](/thoughts/we-dont-care-about-lighthouse-scores).
+This is a digital backyard i created to jot down my thoughts about `programming`, `infrastructure`, and ocassionally, something personal.
 
-After several years on the frontend, I've been working my way down the stack into infrastructure, observability and platform engineering. This site is where I practise. It runs on a small, arguably over-engineered k3s cluster that I run myself:
+I am a senior frontend engineer currently working at Zepto (yes, the 10 minute-app), focusing on performance for [zeptonow.com](https://zeptonow.com).
 
-1. k3s on three VPS nodes, deployed with GitOps through Argo CD
-2. Canary releases with Argo Rollouts
-3. Vault and External Secrets Operator for secrets
-4. kube-prometheus-stack and Loki for metrics, logs and alerts
-5. Ansible to set up and harden the nodes
-6. Core Web Vitals and error monitoring, built with BullMQ, Postgres and Grafana
-7. An AI agent in a Kata microVM that I hand tasks to [from my phone](/thoughts/running-ai-agents-in-kubernetes)
+I mostly care about exploring new topics, watching a ton of movies, pc games and now, as i grow older - I've been getting my interior design game on track. Building a desk setup right about now.
 
-The [homelab page](/homelab) shows it live, the [uses page](/uses) lists the full stack, and the cluster's GitOps repo is [public on GitHub](https://github.com/rohitpotato/k8s-apps).
+Having spent several years on frontend, I am now delving into some other aspects, I'm now exploring adjacent areas like infrastructure, devops, and platform engineering. This website, for example, runs on a bare-metal setup, built with an arguably over-engineered stack that includes:
 
-Outside work, I watch a lot of movies, play PC games, and have recently got into interior design, starting with my desk setup.
+1. k3s
+2. Gitops via ArgoCD
+3. Vault in HA
+4. External Secrets Operator
+5. Helm and Kustomize
+6. Kube-prometheus stack with loki
+7. Ansible
+8. Linkerd for service mesh
+9. Full core-web vitals and error monitoring via bullmq + postgres + grafana
 
-You can reach me on [X](https://x.com/rohitpotato) or [LinkedIn](https://www.linkedin.com/in/rohit-kashyap-a33a4716a/), and see what I build on [GitHub](https://github.com/rohitpotato). If you like music, try [my Spotify playlist](https://open.spotify.com/playlist/3P5GZ53gZN40M0R0OuvIXj?si=681bb4c450d24817).
+and a lot more that i will write about here, so feel free to explore.
+
+You can reach me on [twitter (or X)](https://x.com/rohitpotato), and checkout some of what i do at [github](https://github.com/rohitpotato).
+
+I like music, if you like music too, take a crack at my [spotify playlist](https://open.spotify.com/playlist/3P5GZ53gZN40M0R0OuvIXj?si=681bb4c450d24817) here, and if you are curious how i track analytics down here, check [this](https://analytics.rohitpotato.xyz)
