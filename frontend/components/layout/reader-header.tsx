@@ -107,8 +107,9 @@ export function ReaderHeader({ posts }: ReaderHeaderProps) {
     <>
       <header className="sticky top-0 z-50 bg-page/90 backdrop-blur-md">
         <div className="site-shell flex items-center justify-between gap-4 py-3.5">
-          <Link href="/" className="text-sm font-medium text-accent transition-opacity hover:opacity-80">
-            rohitpotato.xyz
+          {/* Same wordmark as SiteNav, so posts read as part of the same site. */}
+          <Link href="/" className="font-serif text-lg font-medium text-ink transition-colors hover:text-accent">
+            @rohitpotato
           </Link>
           <div className="hidden min-w-0 flex-1 px-6 sm:block">
             <div className="h-px w-full bg-divider">

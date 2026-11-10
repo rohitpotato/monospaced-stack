@@ -34,7 +34,6 @@ async function generateRss() {
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>rohitpotato</title>
-    <description>Web infra, productivity and performance, plus the small k3s cluster this site runs on.</description>
     <link>${baseUrl}</link>
     <atom:link href="${baseUrl}/rss.xml" rel="self" type="application/rss+xml" />
     <language>en-US</language>

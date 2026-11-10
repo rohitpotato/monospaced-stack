@@ -82,12 +82,13 @@ export function BengaluruWindow({ fillHeight = false }: BengaluruWindowProps) {
                 <span
                   key={i}
                   className="size-1.5 rounded-full"
-                  style={{ background: !node ? 'var(--color-ink-subtle)' : node.ready ? 'var(--color-status-ok)' : 'var(--color-status-bad)' }}
+                  style={{ background: !node || !healthy ? 'var(--color-ink-subtle)' : 'var(--color-status-ok)' }}
                 />
               )
             })}
           </span>
-          {total ? `${ready}/${total} nodes ${healthy ? 'ready' : 'degraded'}` : 'homelab'}
+          {/* Only claim health when it's true; the homelab page has the full story either way. */}
+          {total && healthy ? `${ready}/${total} nodes ready` : 'homelab status'}
           {' →'}
         </Link>
       </figcaption>
