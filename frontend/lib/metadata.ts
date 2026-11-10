@@ -136,7 +136,7 @@ export function generateBlogPostMetadata(post: Post): Metadata {
 
 export function generateHomePageMetadata(): Metadata {
   return generateBaseMetadata({
-    title: 'rohitpotato: web infra, productivity and performance',
+    title: 'Rohit Kashyap (@rohitpotato): web infra, productivity and performance',
     description: SITE.description,
     url: SITE.url,
     absoluteTitle: true,

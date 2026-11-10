@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Digital Backyard</title>
-    <description>Notes about web dev, infrastructure, and some other stuff.</description>
+    <title>rohitpotato</title>
+    <description>Web infra, productivity and performance, plus the small k3s cluster this site runs on.</description>
     <link>https://rohitpotato.xyz</link>
     <atom:link href="https://rohitpotato.xyz/rss.xml" rel="self" type="application/rss+xml" />
     <language>en-US</language>
-    <lastBuildDate>Fri, 23 Oct 2026 00:08:28 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 10 Nov 2026 12:57:32 GMT</lastBuildDate>
+    
+    <item>
+      <title><![CDATA[Running AI agents in Kubernetes, from my phone]]></title>
+      <description><![CDATA[I keep an AI agent in my homelab and hand it tasks from my phone, from publishing posts to fixing bugs and debugging my cluster. How it works and stays safe.]]></description>
+      <link>https://rohitpotato.xyz/thoughts/running-ai-agents-in-kubernetes</link>
+      <guid>https://rohitpotato.xyz/thoughts/running-ai-agents-in-kubernetes</guid>
+      <pubDate>Tue, 03 Nov 2026 00:00:00 GMT</pubDate>
+      <category><![CDATA[Infrastructure]]></category><category><![CDATA[AI agents]]></category><category><![CDATA[Claude Code]]></category><category><![CDATA[Remote Control]]></category><category><![CDATA[Kubernetes]]></category><category><![CDATA[homelab]]></category><category><![CDATA[developer productivity]]></category><category><![CDATA[blogging]]></category><category><![CDATA[Kata Containers]]></category>
+    </item>
     
     <item>
       <title><![CDATA[How we cut Next.js memory from ~5GB to ~1GB: the react-query timer holding every SSR request]]></title>
@@ -14,6 +23,7 @@
       <link>https://rohitpotato.xyz/thoughts/ssr-requests-still-alive</link>
       <guid>https://rohitpotato.xyz/thoughts/ssr-requests-still-alive</guid>
       <pubDate>Thu, 22 Oct 2026 00:00:00 GMT</pubDate>
+      <category><![CDATA[Frontend]]></category><category><![CDATA[Next.js]]></category><category><![CDATA[Performance]]></category><category><![CDATA[React]]></category><category><![CDATA[Node.js]]></category><category><![CDATA[memory leaks]]></category>
     </item>
     
     <item>
@@ -22,6 +32,7 @@
       <link>https://rohitpotato.xyz/thoughts/nginx-logs-to-prometheus-metrics</link>
       <guid>https://rohitpotato.xyz/thoughts/nginx-logs-to-prometheus-metrics</guid>
       <pubDate>Fri, 08 May 2026 00:00:00 GMT</pubDate>
+      <category><![CDATA[Infrastructure]]></category><category><![CDATA[Kubernetes]]></category><category><![CDATA[Observability]]></category><category><![CDATA[Prometheus]]></category><category><![CDATA[nginx]]></category><category><![CDATA[Grafana]]></category>
     </item>
     
     <item>
@@ -30,6 +41,7 @@
       <link>https://rohitpotato.xyz/thoughts/you-should-know-opentelemetry-as-a-frontend-dev</link>
       <guid>https://rohitpotato.xyz/thoughts/you-should-know-opentelemetry-as-a-frontend-dev</guid>
       <pubDate>Sat, 06 Dec 2025 00:00:00 GMT</pubDate>
+      <category><![CDATA[Frontend]]></category><category><![CDATA[Observability]]></category><category><![CDATA[OpenTelemetry]]></category><category><![CDATA[Next.js]]></category><category><![CDATA[Performance]]></category><category><![CDATA[Prometheus]]></category>
     </item>
     
     <item>
@@ -38,14 +50,16 @@
       <link>https://rohitpotato.xyz/thoughts/we-dont-care-about-lighthouse-scores</link>
       <guid>https://rohitpotato.xyz/thoughts/we-dont-care-about-lighthouse-scores</guid>
       <pubDate>Fri, 07 Nov 2025 00:00:00 GMT</pubDate>
+      <category><![CDATA[Frontend]]></category><category><![CDATA[Performance]]></category><category><![CDATA[Observability]]></category><category><![CDATA[Core Web Vitals]]></category><category><![CDATA[real user monitoring]]></category>
     </item>
     
     <item>
-      <title><![CDATA[To mesh or not to mesh]]></title>
-      <description><![CDATA[Understanding service mesh, and do you really need them?]]></description>
+      <title><![CDATA[What is a service mesh, and do you actually need one?]]></title>
+      <description><![CDATA[What a service mesh does for east-west traffic, sidecar vs ambient meshes (Istio, Linkerd, Cilium), mutual TLS, and when you actually need one.]]></description>
       <link>https://rohitpotato.xyz/thoughts/to-mesh-or-not-to-mesh</link>
       <guid>https://rohitpotato.xyz/thoughts/to-mesh-or-not-to-mesh</guid>
       <pubDate>Mon, 01 Sep 2025 00:00:00 GMT</pubDate>
+      <category><![CDATA[Infrastructure]]></category><category><![CDATA[Kubernetes]]></category><category><![CDATA[service mesh]]></category><category><![CDATA[networking]]></category><category><![CDATA[Istio]]></category><category><![CDATA[Linkerd]]></category>
     </item>
     
     <item>
@@ -54,6 +68,7 @@
       <link>https://rohitpotato.xyz/thoughts/no-more-oncall-jitters</link>
       <guid>https://rohitpotato.xyz/thoughts/no-more-oncall-jitters</guid>
       <pubDate>Wed, 30 Jul 2025 00:00:00 GMT</pubDate>
+      <category><![CDATA[Infrastructure]]></category><category><![CDATA[Kubernetes]]></category><category><![CDATA[Observability]]></category><category><![CDATA[Prometheus]]></category><category><![CDATA[Next.js]]></category><category><![CDATA[Loki]]></category><category><![CDATA[Grafana]]></category>
     </item>
     
     <item>
@@ -62,14 +77,16 @@
       <link>https://rohitpotato.xyz/thoughts/the-journey-of-a-packet</link>
       <guid>https://rohitpotato.xyz/thoughts/the-journey-of-a-packet</guid>
       <pubDate>Wed, 30 Jul 2025 00:00:00 GMT</pubDate>
+      <category><![CDATA[Infrastructure]]></category><category><![CDATA[Kubernetes]]></category><category><![CDATA[networking]]></category><category><![CDATA[CoreDNS]]></category><category><![CDATA[Cilium]]></category>
     </item>
     
     <item>
-      <title><![CDATA[You don't need vercel: Deploy a Next.js app with GitOps and K3s]]></title>
-      <description><![CDATA[You don't need vercel: Deploy a Next.js app with GitOps and K3s]]></description>
+      <title><![CDATA[Deploy Next.js without Vercel: GitOps with Argo CD and k3s]]></title>
+      <description><![CDATA[How I deploy Next.js to my own k3s cluster: GitHub Actions builds, Vault and External Secrets for config, Argo CD for GitOps, and Prometheus monitoring.]]></description>
       <link>https://rohitpotato.xyz/thoughts/you-dont-need-vercel</link>
       <guid>https://rohitpotato.xyz/thoughts/you-dont-need-vercel</guid>
       <pubDate>Tue, 22 Jul 2025 00:00:00 GMT</pubDate>
+      <category><![CDATA[Infrastructure]]></category><category><![CDATA[Kubernetes]]></category><category><![CDATA[Next.js]]></category><category><![CDATA[Prometheus]]></category><category><![CDATA[GitOps]]></category><category><![CDATA[Argo CD]]></category><category><![CDATA[homelab]]></category>
     </item>
     
     <item>
@@ -78,6 +95,7 @@
       <link>https://rohitpotato.xyz/thoughts/the-quest-for-control</link>
       <guid>https://rohitpotato.xyz/thoughts/the-quest-for-control</guid>
       <pubDate>Fri, 18 Jul 2025 00:00:00 GMT</pubDate>
+      <category><![CDATA[Journey]]></category><category><![CDATA[career]]></category><category><![CDATA[platform engineering]]></category><category><![CDATA[homelab]]></category>
     </item>
     
   </channel>

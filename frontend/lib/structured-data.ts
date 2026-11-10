@@ -5,8 +5,21 @@ import { SITE } from './site'
 const PERSON = {
   '@type': 'Person',
   'name': SITE.author,
+  'alternateName': SITE.handle,
   'url': SITE.url,
+  'jobTitle': SITE.jobTitle,
+  'worksFor': { '@type': 'Organization', ...SITE.employer },
+  'address': { '@type': 'PostalAddress', 'addressLocality': 'Bengaluru', 'addressCountry': 'IN' },
   'sameAs': SITE.sameAs,
+}
+
+export function generatePersonStructuredData(): object {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    'url': `${SITE.url}/about`,
+    'mainEntity': PERSON,
+  }
 }
 
 export function generateBlogPostStructuredData(post: Post): object {
