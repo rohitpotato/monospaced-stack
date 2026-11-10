@@ -5,7 +5,10 @@ import { SITE } from './site'
 const PERSON = {
   '@type': 'Person',
   'name': SITE.author,
+  'alternateName': SITE.handle,
   'url': SITE.url,
+  'worksFor': { '@type': 'Organization', ...SITE.employer },
+  'address': { '@type': 'PostalAddress', 'addressLocality': 'Bengaluru', 'addressCountry': 'IN' },
   'sameAs': SITE.sameAs,
 }
 
