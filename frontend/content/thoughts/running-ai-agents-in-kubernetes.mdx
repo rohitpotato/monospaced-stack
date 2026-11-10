@@ -1,69 +1,70 @@
 ---
 title: "Running AI agents in Kubernetes, from my phone"
 publishedAt: "2026-11-03"
-summary: "I keep an AI agent in my homelab and hand it tasks from my phone, from publishing posts to fixing bugs and debugging my cluster. How it works and stays safe."
+summary: "I keep an AI agent in my homelab and hand it tasks from my phone, from publishing posts to checking on my cluster. How it works, and how I stop it doing damage."
 category: "Infrastructure"
 icon: "smartphone"
 image: "/images/thoughts/running-ai-agents-in-kubernetes/og.png"
 tags: ["AI agents", "Claude Code", "Remote Control", "Kubernetes", "homelab", "developer productivity", "blogging", "Kata Containers"]
 ---
 
-> **TL;DR:** I keep an AI coding agent running inside my homelab Kubernetes cluster and treat it like a companion I can hand tasks to from my phone: publish a blog post, fix a bug, bump a dependency, chase a failing CI run, figure out why a pod is crashing. I drive it with Claude Code's Remote Control. It works in its own microVM with narrowly scoped access, so I can say "go ahead" from anywhere without worrying about what it might break.
+When I come across something new at work, I want to write about it here on my website. The problem with ideas is that they are best when they are fresh, at least for me. I feel I can do more while I am still engaged, before getting distracted by another shiny thing to play with, or before I get too busy to finish it.
 
-Most of the small jobs I think of don't arrive while I'm at my desk. I notice a layout bug on my site while scrolling on my phone. A deploy fails while I'm out. I remember a dependency that needs upgrading right before falling asleep. The usual answer is a note to myself and a laptop later.
+Since most of my time goes to my workplace, the gym or elsewhere, I want to be able to write about things, or at least get a usable draft out of my thoughts and publish while the iron is still hot. Sadly, this is not possible unless I am at my computer, seated and ready to write.
 
-What I wanted instead was a companion: something I could hand a task to, the way I'd message a teammate, and come back to finished work. So I run one. It lives in my cluster, it has a real shell and real tools, and I talk to it from my phone. I give it a task, approve anything sensitive as it goes, and review a pull request at the end.
+Another reason is that my work computer does not allow me to push commits to my personal repo. I would rather not tamper with my work device to work around this, and this gave me an idea.
 
-This post is how that works: how I hand it tasks, what kinds of tasks it gets, and how it can do real work without being able to do real damage.
+***What if I could write and publish from anywhere?***
 
-![Architecture: my phone talks to the Anthropic API relay; Claude Code runs inside a Kata microVM on a homelab Kubernetes node, connects out over HTTPS with zero inbound ports, reads the Kubernetes API through read-only RBAC, and opens pull requests on GitHub with a scoped token so a human merges](/images/thoughts/running-ai-agents-in-kubernetes/architecture.png)
+For context, my blog is managed via Git. Merging a post triggers an image build, and Argo CD picks up the change and redeploys it. Now, there could be questions, like, why would I not want to write blogs using a CMS, which I can keep hosted anywhere and pull them to the site? And frankly, I just did not want to maintain an extra tool.
 
-## Handing it tasks from my phone
+Now, this isn't new. A lot of people operate agents remotely and have them work on real tasks. I have been running a small homelab since before AI agents were the norm, so I took inspiration from what others had done and decided to build my own flavour around it, in a way that teaches me about behaviours, guardrails to build, surface area, access control, etc.
 
-The agent is a Claude Code session running in a pod on my cluster. I connect to it with Claude Code's **Remote Control**, which lets me pick up that session from the Claude app on my phone, or from a browser, as if I were sitting at the terminal.
+The rest of this post is how it works, and how I stop it from doing damage.
 
-Take publishing a blog post. I often write drafts in my phone's notes app, on the metro or in a queue somewhere. Getting one live used to mean waiting until I was back at a laptop. Now it goes like this:
+## Handing tasks from my phone
 
-1. I paste the draft into the session: *"turn this into a post, add the frontmatter and SEO tags, make a social card, and open a PR"*.
-2. The agent checks out my blog's repository, creates the post file, writes a title and summary that fit in search results, renders a social card image, and runs the build to make sure nothing breaks.
-3. Whenever it wants to do something that needs my OK, like running a command I haven't pre-approved, I get a prompt on my phone and tap approve or reject.
-4. It opens a pull request. I read the post in the diff, ask for a tweak or two ("make the title plainer"), and merge.
-5. Merging kicks off the usual pipeline: CI builds the image, updates the tag in my GitOps repo, and Argo CD rolls it out as a canary. No laptop involved at any step.
+The idea here is to remotely control a session running elsewhere, independent of the device I am on, and control it from my phone. Claude Code has a feature for exactly this, called Remote Control.
 
-The same loop works for almost anything: describe the task, approve as it goes, review the result.
+![Architecture: my phone talks to Anthropic's Remote Control relay. On a homelab k3s node, Claude Code runs inside a Kata microVM with two sessions, each in its own git worktree, under read-only managed settings. It connects out over HTTPS only, to the relay and the open internet. Inside the cluster it can read the Kubernetes API, Argo CD and Grafana, and a NetworkPolicy blocks everything else. It opens pull requests on GitHub, where main is protected, so I merge and Argo CD deploys](/images/thoughts/running-ai-agents-in-kubernetes/architecture.png)
 
-Nothing about this needs a hole in my network. The pod never accepts incoming connections. It only makes **outbound** HTTPS connections to Anthropic's API, and my phone talks to the same relay. There are no open ports on my homelab, no VPN and no SSH to expose. If my phone can reach the internet, I can reach my agent.
+For writing specifically, I hand out a draft to the agent and ask it to check for grammar mistakes, review it as a third party, give feedback on what works and what doesn't, cross-check the technical aspects of the topic by verifying them with third-party sources, etc. Once this is done, and I am happy with the draft, I ask it to publish a PR with all the changes required. Those may be:
 
-## What I hand it
+1. A Markdown file with correct formatting.
+2. Generate and attach an architectural image based on my input, if any.
+3. Add SEO metadata for the blog.
+4. Run a build locally, check the social cards, make sure all necessary fields are present, image links are working as expected, etc.
+5. Finally, publish a PR with screenshots.
 
-Roughly the kind of work I'd give a capable new teammate on their first week:
+Pull requests specifically are the easier part, since I can review them on the go, via my phone. Once I merge my PR, the usual GitOps flow comes into the picture, and the new blog is deployed and ready to share.
 
-- **Publishing.** Turning a draft into a finished post, fixing a typo someone pointed out, swapping the image on an old article.
-- **Code changes.** *"The date labels on the archive page overlap on mobile, fix it."* *"Add a dark-mode toggle."* Bug fixes, small features and refactors across my repositories.
-- **Upkeep.** *"Bump Next.js and fix whatever breaks."* *"The backend deploy failed, find out why."* Dependency upgrades, broken CI, flaky deploy scripts.
-- **Infrastructure changes.** *"Add an alert for when a node's disk is 85% full."* *"Bump the Helm chart for Grafana."* Changes to my GitOps repo, which only reach the cluster once I merge them.
-- **Cluster debugging.** *"The frontend pods are crash-looping."* It reads logs and events, compares what's running with what's in Git, and traces the failure to a cause.
-- **Reading and research.** *"Summarise this 80-comment GitHub issue and tell me if it affects me."* *"Which of my services still use the old Redis client?"* Answers, plans and READMEs, before anyone touches code.
+### The same loop works for anything
 
-Most tasks end the same way: a branch, a pull request, and me reviewing it.
+1. Upgrading dependencies.
+2. Checking cluster health. I routinely ask my agent to see why a particular workload is not responding, or what the current status is.
+3. Debugging workloads. It can go through the logs and metrics, correlate with a deployment if required, and report back the action items.
 
-**It can work on several things at once.** Each task gets its own **git worktree**, a separate checkout of the same repository on its own branch. One session can be fixing a CSS bug while another bumps dependencies, and they never step on each other's files.
+**It can work on several things at once.** Each task gets its own worktree. Separate sessions can be doing work on the same repo independently without stepping on each other.
 
-## Keeping it safe, whatever the task
+## Safety and security
 
-A companion that can take *any* task needs a real shell, real files and network access. That's what makes it useful, and also what makes it risky.
+Before going into the security aspects, it's worth being clear about what an agent actually does. The model decides which tools to call, and every tool call runs on your machine: checking open ports, starting a dev server, or anything else. Now imagine, what if a crimelord happens to inject a prompt that causes all your environment variables to be sent to the crimelord's server. The attack surface is huge.
 
-Agents read a lot of text: READMEs, issue comments, logs, web pages. If any of that text contains instructions, the agent may follow them. One poisoned README or issue comment, and a harmless-looking tool call becomes a remote shell on your machine. So I built the setup around one assumption: **every tool call is untrusted code**. Not "probably fine", not "it's my own repo". Untrusted, the way I'd treat code from a stranger's pull request.
+Jokes aside, this is very much possible. Imagine your agent inspects a repo, and the README contains instructions to transfer any confidential data from the host machine to the attacker, or to run a remote shell on your machine!
+
+So I built the setup around one assumption: every tool call is untrusted code. Not "probably fine", not "it's my own repo". Untrusted, the way I'd treat code from a stranger's pull request.
 
 The rule that follows is simple: let the agent do anything inside its sandbox, and make sure the sandbox can't hurt anything outside it.
 
-### Its own machine
+There's one more catch in my case. I want a general-purpose agent, one that can research anything, so I can't lock its internet access down to a handful of hosts the way you would for a single-job agent. Everything below is about making up for that.
 
-A normal container is just a process with some namespaces and cgroups around it. It shares the host's kernel, so one kernel exploit is a full breakout onto the node, next to everything else running there.
+### Kata Containers
 
-Each agent runs in a [Kata Container](https://katacontainers.io/) instead: a pod that runs inside a lightweight virtual machine with its own guest kernel. To get out, an attacker now needs a hypervisor escape, which is a much rarer and more expensive bug than a kernel one. The cost is a little memory per pod and a slightly slower start.
+You might be thinking, running in a container should be enough, and for the most part you are right. A container does provide filesystem isolation, network isolation, etc. But a container is just a process sharing the host kernel. One kernel exploit and the attacker might be able to reach the host machine, and from there on, every other pod on that node is fair game.
 
-In Kubernetes it's one line in the pod spec, `runtimeClassName: kata`.
+Therefore, I decided to run my agents in [Kata Containers](https://katacontainers.io/), where each pod is a lightweight VM with its own guest kernel. Now, even if a malicious prompt injection comes with a kernel exploit, all the attacker can actually reach is the VM's kernel. To get out, an attacker now needs a hypervisor escape, which is a much rarer and more expensive bug than a kernel one. The cost is a little memory per pod and a slightly slower start.
+
+In Kubernetes, it's one line in the pod spec, `runtimeClassName: kata`.
 
 <details>
 <summary>Show the config</summary>
@@ -75,39 +76,26 @@ metadata:
   name: kata
 handler: kata   # matches the runtime name Kata registered with containerd
 ---
-apiVersion: v1
-kind: Pod
-metadata:
-  name: agent
+# in the agent's StatefulSet
 spec:
-  runtimeClassName: kata   # this pod gets its own microVM and guest kernel
-  containers:
-    - name: claude-code
-      image: ghcr.io/example/agent:latest
+  template:
+    spec:
+      runtimeClassName: kata   # this pod gets its own microVM and guest kernel
 ```
 
 </details>
 
-### Access it can use, but not abuse
+### Access control
 
-A perfect sandbox doesn't help if the agent inside it holds an admin token. So every credential is scoped so the worst case is boring:
+The agent's access is limited per resource. This includes scoped tokens passed on as environment variables to the pod, or a configuration file mounted in the pod's filesystem.
 
-- **Git: propose, don't merge.** Its token can push branches and open pull requests on the repositories I've chosen, and nothing else. `main` is protected, so I'm always the one who merges. For my cluster, Argo CD only deploys what's on `main`, so nothing it writes reaches production until I've read it.
-- **Cluster: look, don't touch.** For debugging it uses a read-only ServiceAccount, synced from my GitOps repo by Argo CD.
+- **Git: no merge, only PRs.** It can open PRs on any of my repos, but `main` is protected with no bypass, so I'm always the one who merges. For my cluster, Argo CD only deploys what's on `main`, so nothing it writes reaches production until I've read it.
+- **Cluster: read.** For debugging it uses a read-only ServiceAccount, synced from my GitOps repo by Argo CD.
 - **Nothing personal.** No access to my email, password manager or cloud accounts. If a task needs something more, I grant it for that task, not forever.
 
 The read-only identity is a ServiceAccount bound to Kubernetes' built-in `view` role:
 
 ```yaml
-# Identity for AI/automation agents that need to inspect the cluster but
-# never change it. Issue short-lived tokens rather than a long-lived Secret:
-#   kubectl -n default create token agent-read-only --duration=24h
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: agent-read-only
-  namespace: default
----
 # Built-in `view`: read most namespaced objects in every namespace.
 # Excludes Secrets, pods/exec and port-forward.
 apiVersion: rbac.authorization.k8s.io/v1
@@ -120,8 +108,8 @@ roleRef:
   name: view
 subjects:
   - kind: ServiceAccount
-    name: agent-read-only
-    namespace: default
+    name: claude-agent
+    namespace: agent
 ```
 
 `view` only covers namespaced objects, and debugging often needs nodes, storage classes, webhooks, RBAC itself and CRDs. A second ClusterRole fills those gaps, with read verbs only.
@@ -138,6 +126,9 @@ rules:
   - apiGroups: [""]
     resources: ["nodes", "persistentvolumes", "namespaces"]
     verbs: ["get", "list", "watch"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses", "csidrivers", "csinodes", "volumeattachments"]
+    verbs: ["get", "list", "watch"]
   - apiGroups: ["admissionregistration.k8s.io"]
     resources: ["validatingwebhookconfigurations", "mutatingwebhookconfigurations"]
     verbs: ["get", "list", "watch"]
@@ -145,59 +136,115 @@ rules:
   - apiGroups: ["rbac.authorization.k8s.io"]
     resources: ["roles", "rolebindings", "clusterroles", "clusterrolebindings"]
     verbs: ["get", "list", "watch"]
-  # CRDs in this cluster: Argo, Gateway API, Traefik, Prometheus, cert-manager...
-  - apiGroups: ["argoproj.io", "gateway.networking.k8s.io", "monitoring.coreos.com"]
+  # kubectl top.
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["pods", "nodes"]
+    verbs: ["get", "list"]
+  # CRDs in this cluster.
+  - apiGroups: ["argoproj.io", "gateway.networking.k8s.io", "traefik.io", "monitoring.coreos.com", "cert-manager.io"]
     resources: ["*"]
     verbs: ["get", "list", "watch"]
 ```
 
 </details>
 
-Two rules I hold to here. Every rule names its API group, because `resources: ["*"]` on the core group would quietly include Secrets. And tokens are short-lived, minted with `kubectl create token --duration=24h`, so a leaked one expires on its own.
+Two rules I hold to here. Every rule names its API group, because `resources: ["*"]` on the core group would quietly include Secrets. And the cluster token rotates on its own. The other tokens don't yet, so that's next.
 
-### A human on the important steps
+### Escalate when needed
 
-Permission prompts come to my phone before anything sensitive runs, and pull requests wait for my review. The agent does the work; I make the decisions that matter.
+I am the human in the loop. Whenever there's a decision that needs to be taken, or a command that needs to be run, I get a notification on my phone. I can just tap from my lock screen, and the agent can proceed as usual.
 
-### Limited reach, short memory
+And if it ever looks off, I delete the PVC and the pod, and it starts fresh. Anything worth keeping lives in Git, and changes to Git go through review.
 
-**Egress allowlisting.** The pod can reach only the hosts it needs: the model API, GitHub, package registries and the Kubernetes API. Everything else is blocked, which closes the easiest exfiltration path: an agent tricked into `curl`ing your secrets to someone else's server.
+### The north-south problem
 
-Kubernetes NetworkPolicies work on IPs and ports, not hostnames, so the baseline is a default-deny egress policy. Allowing specific hostnames is a job for an egress proxy or an FQDN-aware CNI.
+In an ideal world, the agent's egress should be limited to a few narrowed-down resources, that is, Git, Anthropic, the kube API server, and maybe a few other resources.
+
+This works well for scoped agents, but as I mentioned earlier, I usually make my agent verify facts and do research, which may require it to browse the web. But this comes at a cost. If an exploit does happen to get any critical resources, it might be possible for the attacker to curl all sensitive information out of the pod. But this is a risk I have decided to take.
+
+What I do lock down is everything inside the cluster. The agent can only reach DNS, the API server, and read-only Argo CD and Grafana. Pods, services and node IPs are blocked, so things like Postgres, Redis and Vault are out of reach.
 
 <details>
-<summary>Show the config</summary>
+<summary>Show the NetworkPolicy</summary>
 
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: agent-egress
+  name: claude-agent
 spec:
   podSelector:
     matchLabels:
-      app: agent
-  policyTypes: ["Egress"]
+      app: claude-agent
+  policyTypes: [Ingress, Egress]
+  ingress: []
   egress:
     # DNS
-    - ports:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
         - { protocol: UDP, port: 53 }
         - { protocol: TCP, port: 53 }
-    # HTTPS only; narrow `to:` further, or route it through an egress proxy
-    - ports:
-        - { protocol: TCP, port: 443 }
+    # The API server. k3s rewrites kubernetes.default (10.43.0.1:443) to the
+    # server node's IP on 6443 before the policy sees it.
+    - to:
+        - ipBlock: { cidr: <server-node-ip>/32 }
+      ports:
+        - { protocol: TCP, port: 6443 }
+    # Read-only Argo CD and Grafana. Policies see the pod ports, not the
+    # Service ports, so 8080 and 3000 rather than 80.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: argocd
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: argocd-server
+      ports:
+        - { protocol: TCP, port: 8080 }
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: grafana
+      ports:
+        - { protocol: TCP, port: 3000 }
+    # The internet, minus private ranges, link-local and every node's IP.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8        # pods 10.42/16, services 10.43/16
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              - 169.254.0.0/16    # link-local / metadata
+              - <server-node-ip>/32
+              - <worker-node-ips>/32
 ```
 
 </details>
 
-**Ephemeral sandboxes.** Pods are disposable. Anything worth keeping lives in a volume or in Git, so if a sandbox ever looks off, I delete it and start fresh. Anything planted outside that volume is gone with the pod, and changes to Git go through review.
+In production, you should be using a strict default-deny egress network policy to only allow resources you want your agent to access. Kubernetes NetworkPolicies work on IPs and ports, not hostnames, so the baseline is a default-deny egress policy. Allowing specific hostnames is a job for an egress proxy or an FQDN-aware CNI.
 
 ## The takeaway
 
-The way I think about it: treat the agent like a new teammate. Give it its own machine, give it access to exactly what the job needs, and review its work before it ships.
+Running agents is fun. I get a lot more done now from wherever I want. It does come with a lot of learning too, so overall I had a lot of fun wiring it all up. Understanding what needs human intervention, and giving the agent only what it needs, helps build a foundation on top of which you can really do a lot.
+
+If you're running an agent yourself, these are the three things I'd start with:
 
 - **Isolation limits where damage can happen.** A microVM keeps a misbehaving agent inside its own kernel.
-- **Scoped credentials limit how much.** Read-only cluster access and propose-only Git access mean even a fully compromised agent can look around and open a PR, and that's it.
+- **Limited credentials limit how much.** Read-only cluster access and propose-only Git access mean even a fully compromised agent can look around, open a PR, and at worst leak the tokens in the pod, none of which can merge anything or change the cluster.
 - **A human approves the parts that matter.** Prompts on my phone, merges on GitHub.
 
-With that in place, handing over a task from my phone is a quick decision rather than a risky one. That's what turns an AI agent from a demo into something I actually use every day, and why I think running agents well is less a prompt engineering problem than a platform engineering one.
+With that in place, handing over a task from my phone is something I can be confident about. This has become something I use daily for routine tasks.
+
+What's next for me: rotating the GitHub, Argo CD and Grafana tokens automatically, and putting egress behind a proxy if I ever narrow down what the agent does.
+
+If you have ideas, or do things differently, I would love to hear them. Feel free to reach out to me on [X](https://x.com/rohitpotato), [GitHub](https://github.com/rohitpotato) or [LinkedIn](https://www.linkedin.com/in/rohit-kashyap-a33a4716a/).
