@@ -4,7 +4,7 @@ import { Link } from 'next-view-transitions'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
-const LINKS = [
+export const NAV_LINKS = [
   { href: '/', label: 'Writing' },
   { href: '/archive', label: 'Archive' },
   { href: '/topics', label: 'Topics' },
@@ -20,7 +20,7 @@ export function SiteNav() {
         @rohitpotato
       </Link>
       <nav aria-label="Main" className="flex items-baseline gap-3.5 font-sans text-[13px] sm:gap-6 sm:text-sm">
-        {LINKS.map(link => (
+        {NAV_LINKS.map(link => (
           <Link
             key={link.href}
             href={link.href}
