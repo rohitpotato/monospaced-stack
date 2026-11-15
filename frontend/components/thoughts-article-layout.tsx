@@ -17,7 +17,7 @@ export function ThoughtsArticleLayout({ post, allPosts }: ThoughtsArticleLayoutP
 
   return (
     <div className="min-h-[100dvh] bg-page text-inkBody">
-      <ReaderHeader posts={allPosts} />
+      <ReaderHeader />
       <ArticleHero post={post} topics={topicsForPost(post, allPosts)} />
       <main className="site-shell py-6 sm:py-8">
         <EnhancedBlogPost post={post} />
