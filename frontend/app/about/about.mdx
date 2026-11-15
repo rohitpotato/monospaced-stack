@@ -1,25 +1,32 @@
-Hey, rohit here.
+Hey, Rohit here.
 
-This is a digital backyard i created to jot down my thoughts about `programming`, `infrastructure`, and ocassionally, something personal.
+I'm a senior frontend engineer at Zepto (yes, the 10-minute app), where I manage web infra, productivity and performance for [zeptonow.com](https://zeptonow.com).
 
-I am a senior frontend engineer currently working at Zepto (yes, the 10 minute-app), focusing on performance for [zeptonow.com](https://zeptonow.com).
+Having spent several years on frontend, I'm now exploring adjacent areas like infrastructure, DevOps and platform engineering. This site is where I write about both: `programming`, `infrastructure`, and occasionally something personal.
 
-I mostly care about exploring new topics, watching a ton of movies, pc games and now, as i grow older - I've been getting my interior design game on track. Building a desk setup right about now.
+## Some things I've worked on
 
-Having spent several years on frontend, I am now delving into some other aspects, I'm now exploring adjacent areas like infrastructure, devops, and platform engineering. This website, for example, runs on a bare-metal setup, built with an arguably over-engineered stack that includes:
+- **Cut our Next.js memory from ~5 GB to ~1.2 GB per pod** by tracking down a react-query timer that kept every server-rendered request alive. [The write-up](/thoughts/ssr-requests-still-alive) was featured in [This Week in React](https://thisweekinreact.com/newsletter/305) and [TLDR Dev](https://tldr.tech/dev/2026-11-12), and led to a [docs PR to TanStack Query](https://github.com/TanStack/query/pull/12589).
+- **Run an AI coding agent inside my cluster** in a Kata microVM, with read-only access and PR-only Git, and hand it tasks from my phone. [How it works](/thoughts/running-ai-agents-in-kubernetes).
+- **Run this site on my own k3s cluster**, with an arguably over-engineered stack:
+  1. k3s
+  2. GitOps via Argo CD
+  3. Vault in HA
+  4. External Secrets Operator
+  5. Helm and Kustomize
+  6. kube-prometheus-stack with Loki
+  7. Ansible
+  8. Linkerd for service mesh
+  9. Core Web Vitals and error monitoring via BullMQ + Postgres + Grafana
 
-1. k3s
-2. Gitops via ArgoCD
-3. Vault in HA
-4. External Secrets Operator
-5. Helm and Kustomize
-6. Kube-prometheus stack with loki
-7. Ansible
-8. Linkerd for service mesh
-9. Full core-web vitals and error monitoring via bullmq + postgres + grafana
+More on all of this in the [archive](/archive) and the [homelab](/homelab) page.
 
-and a lot more that i will write about here, so feel free to explore.
+## Reach me
 
-You can reach me on [twitter (or X)](https://x.com/rohitpotato), and checkout some of what i do at [github](https://github.com/rohitpotato).
+[LinkedIn](https://www.linkedin.com/in/rohit-kashyap-a33a4716a/) is the best place for work-related messages. I'm also on [X](https://x.com/rohitpotato), and you can see some of what I do on [GitHub](https://github.com/rohitpotato).
 
-I like music, if you like music too, take a crack at my [spotify playlist](https://open.spotify.com/playlist/3P5GZ53gZN40M0R0OuvIXj?si=681bb4c450d24817) here, and if you are curious how i track analytics down here, check [this](https://analytics.rohitpotato.xyz)
+## Outside work
+
+I watch a ton of movies, play PC games, and, as I grow older, I've been getting my interior design game on track. Building a desk setup right about now.
+
+I like music. If you do too, take a crack at my [Spotify playlist](https://open.spotify.com/playlist/3P5GZ53gZN40M0R0OuvIXj?si=681bb4c450d24817). And if you're curious how I track analytics here, [check this](https://analytics.rohitpotato.xyz).

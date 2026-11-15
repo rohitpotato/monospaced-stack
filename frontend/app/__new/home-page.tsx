@@ -1,5 +1,6 @@
 import type { PostSummary } from '@/lib/post-summary'
 import { HomeFeed } from '@/components/home/home-feed'
+import { FeaturedIn } from '@/components/site/featured-in'
 import { SiteNav } from '@/components/site/site-nav'
 import { SocialLinks } from '@/components/site/social-links'
 
@@ -23,6 +24,7 @@ export default function HomePage({ posts }: HomePageProps) {
                 <a href="https://zeptonow.com" target="_blank" rel="noopener noreferrer" className="editorial-link">Zepto</a>
                 , managing web infra, productivity and performance.
               </h1>
+              <FeaturedIn className="mt-4" />
               <SocialLinks className="mt-6" />
             </>
           )}
