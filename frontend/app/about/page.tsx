@@ -4,10 +4,19 @@ import Link from 'next/link'
 import { ReaderHeader } from '@/components/layout/reader-header'
 import { mdxComponents } from '@/components/markdown/mapping'
 import { getAbout, getAllPosts } from '@/lib/posts'
+import { SITE } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'About',
-  description: 'Who writes rohitpotato.xyz, and why.',
+  description: 'Rohit Kashyap manages web infra, productivity and performance at Zepto. Who he is, what he has worked on, and how to reach him.',
+  openGraph: {
+    type: 'profile',
+    url: '/about',
+    siteName: SITE.name,
+    title: 'About Rohit Kashyap',
+    description: 'Rohit Kashyap manages web infra, productivity and performance at Zepto. Who he is, what he has worked on, and how to reach him.',
+    images: [SITE.ogImage],
+  },
   alternates: { canonical: '/about' },
 }
 

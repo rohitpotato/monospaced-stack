@@ -12,6 +12,7 @@ import './src/queue/metrics-queue'
 import './src/workers/track-metric-worker'
 import metricsRouter from './src/routes/metrics'
 import clusterRouter from './src/routes/cluster'
+import subscribeRouter from './src/routes/subscribe'
 console.log('Starting server')
 
 const port = Number(process.env.PORT) || 5001
@@ -19,6 +20,8 @@ console.log('Configured Port', port)
 
 const startServer = async () => {
   const server = fastify({
+    // Behind Traefik: use X-Forwarded-For for req.ip (the subscribe rate limit).
+    trustProxy: true,
     logger:
       envToLogger[
         process.env.NODE_ENV === 'production' ? 'production' : 'development'
@@ -35,6 +38,10 @@ const startServer = async () => {
   })
 
   server.register(clusterRouter, {
+    prefix: '/api'
+  })
+
+  server.register(subscribeRouter, {
     prefix: '/api'
   })
 

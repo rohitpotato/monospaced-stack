@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
-import { Github, Linkedin, Rss, Twitter, User } from 'lucide-react'
+import { Github, Linkedin, Mail, Rss, Twitter, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const LINKS: { href: string, label: string, icon: LucideIcon, external?: boolean }[] = [
@@ -7,6 +7,7 @@ const LINKS: { href: string, label: string, icon: LucideIcon, external?: boolean
   { href: 'https://github.com/rohitpotato', label: 'GitHub', icon: Github, external: true },
   { href: 'https://www.linkedin.com/in/rohit-kashyap-a33a4716a/', label: 'LinkedIn', icon: Linkedin, external: true },
   { href: 'https://twitter.com/rohitpotato', label: 'Twitter', icon: Twitter, external: true },
+  { href: 'mailto:rohit.212@icloud.com', label: 'Email', icon: Mail },
   { href: '/rss.xml', label: 'RSS', icon: Rss },
 ]
 
