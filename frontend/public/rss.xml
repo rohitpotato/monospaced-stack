@@ -5,7 +5,7 @@
     <link>https://rohitpotato.xyz</link>
     <atom:link href="https://rohitpotato.xyz/rss.xml" rel="self" type="application/rss+xml" />
     <language>en-US</language>
-    <lastBuildDate>Tue, 10 Nov 2026 22:47:04 GMT</lastBuildDate>
+    <lastBuildDate>Sun, 15 Nov 2026 21:36:02 GMT</lastBuildDate>
     
     <item>
       <title><![CDATA[Running AI agents in Kubernetes, from my phone]]></title>
@@ -26,8 +26,8 @@
     </item>
     
     <item>
-      <title><![CDATA[Monitor your nginx web app with confidence: Nginx-Prometheus-Log-Exporter]]></title>
-      <description><![CDATA[Monitor your nginx web apps with ease - using a log exporter pipeline to expose metrics via prometheus]]></description>
+      <title><![CDATA[Monitoring nginx with prometheus-nginxlog-exporter: per-route traffic, latency and errors]]></title>
+      <description><![CDATA[How I turned nginx access logs into Prometheus metrics with prometheus-nginxlog-exporter, to get per-route traffic, latency and error rates in Grafana.]]></description>
       <link>https://rohitpotato.xyz/thoughts/nginx-logs-to-prometheus-metrics</link>
       <guid>https://rohitpotato.xyz/thoughts/nginx-logs-to-prometheus-metrics</guid>
       <pubDate>Fri, 08 May 2026 00:00:00 GMT</pubDate>
