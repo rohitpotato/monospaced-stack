@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { FeaturedIn } from '@/components/site/featured-in'
 import { SocialLinks } from '@/components/site/social-links'
+import { SubscribeForm } from '@/components/site/subscribe-form'
 
 export function AuthorBox() {
   return (
@@ -12,6 +13,7 @@ export function AuthorBox() {
       </p>
       <FeaturedIn className="mt-3" />
       <SocialLinks className="mt-4" />
+      <SubscribeForm className="mt-6" />
     </aside>
   )
 }

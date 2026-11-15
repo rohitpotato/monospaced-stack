@@ -3,6 +3,7 @@ import { HomeFeed } from '@/components/home/home-feed'
 import { FeaturedIn } from '@/components/site/featured-in'
 import { SiteNav } from '@/components/site/site-nav'
 import { SocialLinks } from '@/components/site/social-links'
+import { SubscribeForm } from '@/components/site/subscribe-form'
 
 interface HomePageProps {
   posts: PostSummary[]
@@ -26,6 +27,7 @@ export default function HomePage({ posts }: HomePageProps) {
               </h1>
               <FeaturedIn className="mt-4" />
               <SocialLinks className="mt-6" />
+              <SubscribeForm className="mt-6" />
             </>
           )}
         />
