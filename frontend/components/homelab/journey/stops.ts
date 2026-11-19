@@ -1,112 +1,72 @@
-// The journey: where the camera stands for each chapter, and what it says.
+// The journey: where the view sits in the picture for each chapter, and what it says.
 
-export type StopId = 'window' | 'laptop' | 'cloud' | 'router' | 'nodes' | 'pod' | 'monitor' | 'potato' | 'room'
+export type StopId = 'room' | 'cloud' | 'desk' | 'shelf' | 'dog'
 
-/** Things in the room you can click, and what clicking opens. */
-export type Target = 'nodes' | 'deploys' | 'path' | 'potato'
+/** Things in the picture you can click, and what clicking opens. */
+export type Target = 'nodes' | 'deploys' | 'path'
 
-export type Vec3 = [number, number, number]
+/** The picture, in its own pixels. */
+export const PICTURE = { src: '/homelab/bedroom.webp', placeholder: '/homelab/bedroom-640.webp', w: 1254, h: 1254 }
 
 export interface Stop {
   id: StopId
   kicker: string
   title: string
   text: string[]
-  camera: { pos: Vec3, look: Vec3, fov: number }
+  /** Center of the view in picture pixels, and zoom (1 = the whole picture). Zoom stays at or under 1.7 so it stays sharp. */
+  view: [x: number, y: number, zoom: number]
 }
 
-// The rack's spot on the floor, used by the scene and the labels.
-export const RX = 3.9
-export const RZ = -3.9
-
+// The path runs top left → middle → right, then down to the bed.
 export const STOPS: Stop[] = [
   {
-    id: 'window',
-    kicker: '01 · you are here',
-    title: 'Follow this page home',
-    text: [
-      'You came in through that window on the home page. Behind it is a small room with three servers in it, and they made the page you’re reading.',
-      'Scroll, and we’ll follow it from my rack to your screen.',
-    ],
-    camera: { pos: [1.9, 3.35, -1.2], look: [1.85, 3.5, -9], fov: 42 },
-  },
-  {
-    id: 'laptop',
-    kicker: '02 · you asked for a page',
-    title: 'It starts with your click',
-    text: ['Your browser asks for rohitpotato.xyz. Before anything reaches my servers, it has to find them.'],
-    camera: { pos: [-1.4, 3.3, 0.6], look: [-3.0, 2.0, -4.2], fov: 34 },
+    id: 'room',
+    kicker: '01 · the room',
+    title: 'A bedroom with a server shelf',
+    text: ['A desk, a window, a dog asleep on the bed, and on the right a shelf of network gear and servers. Everything on this site is served from here.'],
+    view: [627, 627, 1],
   },
   {
     id: 'cloud',
-    kicker: '03 · cloudflare',
-    title: 'First stop: Cloudflare',
-    text: [
-      'The name points at Cloudflare, which sits in front of everything. It hides where the servers really are and soaks up anything nasty.',
-      'From there the request heads for the room.',
-    ],
-    camera: { pos: [-0.2, 3.1, 1.6], look: [1.9, 3.6, -6.5], fov: 34 },
+    kicker: '02 · cloudflare',
+    title: 'Your request comes in from out there',
+    text: ['When your browser asked for this page, Cloudflare answered first. It hides where the servers really are and soaks up anything nasty.'],
+    view: [330, 290, 1.6],
   },
   {
-    id: 'router',
-    kicker: '04 · the front door',
-    title: 'In through Traefik',
-    text: ['The request lands on a worker, where Traefik decides which app it’s for. Two copies run, one per worker, so either can take it.'],
-    camera: { pos: [6.4, 3.4, -0.2], look: [3.7, 2.2, -4.3], fov: 34 },
-  },
-  {
-    id: 'nodes',
-    kicker: '05 · the servers',
-    title: 'Three small servers',
-    text: [
-      'One runs Kubernetes itself, two run the apps. The lights are live: green means that server is ready right now.',
-      'Click a server to see its CPU, memory and uptime.',
-    ],
-    camera: { pos: [6.3, 2.85, 1.3], look: [3.85, 1.45, -3.7], fov: 34 },
-  },
-  {
-    id: 'pod',
-    kicker: '06 · the pod',
-    title: 'nginx hands it over',
-    text: ['Inside one worker, a pod running nginx has the page ready, already built. It heads back to you the same way it came, in a few milliseconds.'],
-    camera: { pos: [6.9, 2.7, 0.9], look: [3.9, 1.1, -3.5], fov: 34 },
-  },
-  {
-    id: 'monitor',
-    kicker: '07 · what changed lately',
+    id: 'desk',
+    kicker: '03 · the desk',
     title: 'Every change goes through Git',
+    text: ['Nothing on the servers is changed by hand. A change is a commit to the cluster’s repo, and Argo CD notices it and applies it on its own.'],
+    view: [680, 500, 1.7],
+  },
+  {
+    id: 'shelf',
+    kicker: '04 · the shelf',
+    title: 'Router, switch, servers',
     text: [
-      'That screen shows the latest change to the cluster’s repo. Argo CD watches the repo and applies changes on its own.',
-      'Click the screen for the full list.',
+      'The request comes through the router and the switch to Traefik on one of the workers, and nginx hands the page back.',
+      'One server runs Kubernetes itself, two run the apps.',
     ],
-    camera: { pos: [-0.3, 3.0, -0.6], look: [-1.2, 2.45, -4.6], fov: 36 },
+    view: [1010, 540, 1.6],
   },
   {
-    id: 'potato',
-    kicker: '08 · the potato',
-    title: 'And the potato',
-    text: ['It does nothing. It has been asleep since the cluster went up. Click it anyway.'],
-    camera: { pos: [-1.9, 4.5, 1.0], look: [-4.6, 3.85, -1.6], fov: 34 },
-  },
-  {
-    id: 'room',
-    kicker: 'the whole room',
-    title: 'That’s all of it',
-    text: ['Three servers, a router, a screen and a potato, in one room in Bengaluru. Click anything to look closer.'],
-    camera: { pos: [17, 13.5, 17], look: [0.9, 1.6, -0.6], fov: 27 },
+    id: 'dog',
+    kicker: '05 · goodnight',
+    title: 'The dog runs nothing',
+    text: ['It sleeps on the bed all day and supervises nothing.'],
+    view: [300, 900, 1.6],
   },
 ]
 
-export const STOP_INDEX = Object.fromEntries(STOPS.map((s, i) => [s.id, i])) as Record<StopId, number>
-
-/** Labels pinned to things in the room. Only the current stop's shows; the last view shows the clickable ones. */
-export const LABELS: { id: StopId, text: string, p: Vec3, target?: Target, inRoom?: boolean }[] = [
-  { id: 'window', text: 'Bengaluru', p: [1.0, 4.35, -5.0] },
-  { id: 'laptop', text: 'your browser', p: [-3.6, 2.45, -3.7] },
-  { id: 'cloud', text: 'Cloudflare', p: [2.2, 4.55, -7.2], target: 'path', inRoom: true },
-  { id: 'router', text: 'Traefik', p: [RX, 3.35, RZ], target: 'path' },
-  { id: 'nodes', text: '3 servers', p: [RX - 0.95, 2.1, RZ + 0.7], target: 'nodes', inRoom: true },
-  { id: 'pod', text: 'nginx pod', p: [RX + 0.3, 1.45, RZ + 0.75], target: 'path' },
-  { id: 'monitor', text: 'latest change', p: [-1.2, 3.4, -4.5], target: 'deploys', inRoom: true },
-  { id: 'potato', text: 'the potato', p: [-4.6, 4.3, -1.6], target: 'potato', inRoom: true },
+/** Labels pinned to things in the picture. All show in the first view; after that, only the current stop's. */
+export const LABELS: { stop: StopId, text: string, at: [number, number], target?: Target }[] = [
+  { stop: 'cloud', text: 'Cloudflare', at: [330, 225], target: 'path' },
+  { stop: 'desk', text: 'latest change', at: [675, 430], target: 'deploys' },
+  { stop: 'shelf', text: 'router', at: [985, 365], target: 'path' },
+  { stop: 'shelf', text: 'the servers', at: [1000, 565], target: 'nodes' },
+  { stop: 'dog', text: 'the dog', at: [245, 865] },
 ]
+
+/** The live status light, on the server's front panel. */
+export const STATUS_LIGHT: [number, number] = [1082, 578]

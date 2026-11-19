@@ -5,13 +5,12 @@ import type { ClusterNode, ClusterStatus } from '@/hooks/use-cluster-status'
 import type { PostSummary } from '@/lib/post-summary'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { Link } from 'next-view-transitions'
-import { useRef, useState } from 'react'
-import { toast } from 'sonner'
+import { useState } from 'react'
 import { useMediaQuery } from 'usehooks-ts'
 import { Drawer } from 'vaul'
 import { useClusterStatus } from '@/hooks/use-cluster-status'
 import { useLabNotebook } from '@/hooks/use-lab-notebook'
-import { POTATO_QUIPS, REPO_URL, STACK } from './homelab-content'
+import { REPO_URL, STACK } from './homelab-content'
 import { Journey } from './journey/journey'
 import { Sparkline } from './sparkline'
 
@@ -178,24 +177,13 @@ export function HomelabRoom({ builtHere }: { builtHere: PostSummary[] }) {
   const { status, healthy, ready, total } = useClusterStatus()
 
   const title = active ? TITLE[active] : ''
-
-  // Random quip, never the same one twice in a row; live ones skip themselves when data is missing.
-  const lastQuip = useRef(-1)
-  function wakePotato() {
-    const ctx = { nodes: status?.nodes ?? [], argo: status?.argo ?? null }
-    const options = POTATO_QUIPS.map((quip, i) => [i, quip(ctx)] as const).filter(([i, text]) => text && i !== lastQuip.current)
-    const [index, text] = options[Math.floor(Math.random() * options.length)]
-    lastQuip.current = index
-    toast('The potato wakes up', { description: text })
-  }
-
-  const select = (target: Target) => (target === 'potato' ? wakePotato() : setActive(target))
+  const select = (target: Target) => setActive(target)
   return (
     <>
       <div className="min-w-0 min-[1100px]:max-w-[38rem] min-[1400px]:max-w-[44rem]">
         <h1 className="font-serif text-4xl font-medium text-ink sm:text-5xl">My homelab</h1>
         <p className="mt-4 font-serif text-lg leading-relaxed text-inkBody">
-          Three small rented servers run everything on this site. Scroll to follow this page from my rack to your screen. Anything in the room you can click opens its live details.
+          Three small rented servers run everything on this site. If they lived in a room, it would look like this. Scroll to look around, and click a label in the picture for its live details.
         </p>
         <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1">
           <span className="inline-flex items-center gap-2 rounded-full bg-surface px-3 py-1.5 font-mono text-xs">
