@@ -1,5 +1,6 @@
 import type { Post } from '@/lib/posts'
 import { ArticleHero } from '@/components/article/article-hero'
+import { AuthorBox } from '@/components/article/author-box'
 import { EnhancedBlogPost } from '@/components/enhanced-blog-post'
 import { ArticleChapterNav } from '@/components/layout/article-chapter-nav'
 import { ReaderHeader } from '@/components/layout/reader-header'
@@ -16,10 +17,11 @@ export function ThoughtsArticleLayout({ post, allPosts }: ThoughtsArticleLayoutP
 
   return (
     <div className="min-h-[100dvh] bg-page text-inkBody">
-      <ReaderHeader posts={allPosts} />
+      <ReaderHeader />
       <ArticleHero post={post} topics={topicsForPost(post, allPosts)} />
       <main className="site-shell py-6 sm:py-8">
         <EnhancedBlogPost post={post} />
+        <AuthorBox />
         <ArticleChapterNav prev={prev} next={next} />
       </main>
     </div>

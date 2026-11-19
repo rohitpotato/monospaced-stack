@@ -11,6 +11,7 @@ export interface PostSummary {
   publishedAt: string
   summary: string
   readingMinutes: number
+  featured: boolean
 }
 
 export const TOPIC_COLOR: Record<Topic, string> = {
@@ -37,5 +38,6 @@ export function toPostSummary(post: Post): PostSummary {
     publishedAt: post.publishedAt,
     summary: post.summary,
     readingMinutes: Number.parseInt(post.readingTime, 10) || 1,
+    featured: post.featured ?? false,
   }
 }

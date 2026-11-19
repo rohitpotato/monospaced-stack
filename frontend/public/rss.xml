@@ -2,15 +2,14 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>rohitpotato</title>
-    <description>Web infra, productivity and performance, plus the small k3s cluster this site runs on.</description>
     <link>https://rohitpotato.xyz</link>
     <atom:link href="https://rohitpotato.xyz/rss.xml" rel="self" type="application/rss+xml" />
     <language>en-US</language>
-    <lastBuildDate>Thu, 19 Nov 2026 00:02:49 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 19 Nov 2026 00:11:32 GMT</lastBuildDate>
     
     <item>
       <title><![CDATA[Running AI agents in Kubernetes, from my phone]]></title>
-      <description><![CDATA[I keep an AI agent in my homelab and hand it tasks from my phone, from publishing posts to fixing bugs and debugging my cluster. How it works and stays safe.]]></description>
+      <description><![CDATA[I keep an AI agent in my homelab and hand it tasks from my phone, from publishing posts to checking on my cluster. How it works, and how I stop it doing damage.]]></description>
       <link>https://rohitpotato.xyz/thoughts/running-ai-agents-in-kubernetes</link>
       <guid>https://rohitpotato.xyz/thoughts/running-ai-agents-in-kubernetes</guid>
       <pubDate>Tue, 03 Nov 2026 00:00:00 GMT</pubDate>
@@ -27,8 +26,8 @@
     </item>
     
     <item>
-      <title><![CDATA[Monitor your nginx web app with confidence: Nginx-Prometheus-Log-Exporter]]></title>
-      <description><![CDATA[Monitor your nginx web apps with ease - using a log exporter pipeline to expose metrics via prometheus]]></description>
+      <title><![CDATA[Monitoring nginx with prometheus-nginxlog-exporter: per-route traffic, latency and errors]]></title>
+      <description><![CDATA[How I turned nginx access logs into Prometheus metrics with prometheus-nginxlog-exporter, to get per-route traffic, latency and error rates in Grafana.]]></description>
       <link>https://rohitpotato.xyz/thoughts/nginx-logs-to-prometheus-metrics</link>
       <guid>https://rohitpotato.xyz/thoughts/nginx-logs-to-prometheus-metrics</guid>
       <pubDate>Fri, 08 May 2026 00:00:00 GMT</pubDate>

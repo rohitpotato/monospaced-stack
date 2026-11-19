@@ -1,9 +1,10 @@
 export const SITE = {
   name: 'rohitpotato',
   url: 'https://rohitpotato.xyz',
-  author: 'Rohit',
+  author: 'Rohit Kashyap',
+  employer: { name: 'Zepto', url: 'https://www.zeptonow.com' },
   handle: '@rohitpotato',
-  description: 'Rohit manages web infra, productivity and performance at Zepto, and writes about frontend, observability, and the small k3s cluster this site runs on.',
+  description: 'Rohit Kashyap manages web infra, productivity and performance at Zepto, and writes about frontend, observability, and the small k3s cluster this site runs on.',
   ogImage: 'https://rohitpotato.xyz/og-home.jpg',
   sameAs: [
     'https://github.com/rohitpotato',

@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=block" rel="stylesheet">
+<style>
+  :root {
+    --bg: #17161b; --surface: #1e1c24; --raised: #2b2636;
+    --line: #3a3346; --ink: #efecf3; --body: #d6d3dd; --muted: #a8a4b3; --subtle: #8a8794;
+    --peach: #f0a77a; --sage: #7fb8a4; --lilac: #c49bd6; --coral: #ef7b6a;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--bg); width: 1200px; height: 960px; position: relative; font-family: Inter, sans-serif; color: var(--ink); overflow: hidden; }
+  .box { position: absolute; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); padding: 18px 22px; }
+  .t { font-family: Newsreader, serif; font-size: 25px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.15; }
+  .s { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--muted); line-height: 1.6; margin-top: 6px; }
+  .tag { position: absolute; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .lbl { position: absolute; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--subtle); white-space: nowrap; }
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 9px; vertical-align: 2px; }
+  svg { position: absolute; inset: 0; }
+</style>
+</head>
+<body>
+
+<!-- the node and the microVM, drawn first so they sit underneath -->
+<div class="box" style="left:40px; top:236px; width:1120px; height:516px; background:transparent; border:1px dashed var(--line);"></div>
+<div class="tag" style="left:64px; top:256px; color:var(--subtle)">homelab · k3s node</div>
+
+<div class="box" style="left:72px; top:290px; width:560px; height:432px; background:rgb(240 167 122 / 0.05); border-color:rgb(240 167 122 / 0.55);"></div>
+<div class="tag" style="left:96px; top:310px; color:var(--peach)">kata microvm · its own guest kernel</div>
+
+<svg width="1200" height="960" viewBox="0 0 1200 960">
+  <defs>
+    <marker id="a-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#a8a4b3"/></marker>
+    <marker id="a-peach" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#f0a77a"/></marker>
+    <marker id="a-sage" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#7fb8a4"/></marker>
+    <marker id="a-lilac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#c49bd6"/></marker>
+  </defs>
+  <g fill="none" stroke-width="1.6">
+    <!-- phone <-> relay -->
+    <path d="M340 84 H468" stroke="#a8a4b3" marker-end="url(#a-muted)"/>
+    <path d="M468 118 H340" stroke="#a8a4b3" marker-end="url(#a-muted)"/>
+    <!-- pod -> relay, outbound only -->
+    <path d="M520 346 V196 H612 V152" stroke="#f0a77a" stroke-dasharray="6 5" marker-end="url(#a-peach)"/>
+    <!-- pod -> internet -->
+    <path d="M580 346 V214 H1000 V152" stroke="#f0a77a" stroke-dasharray="6 5" marker-end="url(#a-peach)"/>
+    <!-- pod -> kubernetes api -->
+    <path d="M604 400 H696" stroke="#7fb8a4" marker-end="url(#a-sage)"/>
+    <!-- pod -x-> rest of cluster -->
+    <path d="M632 528 H690" stroke="#ef7b6a" stroke-dasharray="3 4"/>
+    <path d="M652 518 l18 20 M670 518 l-18 20" stroke="#ef7b6a" stroke-width="2"/>
+    <!-- pod -> github -->
+    <path d="M352 722 V808" stroke="#c49bd6" marker-end="url(#a-lilac)"/>
+    <!-- github -> you -->
+    <path d="M620 862 H696" stroke="#c49bd6" marker-end="url(#a-lilac)"/>
+  </g>
+</svg>
+
+<!-- top row -->
+<div class="box" style="left:40px; top:44px; width:300px; height:112px;">
+  <div class="t">Phone</div>
+  <div class="s">Claude app or claude.ai/code<br>approve · steer · review PRs</div>
+</div>
+<div class="lbl" style="left:352px; top:60px">prompts, taps</div>
+<div class="lbl" style="left:352px; top:126px">diffs, asks</div>
+
+<div class="box" style="left:470px; top:44px; width:290px; height:112px;">
+  <div class="t">Anthropic</div>
+  <div class="s">Remote Control relay<br>and the model</div>
+</div>
+
+<div class="box" style="left:860px; top:44px; width:300px; height:112px;">
+  <div class="t">The internet</div>
+  <div class="s">open on purpose, so it<br>can research anything</div>
+</div>
+<div class="lbl" style="left:650px; top:170px; color:var(--peach)">outbound HTTPS only · no inbound ports</div>
+
+<!-- inside the microVM -->
+<div class="box" style="left:96px; top:346px; width:508px; height:122px; background:var(--raised); border-color:rgb(240 167 122 / 0.4);">
+  <div class="t">Claude Code</div>
+  <div class="s">pod claude-agent-0 · claude remote-control<br>non-root · read-only root filesystem</div>
+</div>
+<div class="box" style="left:96px; top:494px; width:242px; height:72px; padding:14px 18px;">
+  <div class="s" style="margin:0; color:var(--body)"><span class="dot" style="background:var(--peach)"></span>session A<br><span style="color:var(--subtle)">own git worktree</span></div>
+</div>
+<div class="box" style="left:362px; top:494px; width:242px; height:72px; padding:14px 18px;">
+  <div class="s" style="margin:0; color:var(--body)"><span class="dot" style="background:var(--peach)"></span>session B<br><span style="color:var(--subtle)">own git worktree</span></div>
+</div>
+<div class="box" style="left:96px; top:592px; width:508px; height:106px; padding:16px 18px;">
+  <div class="s" style="margin:0; color:var(--body)">managed settings, mounted read-only</div>
+  <div class="s" style="color:var(--subtle)">reads run freely · everything else asks my phone<br><span style="color:var(--coral)">denied:</span> merge · force-push · push to main · new tokens</div>
+</div>
+
+<!-- right side of the node -->
+<div class="box" style="left:698px; top:346px; width:438px; height:112px; border-color:rgb(127 184 164 / 0.55); background:rgb(127 184 164 / 0.06);">
+  <div class="t">Kubernetes API, Argo CD, Grafana</div>
+  <div class="s">all read-only · view + agent-cluster-read<br>no Secrets · no exec · no port-forward</div>
+</div>
+<div class="box" style="left:698px; top:480px; width:438px; height:112px; border:1px dashed rgb(239 123 106 / 0.6); background:transparent;">
+  <div class="t" style="color:var(--body)">The rest of the cluster</div>
+  <div class="s">Postgres · Redis · Vault · kubelets · node IPs<br><span style="color:var(--coral)">blocked by NetworkPolicy</span></div>
+</div>
+<div class="lbl" style="left:698px; top:618px; line-height:1.7; white-space:normal; width:430px;">Kata gives the kernel boundary.<br>The NetworkPolicy gives the network one.</div>
+
+<!-- bottom row -->
+<div class="box" style="left:96px; top:810px; width:524px; height:112px; border-color:rgb(196 155 214 / 0.55); background:rgb(196 155 214 / 0.06);">
+  <div class="t">GitHub</div>
+  <div class="s">pushes a branch, opens a pull request<br>main is protected on every repo</div>
+</div>
+<div class="lbl" style="left:366px; top:758px; color:var(--lilac)">opens PRs</div>
+<div class="box" style="left:698px; top:810px; width:438px; height:112px;">
+  <div class="t">I merge</div>
+  <div class="s">then Argo CD deploys from main<br>nothing ships without me</div>
+</div>
+
+<script>document.fonts.ready.then(() => { window.__ready = true })</script>
+</body>
+</html>

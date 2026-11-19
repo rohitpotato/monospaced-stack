@@ -3,19 +3,28 @@ import { MDXRemote } from 'next-mdx-remote/rsc'
 import Link from 'next/link'
 import { ReaderHeader } from '@/components/layout/reader-header'
 import { mdxComponents } from '@/components/markdown/mapping'
-import { getAbout, getAllPosts } from '@/lib/posts'
+import { getAbout } from '@/lib/posts'
+import { SITE } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'About',
-  description: 'Who writes rohitpotato.xyz, and why.',
+  description: 'Rohit Kashyap manages web infra, productivity and performance at Zepto. Who he is, what he has worked on, and how to reach him.',
+  openGraph: {
+    type: 'profile',
+    url: '/about',
+    siteName: SITE.name,
+    title: 'About Rohit Kashyap',
+    description: 'Rohit Kashyap manages web infra, productivity and performance at Zepto. Who he is, what he has worked on, and how to reach him.',
+    images: [SITE.ogImage],
+  },
   alternates: { canonical: '/about' },
 }
 
 export default async function About() {
-  const [content, allPosts] = await Promise.all([getAbout(), getAllPosts()])
+  const content = await getAbout()
   return (
     <div className="min-h-screen bg-page text-inkBody">
-      <ReaderHeader posts={allPosts} />
+      <ReaderHeader />
       <div className="site-shell py-12">
         <p className="editorial-section-label">About</p>
         <h1 className="editorial-display mt-4">Who writes here</h1>

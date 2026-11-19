@@ -1,6 +1,7 @@
 ---
 title: "What is a service mesh, and do you actually need one?"
 publishedAt: "2025-09-01"
+updatedAt: "2026-11-04"
 summary: "What a service mesh does for east-west traffic, sidecar vs ambient meshes (Istio, Linkerd, Cilium), mutual TLS, and when you actually need one."
 category: "Infrastructure"
 icon: "route"
@@ -9,156 +10,65 @@ backgroundIllustration: "/images/thoughts/illustrations/the-journey-of-a-packet-
 tags: ["Kubernetes", "service mesh", "networking", "Istio", "Linkerd"]
 ---
 
+> **TL;DR:** A service mesh is a layer of small proxies that sits between your services and handles how they talk to each other: it shows you the traffic, encrypts it, and lets you steer it, all without changing your application code. It's great when you have many services and need those things everywhere. For a small setup it's often more cost and complexity than it's worth. I ran one on my cluster, learned a lot, and then turned it off.
+
 ![Title Image: To mesh or not to mesh](/images/thoughts/to-mesh-or-not-to-mesh/to-mesh-or-not-to-mesh.png)
 
-Recently, i have been exploring the idea of a service mesh. But rohit, you just run a blog with maybe 2 users a month, why do YOU need a service mesh at all? Short answer?
+A while ago I got curious about service meshes. A fair question is why someone running a small blog needs one. The short answer: **FAFO.**
 
-**FAFO.**
+The longer answer goes back to 2020. I was on call at a large e-commerce company and was told to "check the Istio logs". I nodded, had no idea what Istio was, and after a while it felt too late to ask. Years later I finally had enough of the fundamentals to dig in properly. This post is the explanation I wish I'd had back then.
 
+## What is a service mesh?
 
-Long answer, the itch in my brain won't let me be in peace unless I understand how all of the pieces fit together. Back in 2020, when I was working at an e-commerce giant, I was told to look at *Istio* logs during my on-call. I never really understood what it was back then, neither did I have the courage to ask after a certain time had passed. Few years later, I was in the same boat. But this time around, I had a better understanding of the fundamentals than before, so it was easier for me to really dig in.
+Picture a big office building where every team keeps passing notes to other teams. A service mesh is like putting a small mail room next to every team. Teams still write the notes, but the mail rooms handle delivery: they log every note that goes in and out, seal each one so nobody can read it on the way, retry if the other team didn't pick up, and stop sending to a team that's clearly overwhelmed.
 
-The basic gist of a service mesh is, it makes your east-west traffic observable, secure and configurable. This allows you to have circuit breakers, retries, metrics, tracing, load balancing and more **without touching your application code**. Which means, your developers do not need to worry about the above things, as long as you have a devops-first culture in your organisation.
+In Kubernetes terms, the "teams" are your services and the "mail rooms" are proxies. Each proxy sits next to a service and handles its network traffic. A central **control plane** tells all the proxies what to do.
 
-I used a lot of big words up there, let's go through them one by one.
+The key idea is that your services don't change. You get these features by changing the network around them, not the code inside them.
 
-## East-West Traffic
+## The problem it solves
 
 ![Service mesh architecture](/images/thoughts/to-mesh-or-not-to-mesh/service-mesh.png)
 
-It basically means the traffic between the services in your cluster. For example, consider an e-commerce application. Your product description page needs a lot of information. It needs to talk with your reviews service, a product-detail service, a rating service, a coupon service and so on, you get the idea. 
+Most of the traffic in a microservices app never leaves the cluster. Take an e-commerce product page: to render it, the page service calls a product service, a reviews service, a ratings service, a coupons service, and so on. This internal service-to-service traffic is called **east-west traffic** (as opposed to north-south, which comes in from users).
 
-Now, how do you make sure the traffic between each of these services is observable, encrypted and can be configured to accept or reject inbound connections? Well, there are a lot of answers to this question, one of them is a service mesh. There are a lot of different service mesh options available, one of them and arguably the most popular one is [Istio](https://istio.io/latest/docs/overview/what-is-istio/). Another option is [Linkerd](https://linkerd.io/2.18/overview/) (I chose this). 
+Once you have dozens of services calling each other, some questions get hard to answer:
 
-## Service Mesh Architecture Patterns
+- **Who is calling whom**, how often, and how many of those calls fail?
+- **Is that traffic encrypted**, and can a service prove it's really who it says it is?
+- **Can I control it?** Retry failed calls, send 10% of traffic to a new version, or stop calling a service that's falling over.
 
-Before diving deeper, let's understand the two main architectural approaches to service meshes:
+You can build all of this into every service yourself, in every language you use. A service mesh gives it to you once, for everything.
 
-### Sidecar-Based Architecture
+## What you get
 
-Both Istio (traditional mode) and Linkerd work on the same principle: they deploy a sidecar container with your pods, which intercepts the inbound and outbound traffic using transparent proxying, applies the configuration you specify, and redirects to the application container. But here's the catch, these sidecar containers do add overhead, especially in the case of Istio. Istio uses something called an `envoy-proxy` as a sidecar container within each pod, which is a more resource-intensive proxy that intercepts all the traffic. 
+### See the traffic (observability)
 
-In case of Linkerd, it uses a Rust-based proxy, which is very lightweight in nature. So naturally, since I am running my own bare-metal cluster, I chose this.
+This is arguably the biggest win. Because every request passes through a proxy, the mesh can tell you, for every service: requests per second, success and error rates, and how long calls take. Many meshes also produce a live map of which services talk to which. Paired with a tracing tool like Jaeger, you can follow one slow request across five services and see exactly where the time went.
 
-### Per-Node Proxy Architecture (Ambient Mode)
+### Lock it down (mutual TLS)
 
-However, the landscape is changing. Istio introduced **Ambient Mode** in 2022 (now generally available as of 2024), which represents a significant shift from the traditional sidecar pattern to a per-node proxy architecture.
+Normal HTTPS proves the *server's* identity to the client. **Mutual TLS (mTLS)** goes further: both sides prove who they are, and everything between them is encrypted. A mesh sets this up for you, including issuing and rotating a certificate for every workload. In Linkerd, for example, a root certificate signs an intermediate one, which signs a short-lived certificate for each pod.
 
-#### How Ambient Mode Works
+Worth knowing: if encryption is your *only* reason for a mesh, check what you already have. Your cloud provider or load balancer may already encrypt traffic where it matters, and you may not need pod-to-pod encryption at all.
 
-Instead of deploying a sidecar with every pod, Ambient Mode uses:
+### Steer it (traffic management)
 
-1. **ztunnel (Zero Trust Tunnel)**: A per-node DaemonSet that handles L4 features like mTLS, telemetry, and basic traffic management
-2. **waypoint proxies**: Optional L7 proxies deployed only when advanced HTTP-based features are needed
+Because the proxies understand HTTP, you can make decisions based on it:
 
-This approach provides two layers:
-- **Secure Overlay (L4)**: All pods automatically get mTLS, basic telemetry, and L4 policies without any configuration
-- **L7 Processing**: Deploy waypoint proxies only for workloads that need advanced HTTP routing, traffic splitting, etc.
+- **Canary releases:** send 10% of traffic to a new version and 90% to the old one, then shift gradually.
+- **Retries and timeouts:** retry a failed call automatically, and give up after a set time instead of hanging.
+- **Circuit breakers:** if a service starts failing a lot, stop calling it for a while so it can recover, instead of piling on and causing a chain reaction.
+- **Smarter load balancing:** spread calls across pods based on how they're actually responding.
 
-#### Benefits of Per-Node Proxy Architecture
+Kubernetes' built-in network policies can already allow or block traffic by IP and port, but they can't look at HTTP paths or headers. That's where a mesh, or a smarter networking layer like Cilium, comes in.
 
-**Resource Efficiency**: Instead of running 100 Envoy sidecars for 100 pods, you run one ztunnel per node plus selective waypoint proxies. This dramatically reduces resource overhead, especially for clusters with many small services.
+<details>
+<summary>Show a canary config</summary>
 
-**Simplified Operations**: No need to restart application pods when updating the mesh infrastructure. The ztunnel and waypoint proxies can be updated independently.
-
-**Gradual Adoption**: Applications get basic mesh benefits (mTLS, telemetry) immediately, with the option to add L7 features incrementally.
-
-**Better Resource Utilization**: Shared infrastructure means better CPU and memory efficiency, especially important for resource-constrained environments.
-
-#### Trade-offs of Per-Node Architecture
-
-**Network Hop**: Traffic now goes through an additional network hop (pod → ztunnel → destination), which can add latency compared to sidecar's in-process interception.
-
-**Blast Radius**: If a ztunnel fails, it affects all pods on that node, whereas sidecar failures are isolated to individual pods.
-
-**Debugging Complexity**: Traffic flow is less obvious since the proxy isn't co-located with your application pod.
-
-## Alternative Service Mesh Solutions
-
-While Istio and Linkerd dominate the conversation, there are other compelling options worth considering:
-
-### Cilium Service Mesh
-
-Cilium takes a unique approach by leveraging **eBPF (Extended Berkeley Packet Filter)** to implement service mesh functionality directly in the Linux kernel.
-
-**How it works**: Instead of userspace proxies, Cilium uses eBPF programs loaded into the kernel to handle traffic interception, load balancing, and security policies. This approach provides:
-
-- **Kernel-level efficiency**: No userspace context switches for basic operations
-- **Integrated networking**: Same solution handles CNI, network policies, and service mesh
-- **L7 visibility**: eBPF can parse HTTP, gRPC, and other protocols without proxies
-- **Lower resource overhead**: No sidecar containers or additional proxy processes
-
-**Trade-offs**: 
-- Requires newer kernel versions (4.19+)
-- Less mature ecosystem compared to Envoy-based solutions
-- Complex debugging when eBPF programs misbehave
-- Limited to what can be implemented efficiently in kernel space
-
-### Traefik Mesh
-
-Traefik Mesh (now largely succeeded by Traefik Proxy's Kubernetes integration) was built around the popular Traefik reverse proxy.
-
-**Approach**: Uses Traefik instances as both ingress controllers and service mesh proxies, providing a unified solution for north-south and east-west traffic.
-
-**Benefits**:
-- Familiar for teams already using Traefik
-- Single solution for ingress and mesh
-- Good integration with service discovery
-- Simpler configuration for basic use cases
-
-**Limitations**:
-- Less feature-rich compared to Istio/Linkerd
-- Smaller ecosystem and community
-- Limited advanced traffic management features
-
-## Choosing Your Service Mesh Architecture
-
-The choice between sidecar-based, per-node proxy, and kernel-based approaches depends on your specific requirements:
-
-### Use Sidecar-Based (Traditional Istio, Linkerd) When:
-- You need the most mature ecosystem and features
-- Fine-grained control and isolation are critical
-- You're comfortable with the resource overhead
-- Your applications require advanced L7 features consistently
-
-### Use Per-Node Proxy (Istio Ambient) When:
-- Resource efficiency is a primary concern
-- You have many small services that don't need L7 features
-- You want gradual mesh adoption
-- Operational simplicity is important
-
-### Use Kernel-Based (Cilium) When:
-- Performance is critical and you can't afford proxy overhead
-- You want unified networking and security
-- You're comfortable with eBPF complexity
-- You have modern kernel versions across your infrastructure
-
-## Mutual TLS
-
-Another selling point of a service mesh is mutual TLS (mTLS). Rather than traditional TLS, where only the server has to prove its identity, both the client and the server have to prove their identity for the communication to happen. This provides encryption, authentication, and integrity verification out of the box with a service mesh. 
-
-In case of Linkerd, which I am using, there is a trust root certificate, which acts as the certificate authority, which in turn signs the intermediate certificate, and this intermediate certificate signs each workload certificate. 
-
-Interestingly, Istio's Ambient Mode provides mTLS by default for all communication without any configuration - as soon as you enable the secure overlay, all pod-to-pod traffic is automatically encrypted and authenticated.
-
-So, do you need it? It depends. You need to ask yourself, am I running sensitive enough services which require encryption on a bare-metal cluster? I mentioned bare-metal, the reason being, a lot of cloud providers already handle north-south encryption for you via load balancers. So, if your only motivation for using a service-mesh was mTLS, you should first check if your cloud provider already supports this out of the box, and whether you really need pod-to-pod encryption.
-
-## Configurable
-
-So, your backend needs to talk to your product detail service, which in-turn calls your coupons service, or your rating service, which calls your database and so on. But, what if you wanted to restrict inbound calls to your rating service, only from your product detail service?
-
-Kubernetes with a CNI like Calico supports network policies, which solve these exact problems for you. But here's the catch, they operate on Layer 3 and 4 of the OSI model. Which means, you can control ingress and egress traffic based on ports, protocols etc., but not based on HTTP headers, since HTTP headers exist at Layer 7 (Application layer).
-
-You might be thinking *"doesn't Cilium offer Layer 7 based network policies?"* And you are right, it does! Cilium can actually inspect HTTP headers and provide Layer 7 network policies, making it a viable alternative to service mesh for some use cases. But service meshes offer more advanced HTTP-based routing and traffic management beyond just network policies.
-
-For example, if you wanted to do canary deployments, and route traffic to your canary pods using percentage-based splits, you can use a service mesh like Istio or Linkerd to distribute traffic between different versions of your services.
-
-Since service meshes operate on Layer 7, you have access to these primitives, they give you greater flexibility and control over how your traffic flows between your services. 
-
-An example of simple canary deployments using weight-based traffic splitting:
+Sending 10% of traffic to a canary with Istio:
 
 ```yaml
-# Istio VirtualService example
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
@@ -178,58 +88,55 @@ spec:
       weight: 10
 ```
 
-### Circuit breakers, load-balancing and retries
+</details>
 
-Another cool thing about a service mesh is, you can configure retries and circuit breaking. Let's dig in.
+## How meshes work: three approaches
 
-Retries are straight-forward, your services can retry failed calls automatically, based on your configuration. Service mesh can also handle load-balancing and circuit breaking for you out of the box.
+All meshes do roughly the same job. The big difference is *where* the proxy lives.
 
-Service meshes provide client-side load balancing, where the sidecar proxy selects a pod from a list of IPs provided by the mesh's control plane (e.g., Linkerd's control plane or Istio's Pilot). This allows advanced load balancing strategies like round-robin or least connections, alongside circuit breakers.
+| Approach | Where the proxy lives | Examples | Good at | Watch out for |
+|---|---|---|---|---|
+| **Sidecar** | A small proxy container inside every pod | Linkerd, Istio (classic) | Mature, isolated per pod, full HTTP features | A proxy per pod adds up in memory and CPU |
+| **Per-node** | One shared proxy per node, plus optional HTTP proxies | Istio Ambient | Much lower overhead, no pod restarts to adopt | An extra hop, and one proxy failing affects the whole node |
+| **In the kernel** | eBPF programs inside the Linux kernel | Cilium | Fast, combines networking, policies and mesh | Harder to debug, needs a recent kernel |
 
-Circuit breakers work by monitoring the health of downstream services and "opening the circuit" when failure rates exceed configured thresholds. Once open, requests fail fast instead of waiting for timeouts, and the circuit gradually allows test requests through to check if the service has recovered.
+A bit more on each:
 
-Let's say service A is calling service B. If service B starts failing frequently, the circuit breaker in service A's proxy will open, protecting both services from cascading failures and giving service B time to recover.
+- **Sidecars** are the classic design. Istio's sidecar is Envoy, which is powerful but relatively heavy. Linkerd uses its own small proxy written in Rust, which is why I picked it for a small cluster.
+- **Istio Ambient mode** (generally available since 2024) drops the per-pod sidecar. A shared proxy on each node handles encryption and basic metrics for every pod. You add heavier HTTP-aware proxies only for the services that need them.
+- **Cilium** does much of the work inside the Linux kernel using eBPF, so for many features there's no separate proxy at all. It's also your cluster's networking layer, which makes it one tool instead of two.
 
-It's pretty cool that all of this just works out of the box, and is completely platform agnostic. 
+## The catch
 
-### Observability
+Everything you add to your platform has a cost:
 
-The biggest selling point of a service mesh arguably is observability. In services with a lot of inbound and outbound traffic, you need to be able to see how traffic is flowing inside your cluster(s). You need real time metrics like RPM, success and error rates. Service mesh can do all of that and more for you. 
+- **Resources.** A proxy next to every pod uses memory and CPU. On a big cluster that's real money; on a small one, it can be a big share of what you have. Ambient mode and Cilium shrink this a lot.
+- **Complexity.** It's another system to install, upgrade, debug and understand. When a request fails, "is it my app or the mesh?" becomes a new question.
+- **Expertise.** Someone on the team has to know it well, or it becomes the thing nobody wants to touch.
 
-Moreover, you can use something like Jaeger to export mesh logs to inspect them in real time. This gives you real time visibility inside your services, and can help you debug your services much more quickly if something goes wrong. This also gives you a clear picture of the traffic flow, and how to optimize your services based on the metrics available. 
+So the honest question is: *am I adding this because everyone does, or because my setup needs it?*
 
-### All of it sounds great, but are there any cons?
+## So, do you need one?
 
-There are trade-offs with everything you bring into your architecture. For instance, each sidecar proxy adds resource overhead, which means you will be scaling and end up paying infrastructure cost. If the infrastructure cost is justified by the feature set you get, and you are going to be using the full feature-set of a service mesh, go for it. 
+**You probably don't if:**
+- you have a handful of services that don't call each other much
+- network policies plus your API gateway already cover what you need
+- your cluster is small and every bit of memory counts
+- nobody on the team wants to own another system
 
-However, newer approaches like Istio's Ambient Mode and Cilium's eBPF-based implementation significantly reduce this overhead, making service meshes more accessible for resource-constrained environments.
+**You should consider one if:**
+- you run lots of microservices that call each other constantly
+- you need canaries, retries and circuit breakers across many services
+- you need the same metrics and tracing everywhere, without asking every team to add them
+- compliance requires encrypted, authenticated traffic between services
 
-If not, you need to ask yourself: Am I doing this because everyone does it, or does my infrastructure really need the added complexity?
+**And there's a middle ground:**
+- **Istio Ambient** if you want mesh features with much lower overhead
+- **Cilium** if you want networking, policies and many mesh features in one tool
+- **Just the pieces you need,** such as network policies for access control and a library or gateway for retries
 
-## So, do you need a service mesh?
+## What I ended up doing
 
-The honest answer is: it depends on your specific use case and architectural preferences.
+I ran Linkerd on my homelab cluster for a while, and it taught me exactly what I wanted to learn: how proxies intercept traffic, how mTLS certificates are issued and rotated, and what the traffic between my services actually looks like.
 
-**You probably don't need a service mesh if:**
-- You're running a simple application with minimal inter-service communication
-- Network policies and API gateways meet your current needs
-- Resource efficiency is critical and you can't justify the overhead
-- Your team lacks the operational expertise to manage the added complexity
-
-**You should consider a service mesh if:**
-- You're dealing with complex microservices architectures
-- You need advanced traffic management (canary deployments, circuit breakers, retries)
-- Comprehensive observability is critical for your operations
-- You require mTLS for security compliance
-- You want to standardize cross-cutting concerns across your platform
-
-**Consider the modern alternatives:**
-- **Istio Ambient Mode** if you want mesh benefits with lower resource overhead
-- **Cilium Service Mesh** if you prioritize performance and can handle eBPF complexity
-- **Hybrid approaches** where you use network policies for basic needs and selective service mesh features for advanced use cases
-
-For my personal cluster? It's probably overkill, but that's exactly why I'm doing it - to learn, experiment, and understand the full picture. Sometimes the best way to learn is to build something you don't strictly need, just to see how all the pieces fit together.
-
-The service mesh landscape is evolving rapidly. The traditional sidecar-heavy approach is being challenged by more efficient architectures, and the choice is no longer just "mesh or no mesh" - it's about finding the right balance of features, performance, and operational complexity for your specific context.
-
-After all, that's what this whole journey is about - understanding the tools and technologies that power modern infrastructure, even if you don't need them for your current scale.
+Then, in October 2026, I removed it. My cluster is three small servers, and memory was tight. For a blog and a few side projects, the mesh was costing more than it gave back. That's the answer to this post's question, at least for my setup: a service mesh is a great tool when you have the scale and the problems it solves. When you don't, it's a fantastic thing to learn, and a fine thing to turn off.

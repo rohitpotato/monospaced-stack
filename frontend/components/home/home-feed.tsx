@@ -3,6 +3,7 @@ import type { PostSummary } from '@/lib/post-summary'
 import { BengaluruWindow } from '@/components/bengaluru/bengaluru-window'
 import { SiteFooter } from '@/components/site/social-links'
 import { DeliveryReceipt } from './delivery-receipt'
+import { StartHere } from './start-here'
 import { WritingList } from './writing-list'
 
 /**
@@ -14,6 +15,9 @@ export function HomeFeed({ posts, intro }: { posts: PostSummary[], intro: ReactN
     <>
       <div className="min-w-0 min-[1100px]:max-w-[38rem] min-[1400px]:max-w-[44rem]">
         {intro}
+        <div className="mt-14">
+          <StartHere posts={posts} />
+        </div>
         <div className="mt-14">
           <WritingList posts={posts} />
         </div>

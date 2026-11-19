@@ -28,6 +28,16 @@ export function ArticleHero({ post, topics = [] }: ArticleHeroProps) {
         ·
         {' '}
         {post.readingTime}
+        {post.updatedAt && (
+          <>
+            {' · '}
+            <time dateTime={post.updatedAt}>
+              Updated
+              {' '}
+              {format(new Date(post.updatedAt), 'MMMM d, yyyy')}
+            </time>
+          </>
+        )}
       </p>
       {topics.length > 0 && (
         <p className="mt-3 flex flex-wrap gap-x-3 gap-y-1 font-mono text-xs">
