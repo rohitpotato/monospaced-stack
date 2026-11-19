@@ -44,11 +44,13 @@ export function BengaluruWindow({ fillHeight = false }: BengaluruWindowProps) {
     <figure className={fillHeight ? 'flex h-full flex-col items-end' : 'mx-auto w-full max-w-[24rem]'}>
       <Link
         href="/homelab"
-        aria-label="Bengaluru at sunset. Go to the homelab"
+        aria-label="Bengaluru at sunset. Step inside to the servers behind this page"
         onPointerMove={onPointerMove}
         onPointerLeave={onPointerLeave}
-        className="relative block w-full overflow-hidden rounded-2xl bg-[#f2603f]"
+        className="group relative block w-full overflow-hidden rounded-2xl bg-[#f2603f]"
         style={{
+          // The homelab page opens on this same window, so the poster grows into it.
+          viewTransitionName: 'homelab-window',
           aspectRatio: `${POSTER_W} / ${POSTER_H}`,
           // In the sidebar: as wide as the column allows, but never taller than the sidebar minus the caption.
           ...(fillHeight && { width: `min(100%, calc((100dvh - 104px - 2.5rem) * ${POSTER_W} / ${POSTER_H}))` }),
@@ -67,6 +69,12 @@ export function BengaluruWindow({ fillHeight = false }: BengaluruWindowProps) {
             className="size-full object-cover select-none"
           />
         </motion.picture>
+        {/* Says where the window leads: on hover with a mouse, always on touch screens. */}
+        <span className="pointer-events-none absolute inset-x-3 bottom-3 flex justify-center transition duration-300 [@media(hover:hover)]:translate-y-1 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-visible:translate-y-0 [@media(hover:hover)]:group-focus-visible:opacity-100">
+          <span className="rounded-full bg-[rgba(23,22,27,.82)] px-3 py-1.5 font-mono text-xs text-ink backdrop-blur-sm">
+            Step inside: the servers behind this page →
+          </span>
+        </span>
       </Link>
       <figcaption className="mt-4 flex shrink-0 items-center gap-2 font-mono text-xs text-inkSubtle">
         <span>
